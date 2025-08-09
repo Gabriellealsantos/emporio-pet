@@ -1,9 +1,8 @@
 package com.emporio.pet.entities;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 
 @Entity
 @Table(name = "tb_category")
@@ -16,8 +15,8 @@ public class Category {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "category")
-    private List<Product> products = new ArrayList<>();
+    @ManyToMany(mappedBy = "categories")
+    private Set<Product> products = new HashSet<>();
 
     public Category() {
     }
@@ -43,7 +42,7 @@ public class Category {
         this.name = name;
     }
 
-    public List<Product> getProducts() {
+    public Set<Product> getProducts() {
         return products;
     }
 

@@ -1,5 +1,6 @@
 package com.emporio.pet.entities;
 
+import com.emporio.pet.entities.enums.UserStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -20,6 +21,9 @@ public class User {
     private String email;
 
     private String password;
+    @Enumerated(EnumType.STRING)
+    private UserStatus userStatus;
+
     private String phone;
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
@@ -35,11 +39,12 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String name, String email, String password, String phone, LocalDate birthDate) {
+    public User(Long id, String name, String email, String password, UserStatus userStatus, String phone, LocalDate birthDate) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.userStatus = userStatus;
         this.phone = phone;
         this.birthDate = birthDate;
     }
@@ -74,6 +79,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public UserStatus getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
     }
 
     public String getPhone() {

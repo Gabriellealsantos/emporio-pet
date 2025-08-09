@@ -2,7 +2,9 @@ package com.emporio.pet.entities;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_product")
@@ -12,9 +14,9 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @ManyToMany
+    @JoinTable(name = "tb_product_category", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories = new HashSet<>();
 
     @Column(nullable = false)
     private String name;
@@ -31,9 +33,8 @@ public class Product {
     public Product() {
     }
 
-    public Product(Long id, Category category, String name, String description, BigDecimal price, int stockQuantity, String imageUrl) {
+    public Product(Long id, String name, String description, BigDecimal price, int stockQuantity, String imageUrl) {
         this.id = id;
-        this.category = category;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -49,12 +50,8 @@ public class Product {
         this.id = id;
     }
 
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
+    public Set<Category> getCategories() {
+        return categories;
     }
 
     public String getName() {
