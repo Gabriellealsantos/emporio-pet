@@ -4,15 +4,11 @@ INSERT INTO tb_role (authority) VALUES ('ROLE_CLIENT');
 INSERT INTO tb_role (authority) VALUES ('ROLE_EMPLOYEE');
 
 -- USERS
-INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Gabriel Leal', 'gabriel@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', 'NON_BLOCKED', '75900001111', TIMESTAMP '1992-01-05T00:00:00.12345Z');
-
-INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Maria Silva', 'maria@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', 'NON_BLOCKED', '11999998888', TIMESTAMP '1990-06-15T00:00:00.00000Z');
-
-INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('João Santos', 'joao@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', 'NON_BLOCKED', '21988887777', TIMESTAMP '1985-12-01T00:00:00.00000Z');
-
-INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Joana Santos', 'joana@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', 'NON_BLOCKED', '21988887777', TIMESTAMP '1985-12-01T00:00:00.00000Z');
-
-INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Jhoan Maia', 'jhoan@gmail.com', '$2a$10$eACCYoNOHEqXve8aIWT8Nu3PkMXWBaOxJ9aORUYzfMQCbVBIhZ8tG', 'NON_BLOCKED', '21988887777', TIMESTAMP '1985-12-01T00:00:00.00000Z');
+INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Gabriel Leal', 'gabrielleal.santos16@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '75900001111', TIMESTAMP '1992-01-05T00:00:00.12345Z');
+INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Maria Silva', 'maria@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '11999998888', TIMESTAMP '1990-06-15T00:00:00.00000Z');
+INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('João Santos', 'joao@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '21988887777', TIMESTAMP '1985-12-01T00:00:00.00000Z');
+INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Joana Santos', 'joana@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '21988887777', TIMESTAMP '1985-12-01T00:00:00.00000Z');
+INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Jhoan Maia', 'jhoan@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '21988887777', TIMESTAMP '1985-12-01T00:00:00.00000Z');
 
 -- CUSTOMER (Maria será cliente)
 INSERT INTO tb_customer (cpf, user_id) VALUES ('12345678901', 2);
@@ -32,6 +28,8 @@ INSERT INTO tb_pet (name, species, breed, birth_date, notes, customer_id) VALUES
 INSERT INTO tb_user_role (user_id, role_id) VALUES (1, 1); -- Gabriel ADMIN
 INSERT INTO tb_user_role (user_id, role_id) VALUES (2, 2); -- Maria CLIENT
 INSERT INTO tb_user_role (user_id, role_id) VALUES (3, 3); -- João EMPLOYEE
+INSERT INTO tb_user_role (user_id, role_id) VALUES (4, 1);
+INSERT INTO tb_user_role (user_id, role_id) VALUES (5, 1);
 
 -- CATEGORIAS DE BRINQUEDO
 INSERT INTO tb_category (name) VALUES ('Rações');

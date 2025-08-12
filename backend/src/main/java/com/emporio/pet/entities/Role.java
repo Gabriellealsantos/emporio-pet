@@ -1,12 +1,13 @@
 package com.emporio.pet.entities;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "tb_role")
-public class Role {
+public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,5 +50,10 @@ public class Role {
     @Override
     public int hashCode() {
         return Objects.hash(id, authority);
+    }
+
+    @Override
+    public String toString() {
+        return this.authority;
     }
 }
