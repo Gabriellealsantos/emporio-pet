@@ -24,8 +24,10 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<CustomerDTO> register(@Valid @RequestBody CustomerInsertDTO dto) {
         CustomerDTO newDto = customerService.register(dto);
+
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(newDto.getCustomerId()).toUri();
+                .buildAndExpand(newDto.getId()).toUri();
+
         return ResponseEntity.created(uri).body(newDto);
     }
 
@@ -34,5 +36,4 @@ public class CustomerController {
         CustomerDTO updatedDto = customerService.update(id, dto);
         return ResponseEntity.ok(updatedDto);
     }
-
 }

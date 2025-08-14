@@ -4,13 +4,15 @@ import com.emporio.pet.dto.CustomerDTO;
 import com.emporio.pet.dto.CustomerInsertDTO;
 import com.emporio.pet.dto.CustomerUpdateDTO;
 import com.emporio.pet.entities.Customer;
-import com.emporio.pet.entities.User;
-import com.emporio.pet.factory.UserFactory;
+import com.emporio.pet.entities.Role;
+import com.emporio.pet.entities.enums.UserStatus;
 import com.emporio.pet.repositories.CustomerRepository;
+import com.emporio.pet.repositories.RoleRepository;
 import com.emporio.pet.repositories.UserRepository;
 import com.emporio.pet.services.exceptions.DatabaseException;
 import com.emporio.pet.services.exceptions.ForbiddenException;
 import com.emporio.pet.services.exceptions.ResourceNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,14 +21,18 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
-    private final UserFactory userFactory;
     private final AuthService authService;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository; // Adicionado para atribuir o papel
 
-    public CustomerService(CustomerRepository customerRepository, UserRepository userRepository, UserFactory userFactory, AuthService authService) {
+    public CustomerService(CustomerRepository customerRepository, UserRepository userRepository,
+                           AuthService authService, PasswordEncoder passwordEncoder,
+                           RoleRepository roleRepository) {
         this.customerRepository = customerRepository;
         this.userRepository = userRepository;
-        this.userFactory = userFactory;
         this.authService = authService;
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     @Transactional
@@ -38,11 +44,19 @@ public class CustomerService {
             throw new DatabaseException("O CPF informado já está em uso.");
         }
 
-        User user = userFactory.create(dto, "ROLE_CLIENT");
-
         Customer customer = new Customer();
+
+        customer.setName(dto.getName());
+        customer.setEmail(dto.getEmail());
+        customer.setPhone(dto.getPhone());
+        customer.setBirthDate(dto.getBirthDate());
+        customer.setPassword(passwordEncoder.encode(dto.getPassword()));
+        customer.setUserStatus(UserStatus.NON_BLOCKED);
+
         customer.setCpf(dto.getCpf());
-        customer.setUser(user);
+
+        Role clientRole = roleRepository.findByAuthority("ROLE_CLIENT");
+        customer.getRoles().add(clientRole);
 
         Customer savedCustomer = customerRepository.save(customer);
         return new CustomerDTO(savedCustomer);
@@ -50,16 +64,19 @@ public class CustomerService {
 
     @Transactional
     public CustomerDTO update(Long id, CustomerUpdateDTO dto) {
-        if (!authService.isSelfOrAdminByCustomerId(id)) {
+
+        if (!authService.isSelfOrAdmin(id)) { // Simplificaremos este método
             throw new ForbiddenException("Acesso negado");
         }
+
 
         Customer customerEntity = customerRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
 
-        if (dto.getName() != null) customerEntity.getUser().setName(dto.getName());
-        if (dto.getPhone() != null) customerEntity.getUser().setPhone(dto.getPhone());
+
+        if (dto.getName() != null) customerEntity.setName(dto.getName());
+        if (dto.getPhone() != null) customerEntity.setPhone(dto.getPhone());
         if (dto.getCpf() != null) customerEntity.setCpf(dto.getCpf());
 
         customerEntity = customerRepository.save(customerEntity);

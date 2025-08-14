@@ -26,8 +26,10 @@ public class EmployeeController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmployeeDTO> create(@Valid @RequestBody EmployeeInsertDTO dto) {
         EmployeeDTO newDto = employeeService.create(dto);
+
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(newDto.getEmployeeId()).toUri();
+                .buildAndExpand(newDto.getId()).toUri();
+
         return ResponseEntity.created(uri).body(newDto);
     }
 
