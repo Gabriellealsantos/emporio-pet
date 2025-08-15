@@ -1,0 +1,87 @@
+
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+  font-family: Arial, sans-serif;
+}
+
+.login-card {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 24px;
+  color: #1c1e21;
+}
+
+p {
+  color: #606770;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dddfe2;
+  border-radius: 6px;
+  box-sizing: border-box; /* Ensures padding doesn't affect final width */
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background-color: #1877f2;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+  background-color: #166fe5;
+}
+
+.extra-links {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.extra-links a {
+  color: #1877f2;
+  text-decoration: none;
+}
+
+.extra-links a:hover {
+  text-decoration: underline;
+}
+
+.extra-links span {
+  margin: 0 10px;
+  color: #ccc;
+}
