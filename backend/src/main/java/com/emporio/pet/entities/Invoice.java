@@ -2,15 +2,14 @@ package com.emporio.pet.entities;
 
 import com.emporio.pet.entities.enums.OrderStatus;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_order")
-public class Order {
+@Table(name = "tb_invoice") // CORRIGIDO: Nome da tabela para maior clareza
+public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,28 +22,22 @@ public class Order {
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant timestamp;
 
-    private BigDecimal totalPrice;
-
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items = new ArrayList<>();
+    @OneToMany(mappedBy = "invoice")
+    private List<Appointment> appointments = new ArrayList<>();
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private Payment payment;
-
-    public Order() {
+    public Invoice() {
     }
 
-    public Order(Long id, Customer customer, Instant timestamp, BigDecimal totalPrice, OrderStatus status, Payment payment) {
+    public Invoice(Long id, Customer customer, Instant timestamp, OrderStatus status) {
         this.id = id;
         this.customer = customer;
         this.timestamp = timestamp;
-        this.totalPrice = totalPrice;
         this.status = status;
-        this.payment = payment;
     }
+
 
     public Long getId() {
         return id;
@@ -70,14 +63,6 @@ public class Order {
         this.timestamp = timestamp;
     }
 
-    public BigDecimal getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
     public OrderStatus getStatus() {
         return status;
     }
@@ -86,24 +71,16 @@ public class Order {
         this.status = status;
     }
 
-    public List<OrderItem> getItems() {
-        return items;
-    }
-
-    public Payment getPayment() {
-        return payment;
-    }
-
-    public void setPayment(Payment payment) {
-        this.payment = payment;
+    public List<Appointment> getAppointments() {
+        return appointments;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return Objects.equals(id, order.id);
+        Invoice invoice = (Invoice) o;
+        return Objects.equals(id, invoice.id);
     }
 
     @Override

@@ -1,12 +1,11 @@
 package com.emporio.pet.entities;
 
 import jakarta.persistence.*;
-
-import java.util.*;
+import java.util.Objects;
 
 @Entity
-@Table(name = "tb_category")
-public class Category {
+@Table(name = "tb_breed")
+public class Breed {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,15 +14,17 @@ public class Category {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "categories")
-    private Set<Product> products = new HashSet<>();
+    private String species;
 
-    public Category() {
+    public Breed() {
     }
 
-    public Category(Long id, String name) {
+    public Breed(Long id, String name, String species) {
         this.id = id;
         this.name = name;
+        this.species = species;
+
+
     }
 
     public Long getId() {
@@ -42,16 +43,22 @@ public class Category {
         this.name = name;
     }
 
-    public Set<Product> getProducts() {
-        return products;
+    public String getSpecies() {
+        return species;
     }
+
+    public void setSpecies(String species) {
+        this.species = species;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Category category = (Category) o;
-        return Objects.equals(id, category.id);
+        Breed breed = (Breed) o;
+        return Objects.equals(id, breed.id);
     }
 
     @Override

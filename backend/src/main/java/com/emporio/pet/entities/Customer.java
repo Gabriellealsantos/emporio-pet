@@ -14,15 +14,14 @@ public class Customer extends User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Address> addresses = new ArrayList<>();
-
     @OneToMany(mappedBy = "customer")
-    private List<Order> orders = new ArrayList<>();
+    private List<Invoice> invoices = new ArrayList<>();
 
     public Customer() {
         super();
     }
+
+    // Getters e Setters
 
     public String getCpf() {
         return cpf;
@@ -36,11 +35,7 @@ public class Customer extends User {
         return pets;
     }
 
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
+    public List<Invoice> getInvoices() {
+        return invoices;
     }
 }

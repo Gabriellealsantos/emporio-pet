@@ -2,8 +2,8 @@ package com.emporio.pet.entities;
 
 import com.emporio.pet.entities.enums.AppointmentStatus;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -37,11 +37,18 @@ public class Appointment {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
+    @ManyToOne
+    @JoinColumn(name = "invoice_id")
+    private Invoice invoice;
+
+
+    @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
+    private Review review;
+
     public Appointment() {
     }
 
-    public Appointment(Long id, LocalDateTime startDateTime, LocalDateTime endDateTime, AppointmentStatus status, BigDecimal chargedAmount, Pet pet,
-                       Service service, Employee employee) {
+    public Appointment(Long id, LocalDateTime startDateTime, LocalDateTime endDateTime, AppointmentStatus status, BigDecimal chargedAmount, Pet pet, Service service, Employee employee, Invoice invoice) {
         this.id = id;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
@@ -50,7 +57,10 @@ public class Appointment {
         this.pet = pet;
         this.service = service;
         this.employee = employee;
+        this.invoice = invoice;
     }
+
+    // Getters e Setters para todos os campos
 
     public Long getId() {
         return id;
@@ -114,6 +124,24 @@ public class Appointment {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
+    }
+
+
+
+    public Invoice getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
+    }
+
+    public Review getReview() {
+        return review;
+    }
+
+    public void setReview(Review review) {
+        this.review = review;
     }
 
     @Override

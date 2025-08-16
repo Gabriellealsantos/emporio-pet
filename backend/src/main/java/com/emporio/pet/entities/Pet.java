@@ -16,7 +16,6 @@ public class Pet {
 
     private String name;
     private String species;
-    private String breed;
     private LocalDate birthDate;
 
     @Column(columnDefinition = "TEXT")
@@ -26,20 +25,25 @@ public class Pet {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer owner;
 
-    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
+
+    @ManyToOne
+    @JoinColumn(name = "breed_id")
+    private Breed breed;
+
+    @OneToMany(mappedBy = "pet")
     private List<Appointment> appointments = new ArrayList<>();
 
     public Pet() {
     }
 
-    public Pet(Long id, String name, String species, String breed, LocalDate birthDate, String notes, Customer owner) {
+    public Pet(Long id, String name, String species, LocalDate birthDate, String notes, Customer owner, Breed breed) {
         this.id = id;
         this.name = name;
         this.species = species;
-        this.breed = breed;
         this.birthDate = birthDate;
         this.notes = notes;
         this.owner = owner;
+        this.breed = breed;
     }
 
     public Long getId() {
@@ -66,14 +70,6 @@ public class Pet {
         this.species = species;
     }
 
-    public String getBreed() {
-        return breed;
-    }
-
-    public void setBreed(String breed) {
-        this.breed = breed;
-    }
-
     public LocalDate getBirthDate() {
         return birthDate;
     }
@@ -96,6 +92,14 @@ public class Pet {
 
     public void setOwner(Customer owner) {
         this.owner = owner;
+    }
+
+    public Breed getBreed() {
+        return breed;
+    }
+
+    public void setBreed(Breed breed) {
+        this.breed = breed;
     }
 
     public List<Appointment> getAppointments() {
