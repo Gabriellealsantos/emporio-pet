@@ -1,0 +1,10 @@
+<button
+  class="btn-submit"
+  [attr.aria-label]="ariaLabel || null"
+  [type]="type"
+  [disabled]="disabled || loading"
+  [class.loading]="loading"
+>
+  <span class="spinner" *ngIf="loading" aria-hidden="true"></span>
+  <span class="content"><ng-content></ng-content></span>
+</button>

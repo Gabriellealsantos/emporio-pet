@@ -1,26 +1,27 @@
 <div class="login-container">
   <div class="login-card">
-    <h2>Login</h2>
-    <p>Please enter your credentials to proceed.</p>
-
+    <div class="title">
+      <img src="assets/icons/dog.svg" class="title-icon" alt="Ícone de cachorro">
+      <h2 class="title-text">Entrar</h2>
+    </div>
     <form class="login-form">
       <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="you@example.com" required>
+        <img src="assets/icons/mail.svg" alt="Ícone de email">
+        <input type="email" id="email" placeholder="Digite seu email" required />
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required>
+        <img src="assets/icons/lock.svg" alt="Ícone de cadeado">
+        <input type="password" id="password" placeholder="Digite sua senha" required />
+      </div>
+      <div class="extra-links">
+        <a href="#">Esqueceu a senha?</a>
+        <div class="signup-link">
+          <a href="/register">Cadastre-se</a>
+        </div>
       </div>
 
-      <button type="submit" class="btn-submit">Sign In</button>
+      <emp-button type="submit" [fullWidth]="true">Sign In</emp-button>
     </form>
-
-    <div class="extra-links">
-      <a href="#">Forgot Password?</a>
-      <span>|</span>
-      <a href="/register">Don't have an account? Sign Up</a>
-    </div>
   </div>
 </div>

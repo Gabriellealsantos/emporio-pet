@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 
 @Component({
   selector: 'app-login-component',
-  imports: [],
+  standalone: true,
+  imports: [ButtonComponent],
   templateUrl: './login-component.html',
-  styleUrl: './login-component.css'
+  styleUrls: ['./login-component.css'],
 })
-export class LoginComponent {
-
-}
+export class LoginComponent {}
