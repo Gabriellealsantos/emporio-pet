@@ -65,6 +65,7 @@
 }
 
 
+/* Estilo Generico */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -95,4 +96,23 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Poppins", sans-serif;
+}
+
+
+.success-snackbar .mdc-snackbar__surface {
+  background-color: var(--emp-color-feedback-success-background) !important;
+  color: var(--emp-color-text-inverse) !important;
+}
+
+.success-snackbar .mat-mdc-button.mat-mdc-snack-bar-action {
+  color: var(--emp-color-text-inverse) !important;
+}
+
+.error-snackbar .mdc-snackbar__surface {
+  background-color: var(--emp-color-feedback-danger-background) !important;
+  color: var(--emp-color-text-inverse) !important;
+}
+
+.error-snackbar .mat-mdc-button.mat-mdc-snack-bar-action {
+  color: var(--emp-color-text-inverse) !important;
 }

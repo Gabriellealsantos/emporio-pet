@@ -7,6 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { CustomerInsert } from '../../models/CustomerInsert';
 import { Router } from '@angular/router';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password')?.value;
@@ -43,13 +44,17 @@ interface RegistrationForm {
     CommonModule
   ],
   templateUrl: './registration-customer-component.html',
-  styleUrl: './registration-customer-component.css'
+  styleUrls: [
+    './registration-customer-component.css',
+    '../../../../shared/styles/auth-forms.css'
+  ],
 })
 export class RegistrationCustomerComponent {
 
   private fb = inject(FormBuilder);
   private registrationService = inject(RegistrationService);
   private router = inject(Router);
+  private notificationService = inject(NotificationService);
 
   protected form: FormGroup<RegistrationForm> = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
@@ -65,38 +70,43 @@ export class RegistrationCustomerComponent {
 
    onSubmit(): void {
     if (this.form.invalid) {
+      this.notificationService.showSuccess('Cadastro realizado com sucesso!');
       this.form.markAllAsTouched();
       return;
     }
 
     this.registrationService.register(this.form.getRawValue() as CustomerInsert).subscribe({
       next: () => {
-
+        this.notificationService.showSuccess('Cadastro realizado com sucesso!');
         this.router.navigate(['/login']);
       },
       error: (err: HttpErrorResponse) => {
         console.error('Erro no registro:', err);
 
-        // TIPO 1: Trata erros de validação de campo (ex: nome em branco, email inválido)
+        // Trata erros de validação de campo (status 422)
         if (err.status === 422) {
-          const backendErrors = err.error.errors; // O array de erros detalhado
+          const backendErrors = err.error.errors;
           backendErrors.forEach((error: any) => {
-            // O seu handler Java usa a propriedade "field"
-            const formControl = this.form.get(error.field as keyof RegistrationForm);
+            const formControl = this.form.get(error.fieldName as keyof RegistrationForm);
             if (formControl) {
               formControl.setErrors({ backendError: error.message });
             }
           });
         }
-        // TIPO 2: Trata erros de negócio (ex: email/CPF duplicado)
+        // Trata erros de negócio (status 400)
         else if (err.status === 400) {
           const errorMessage = err.error.message;
           let fieldToSetError: keyof RegistrationForm | null = null;
 
           if (errorMessage.toLowerCase().includes("email")) {
             fieldToSetError = 'email';
-          } else if (errorMessage.toLowerCase().includes("cpf")) {
+          }
+          else if (errorMessage.toLowerCase().includes("cpf")) {
             fieldToSetError = 'cpf';
+          }
+          // 👇 ADICIONE ESTA VERIFICAÇÃO PARA O TELEFONE 👇
+          else if (errorMessage.toLowerCase().includes("telefone")) {
+            fieldToSetError = 'phone';
           }
 
           if (fieldToSetError) {

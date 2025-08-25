@@ -7,6 +7,7 @@ import com.emporio.pet.services.exceptions.ForbiddenException;
 import com.emporio.pet.services.exceptions.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -45,6 +46,29 @@ public class ControllerExceptionHandler {
     public ResponseEntity<StandardError> illegalArgument(IllegalArgumentException e, HttpServletRequest request) {
         return buildErrorResponse(e, "Argumento inválido", HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<StandardError> dataIntegrityViolation(DataIntegrityViolationException e, HttpServletRequest request) {
+        String errorMessage = "Violação de integridade de dados.";
+
+        if (e.getMostSpecificCause().getMessage().contains("TB_USER(EMAIL")) {
+            errorMessage = "O email informado já está em uso.";
+        } else if (e.getMostSpecificCause().getMessage().contains("TB_USER(CPF")) {
+            errorMessage = "O CPF informado já está em uso.";
+        } else if (e.getMostSpecificCause().getMessage().contains("TB_USER(PHONE")) {
+            errorMessage = "O telefone informado já está em uso.";
+        }
+        
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(HttpStatus.BAD_REQUEST.value());
+        err.setError("Data integrity violation");
+        err.setMessage(errorMessage);
+        err.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    }
+
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

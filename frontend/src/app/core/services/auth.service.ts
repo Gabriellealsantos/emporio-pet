@@ -49,4 +49,12 @@ export class AuthService {
   isAuthenticated(): boolean {
     return this.getToken() !== null;
   }
+
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.BASE_URL}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.BASE_URL}/auth/new-password`, { token, newPassword });
+  }
 }

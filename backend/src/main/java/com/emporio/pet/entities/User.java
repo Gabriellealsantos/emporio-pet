@@ -31,6 +31,7 @@ public abstract class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
+    @Column(unique = true)
     private String phone;
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")

@@ -9,6 +9,7 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "user_id")
 public class Customer extends User {
 
+    @Column(unique = true)
     private String cpf;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -12,7 +12,10 @@ import { AuthService } from '../../../../core/services/auth.service';
     ReactiveFormsModule
   ],
   templateUrl: './login-component.html',
-  styleUrls: ['./login-component.css'],
+  styleUrls: [
+    './login-component.css',
+    '../../../../shared/styles/auth-forms.css'
+  ],
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);

@@ -22,8 +22,13 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Arrays;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -32,6 +37,9 @@ public class SecurityConfig {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+
+    @Value("${cors.origins}")
+    private String corsOrigins;
 
     @Bean
     @Order(1) // Define que esta regra é a primeira a ser verificada
@@ -46,13 +54,13 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // --- SEU BEAN DE SEGURANÇA PARA A API (AGORA COM @Order(2)) ---
     @Bean
-    @Order(2) // Define que esta é a segunda regra
+    @Order(2)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                // NOVO: Ativa a configuração de CORS que definimos no bean abaixo
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Libera os endpoints de autenticação E o endpoint de registro de cliente
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/customers").permitAll()
                         .requestMatchers(HttpMethod.POST, "/employees").permitAll()
@@ -62,6 +70,21 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}));
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Permite requisições de QUALQUER origem
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        // Permite os métodos mais comuns
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Permite QUALQUER cabeçalho
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
