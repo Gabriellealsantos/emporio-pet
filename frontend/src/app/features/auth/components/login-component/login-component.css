@@ -143,25 +143,37 @@
   color: rgba(0, 0, 0, 0.7);
 }
 
+.error-container {
+  min-height: 20px;
+  text-align: left;
+  padding-left: 40px;
+}
+
+.error-message {
+  color: var(--emp-color-feedback-danger-background);
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
 /* Breakpoints simples (desktop) */
 /* == TABLETS E TELAS MÉDIAS == */
 @media (min-width: 768px) {
   .login-card {
-    max-width: 440px; /* Aumenta a largura máxima do card */
-    padding: 40px;    /* Aumenta o respiro interno */
+    max-width: 440px;
+    padding: 40px;
   }
 
   .title-icon {
-    font-size: 96px; /* Aumenta um pouco o ícone principal */
+    font-size: 96px;
   }
 
   .title-text {
-    font-size: 42px; /* Aumenta o título (em vez de diminuir) */
+    font-size: 42px;
   }
 
   .form-group input,
   .extra-links {
-    font-size: 16px; /* Aumenta a fonte dos campos e links */
+    font-size: 16px;
   }
 }
 
@@ -169,15 +181,15 @@
 /* == DESKTOPS E TELAS GRANDES == */
 @media (min-width: 1024px) {
   .login-card {
-    max-width: 480px; /* Largura final e confortável para desktops */
-    padding: 48px;    /* Ainda mais respiro */
+    max-width: 480px;
+    padding: 48px;
   }
 
   .title-icon {
-    font-size: 110px; /* Ícone com bastante destaque */
+    font-size: 110px;
   }
 
   .title-text {
-    font-size: 48px; /* Título imponente */
+    font-size: 48px;
   }
 }

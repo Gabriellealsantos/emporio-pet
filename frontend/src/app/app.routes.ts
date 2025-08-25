@@ -5,7 +5,7 @@ import { RegistrationCustomerComponent } from './features/auth/components/regist
 export const routes: Routes = [
 
     { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegistrationCustomerComponent },
+    { path: 'cadastrar', component: RegistrationCustomerComponent },
 
 
     // { path: '', redirectTo: '/home', pathMatch: 'full' },

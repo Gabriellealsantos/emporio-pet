@@ -1,19 +1,37 @@
 <div class="login-container">
   <div class="login-card">
     <div class="title">
-      <img src="assets/icons/dog.svg" class="title-icon" alt="Ícone de cachorro">
+      <img src="assets/icons/dog.svg" class="title-icon" alt="Ícone de cachorro" />
       <h2 class="title-text">Entrar</h2>
     </div>
-    <form class="login-form">
+
+    <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <img src="assets/icons/mail.svg" alt="Ícone de email">
-        <input type="email" id="email" placeholder="Digite seu email" required />
+        <img src="assets/icons/mail.svg" alt="Ícone de email" />
+        <input
+          type="email"
+          id="email"
+          placeholder="Digite seu email"
+          required
+          formControlName="email"
+        />
       </div>
 
       <div class="form-group">
-        <img src="assets/icons/lock.svg" alt="Ícone de cadeado">
-        <input type="password" id="password" placeholder="Digite sua senha" required />
+        <img src="assets/icons/lock.svg" alt="Ícone de cadeado" />
+        <input
+          type="password"
+          id="password"
+          placeholder="Digite sua senha"
+          required
+          formControlName="password"
+        />
       </div>
+      @if (hasLoginError) {
+      <div class="error-container" style="min-height: 40px; text-align: center">
+        <small class="error-message">Email ou senha inválidos.</small>
+      </div>
+      }
       <div class="extra-links">
         <a href="#">Esqueceu a senha?</a>
         <div class="signup-link">

@@ -1,7 +1,6 @@
-import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
   getDOM
-} from "./chunk-NTTSM5NG.js";
+} from "./chunk-V4GKHGUA.js";
 import {
   ApplicationRef,
   ChangeDetectorRef,
@@ -30,8 +29,6 @@ import {
   inject,
   isPromise,
   isSubscribable,
-  require_cjs,
-  require_operators,
   setClassMetadata,
   signal,
   untracked,
@@ -47,16 +44,17 @@ import {
   ɵɵdirectiveInject,
   ɵɵgetInheritedFactory,
   ɵɵlistener
-} from "./chunk-ZKBKHDTI.js";
+} from "./chunk-WAHOY4T6.js";
 import {
+  Subject,
   __spreadProps,
   __spreadValues,
-  __toESM
-} from "./chunk-6DU2HRTW.js";
+  forkJoin,
+  from,
+  map
+} from "./chunk-SESUV4G6.js";
 
 // node_modules/@angular/forms/fesm2022/forms.mjs
-var import_rxjs = __toESM(require_cjs(), 1);
-var import_operators = __toESM(require_operators(), 1);
 var BaseControlValueAccessor = class _BaseControlValueAccessor {
   _renderer;
   _elementRef;
@@ -689,7 +687,7 @@ function isPresent(o) {
   return o != null;
 }
 function toObservable(value) {
-  const obs = isPromise(value) ? (0, import_rxjs.from)(value) : value;
+  const obs = isPromise(value) ? from(value) : value;
   if ((typeof ngDevMode === "undefined" || ngDevMode) && !isSubscribable(obs)) {
     let errorMessage = `Expected async validator to return Promise or Observable.`;
     if (typeof value === "object") {
@@ -734,7 +732,7 @@ function composeAsync(validators) {
   if (presentValidators.length == 0) return null;
   return function(control) {
     const observables = executeValidators(control, presentValidators).map(toObservable);
-    return (0, import_rxjs.forkJoin)(observables).pipe((0, import_operators.map)(mergeErrors));
+    return forkJoin(observables).pipe(map(mergeErrors));
   };
 }
 function composeAsyncValidators(validators) {
@@ -1700,7 +1698,7 @@ var AbstractControl = class {
    *
    * @internal
    */
-  _events = new import_rxjs.Subject();
+  _events = new Subject();
   /**
    * A multicasting observable that emits an event every time the state of the control changes.
    * It emits for value, status, pristine or touched changes.
@@ -6953,4 +6951,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-CK7XOZ4Q.js.map
+//# sourceMappingURL=chunk-36MD265A.js.map

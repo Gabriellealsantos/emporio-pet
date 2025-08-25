@@ -1,18 +1,17 @@
-import { createRequire } from 'module';const require = createRequire(import.meta.url);
+import {
+  withHttpTransferCache
+} from "./chunk-YCKEFS2C.js";
 import {
   CommonModule,
   DomAdapter,
   PLATFORM_BROWSER_ID,
   getDOM,
   setRootDomAdapter
-} from "./chunk-NTTSM5NG.js";
-import {
-  withHttpTransferCache
-} from "./chunk-YJDLVUXY.js";
+} from "./chunk-V4GKHGUA.js";
 import {
   XhrFactory,
   parseCookieValue
-} from "./chunk-NUIRRZQL.js";
+} from "./chunk-ZH6LALFQ.js";
 import {
   APP_ID,
   ApplicationModule,
@@ -73,11 +72,10 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-ZKBKHDTI.js";
+} from "./chunk-WAHOY4T6.js";
 import {
-  __spreadProps,
   __spreadValues
-} from "./chunk-6DU2HRTW.js";
+} from "./chunk-SESUV4G6.js";
 
 // node_modules/@angular/platform-browser/fesm2022/dom_renderer.mjs
 var EVENT_MANAGER_PLUGINS = new InjectionToken(ngDevMode ? "EventManagerPlugins" : "");
@@ -298,7 +296,7 @@ var SharedStylesHost = class _SharedStylesHost {
     if (this.nonce) {
       element.setAttribute("nonce", this.nonce);
     }
-    if (true) {
+    if (false) {
       element.setAttribute(APP_ID_ATTRIBUTE_NAME, this.appId);
     }
     return host.appendChild(element);
@@ -413,14 +411,14 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     this.ngZone = ngZone;
     this.nonce = nonce;
     this.tracingService = tracingService;
-    this.platformIsServer = true;
+    this.platformIsServer = false;
     this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.platformIsServer, this.tracingService);
   }
   createRenderer(element, type) {
     if (!element || !type) {
       return this.defaultRenderer;
     }
-    if (type.encapsulation === ViewEncapsulation.ShadowDom) {
+    if (false) {
       type = __spreadProps(__spreadValues({}, type), {
         encapsulation: ViewEncapsulation.Emulated
       });
@@ -662,7 +660,7 @@ var DefaultDomRenderer2 = class {
       if (event === "__ngUnwrap__") {
         return eventHandler;
       }
-      const allowDefaultBehavior = true ? this.ngZone.runGuarded(() => eventHandler(event)) : eventHandler(event);
+      const allowDefaultBehavior = false ? this.ngZone.runGuarded(() => eventHandler(event)) : eventHandler(event);
       if (allowDefaultBehavior === false) {
         event.preventDefault();
       }
@@ -2018,4 +2016,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-VLXZZSTM.js.map
+//# sourceMappingURL=chunk-HKN5UUSH.js.map

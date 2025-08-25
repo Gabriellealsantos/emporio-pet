@@ -70,8 +70,8 @@ export class RegistrationCustomerComponent {
     }
 
     this.registrationService.register(this.form.getRawValue() as CustomerInsert).subscribe({
-      next: (response) => {
-        console.log('Registro bem-sucedido!', response);
+      next: () => {
+
         this.router.navigate(['/login']);
       },
       error: (err: HttpErrorResponse) => {
