@@ -36,7 +36,7 @@ INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes)
 INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes) VALUES ('Vacinação Antirrábica', 'Aplicação da vacina contra raiva', 60.00, 20);
 
 -- PET (CORRIGIDO para usar breed_id)
-INSERT INTO tb_pet (name, species, birth_date, notes, customer_id, breed_id) VALUES ('Rex', 'Cachorro', '2020-05-10', 'Gosta muito de brincar com bola', 2, 1); -- Rex é um Labrador (breed_id=1)
+INSERT INTO tb_pet (name, birth_date, notes, customer_id, breed_id) VALUES ('Rex', '2020-05-10', 'Gosta muito de brincar com bola', 2, 1); -- Rex é um Labrador (breed_id=1)
 
 -- INVOICES
 -- Fatura para o Banho e Tosa do Rex

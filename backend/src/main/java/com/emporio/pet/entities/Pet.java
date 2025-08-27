@@ -15,7 +15,6 @@ public class Pet {
     private Long id;
 
     private String name;
-    private String species;
     private LocalDate birthDate;
 
     @Column(columnDefinition = "TEXT")
@@ -36,10 +35,9 @@ public class Pet {
     public Pet() {
     }
 
-    public Pet(Long id, String name, String species, LocalDate birthDate, String notes, Customer owner, Breed breed) {
+    public Pet(Long id, String name, LocalDate birthDate, String notes, Customer owner, Breed breed) {
         this.id = id;
         this.name = name;
-        this.species = species;
         this.birthDate = birthDate;
         this.notes = notes;
         this.owner = owner;
@@ -60,14 +58,6 @@ public class Pet {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getSpecies() {
-        return species;
-    }
-
-    public void setSpecies(String species) {
-        this.species = species;
     }
 
     public LocalDate getBirthDate() {
