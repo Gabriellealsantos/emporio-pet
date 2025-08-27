@@ -7,7 +7,7 @@ INSERT INTO tb_role (authority) VALUES ('ROLE_EMPLOYEE');
 INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Gabriel Leal', 'gabrielleal.santos16@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '75900001111', '1992-01-05');
 INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Maria Silva', 'maria@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '11999998888', '1990-06-15');
 INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('João Santos', 'joao@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '21988887777', '1985-12-01');
-INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Joana Santos', 'joana@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '21988887777', '1985-12-01');
+INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Joana Santos', 'joana@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '21988887778', '1985-12-01');
 
 -- CUSTOMER (Estrutura mantida)
 INSERT INTO tb_customer (user_id, cpf) VALUES (2, '12345678901'); -- Maria (user_id=2)
@@ -36,7 +36,7 @@ INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes)
 INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes) VALUES ('Vacinação Antirrábica', 'Aplicação da vacina contra raiva', 60.00, 20);
 
 -- PET (CORRIGIDO para usar breed_id)
-INSERT INTO tb_pet (name, birth_date, notes, customer_id, breed_id) VALUES ('Rex', '2020-05-10', 'Gosta muito de brincar com bola', 2, 1); -- Rex é um Labrador (breed_id=1)
+INSERT INTO tb_pet (name, birth_date, notes, customer_id, breed_id, ativo) VALUES ('Rex', '2020-05-10', 'Gosta muito de brincar com bola', 2, 1, true); -- Rex é um Labrador (breed_id=1)
 
 -- INVOICES
 -- Fatura para o Banho e Tosa do Rex

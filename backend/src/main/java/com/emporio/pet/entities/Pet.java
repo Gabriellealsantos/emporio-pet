@@ -1,6 +1,8 @@
 package com.emporio.pet.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tb_pet")
+@SQLRestriction("ativo = true")
 public class Pet {
 
     @Id
@@ -15,6 +18,7 @@ public class Pet {
     private Long id;
 
     private String name;
+
     private LocalDate birthDate;
 
     @Column(columnDefinition = "TEXT")
@@ -31,6 +35,8 @@ public class Pet {
 
     @OneToMany(mappedBy = "pet")
     private List<Appointment> appointments = new ArrayList<>();
+
+    private boolean ativo = true;
 
     public Pet() {
     }
@@ -94,6 +100,14 @@ public class Pet {
 
     public List<Appointment> getAppointments() {
         return appointments;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 
     @Override
