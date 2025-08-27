@@ -1,0 +1,97 @@
+:host::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/assets/images/background-onboarding-caes.avif');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center; /* Centralizado por padrão funciona melhor no mobile */
+}
+
+/* O overlay escuro foi removido do :host::after para ser aplicado no container,
+   para não cobrir a barra de rolagem se o conteúdo crescer. */
+
+.onboarding-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.25); /* Overlay escuro aqui */
+}
+
+.card-wrapper {
+  width: 100%;
+  max-width: 28rem; /* 448px */
+}
+
+.glass-card {
+  background: rgba(30, 30, 40, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  text-align: center;
+
+  /* ESTILOS BASE (PARA 320px) */
+  padding: 2rem 1.5rem; /* Menos padding lateral para telas estreitas */
+}
+
+.title-icon  {
+  margin-bottom: 20px;
+}
+
+.title-icon fa-icon {
+  line-height: 1;
+  margin-bottom: 1rem;
+  margin-bottom: 20px;
+  font-size: 50px;
+  color: #30a4fd;
+  filter: drop-shadow(0 2px 4px rgba(48, 164, 253, 0.4));
+}
+
+
+h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1rem;
+  line-height: 110%;
+}
+
+p {
+  font-size: 0.95rem;
+  color: #f0f0f0;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* --- ESTILOS PARA TELAS MAIORES --- */
+
+/* A partir de 600px, aumentamos tudo de volta */
+@media (min-width: 600px) {
+  .glass-card {
+    padding: 2.5rem; /* Retorna o padding maior */
+  }
+
+  .title-icon fa-icon {
+    font-size: 60px; /* Aumenta o ícone */
+  }
+
+  h1 {
+    font-size: 1.875rem; /* Aumenta o título */
+  }
+
+  p {
+    font-size: 1rem; /* Aumenta o parágrafo */
+  }
+}
+
+/* A partir de 1024px, ajustamos a posição da imagem de fundo */
+@media (min-width: 1024px) {
+  :host::before {
+    background-position: 70% 30%; /* Retorna o ajuste fino para desktop */
+  }
+}

@@ -1,0 +1,68 @@
+<div class="login-container">
+  <div class="login-card register-card">
+    <div class="title">
+      <img src="assets/icons/dog.svg" class="title-icon" alt="Ícone de cachorro" />
+      <h2 class="title-text">Cadastrar</h2>
+      <h2 class="title-sub-text">Pet</h2>
+    </div>
+
+    <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <img src="assets/icons/pet-name.svg" alt="Ícone de nome" />
+        <input type="text" placeholder="Nome do Pet" required formControlName="name" />
+      </div>
+      @if (form.controls['name'].invalid && form.controls['name'].touched) {
+      <div class="error-container"><small class="error-message">Nome é obrigatório.</small></div>
+      }
+
+      <div class="form-group">
+        <img src="assets/icons/species.svg" alt="Ícone de espécie" />
+        <select formControlName="species" required>
+          <option value="" disabled>Selecione a espécie</option>
+          <option value="DOG">Cão</option>
+          <option value="CAT">Gato</option>
+        </select>
+      </div>
+      @if (form.controls['species'].invalid && form.controls['species'].touched) {
+      <div class="error-container"><small class="error-message">Espécie é obrigatória.</small></div>
+      }
+
+      <div class="form-group">
+        <img src="assets/icons/breed.svg" alt="Ícone de raça" />
+        <select formControlName="breed" required>
+          <option value="" disabled>Selecione a raça</option>
+          @for (breed of breeds; track breed) {
+          <option [value]="breed">{{ breed }}</option>
+          }
+        </select>
+      </div>
+      @if (form.controls['breed'].invalid && form.controls['breed'].touched) {
+      <div class="error-container"><small class="error-message">Raça é obrigatória.</small></div>
+      }
+
+      <div class="form-group">
+        <img src="assets/icons/calendar.svg" alt="Ícone de calendário" />
+        <input type="date" placeholder="Data de Nascimento" required formControlName="birthDate" />
+      </div>
+      @if (form.controls['birthDate'].invalid && form.controls['birthDate'].touched) {
+      <div class="error-container">
+        @if (form.controls['birthDate'].errors?.['required']) {
+        <small class="error-message">Data de nascimento é obrigatória.</small>
+        } @if (form.controls['birthDate'].errors?.['futureDate']) {
+        <small class="error-message">A data não pode ser no futuro.</small>
+        }
+      </div>
+      }
+
+      <div class="form-group">
+        <img src="assets/icons/notes.svg" alt="Ícone de observações" />
+        <textarea
+          placeholder="Observações (alergias, comportamento, etc.)"
+          formControlName="notes"
+        ></textarea>
+      </div>
+
+      <emp-button type="submit" [fullWidth]="true">Cadastrar Pet</emp-button>
+    </form>
+  </div>
+</div>

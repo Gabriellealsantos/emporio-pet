@@ -58,7 +58,7 @@ public class ControllerExceptionHandler {
         } else if (e.getMostSpecificCause().getMessage().contains("TB_USER(PHONE")) {
             errorMessage = "O telefone informado já está em uso.";
         }
-        
+
         StandardError err = new StandardError();
         err.setTimestamp(Instant.now());
         err.setStatus(HttpStatus.BAD_REQUEST.value());

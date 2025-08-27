@@ -1,0 +1,72 @@
+:host::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url('/assets/images/background-onboarding-caes.avif');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center 25%;
+  transform: scale(1.05);
+}
+
+
+.form-group select {
+  flex-grow: 1;
+  width: auto;
+  padding: 10px 0 8px;
+  border: 0;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.60);
+  border-radius: 0;
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: "Poppins";
+  font-size: 1rem;
+
+}
+
+/* Estilo para quando a primeira opção ("Selecione a espécie") está selecionada */
+.form-group select:required:invalid {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.form-group textarea {
+  flex-grow: 1;
+  width: auto;
+  padding: 10px 0 8px;
+  border: 0;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.60);
+  border-radius: 0;
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  resize: vertical;
+  min-height: 80px;
+  font-family: "Poppins";
+  font-size: 1rem;
+}
+
+.form-group.textarea-group img {
+  align-self: flex-start;
+  margin-top: 10px;
+}
+
+
+.form-group textarea {
+  resize: none;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: black;
+  opacity: 1;
+}
+
+/* Selects com a opção "Selecione..." */
+.form-group select:required:invalid {
+  color: black;
+}

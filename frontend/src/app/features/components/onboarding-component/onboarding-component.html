@@ -1,0 +1,18 @@
+<div class="onboarding-container">
+  <main class="card-wrapper">
+    <div class="glass-card">
+      <div class="title-icon"><fa-icon [icon]="pawIcon"></fa-icon>      </div>
+
+      <h1>Bem-vindo(a), {{ userName }}!</h1>
+
+      <p>
+        Para começar, precisamos conhecer o seu melhor amigo. Cadastre seu pet para ter acesso aos
+        nossos serviços e agendamentos.
+      </p>
+
+      <emp-button (click)="goToPetRegistration()" [fullWidth]="true">
+        Cadastrar meu Pet
+      </emp-button>
+    </div>
+  </main>
+</div>
