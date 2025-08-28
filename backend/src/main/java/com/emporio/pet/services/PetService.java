@@ -45,7 +45,7 @@ public class PetService {
             throw new ForbiddenException("Acesso negado. Apenas clientes podem cadastrar pets.");
         }
 
-        Breed breed = breedService.findById(dto.getBreedId());
+        Breed breed = breedService.findEntityById(dto.getBreedId());
 
         Pet pet = new Pet();
         pet.setName(dto.getName());
@@ -122,7 +122,7 @@ public class PetService {
             pet.setNotes(dto.getNotes());
         }
         if (dto.getBreedId() != null) {
-            Breed breed = breedService.findById(dto.getBreedId());
+            Breed breed = breedService.findEntityById(dto.getBreedId());
             pet.setBreed(breed);
         }
 

@@ -1,12 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/button-component/button-component';
 import { NotificationService } from '../../../core/services/notification.service';
 import { PetService } from '../../../core/services/PetService';
 import { PetInsertDTO } from '../../models/PetInsertDTO';
+import { BreedService } from '../../../core/services/breed-service';
+import { Observable } from 'rxjs';
+import { Breed } from '../../models/Breed';
 
 export const pastOrPresentDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   if (!control.value) { return null; }
@@ -19,7 +22,7 @@ export const pastOrPresentDateValidator: ValidatorFn = (control: AbstractControl
 interface PetRegistrationForm {
   name: FormControl<string>;
   species: FormControl<string>;
-  breed: FormControl<string>;
+  breedId: FormControl<number | null>;
   birthDate: FormControl<string>;
   notes: FormControl<string | null>;
 }
@@ -27,36 +30,34 @@ interface PetRegistrationForm {
 @Component({
   selector: 'app-pet-registration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent],
+  imports: [ReactiveFormsModule, ButtonComponent, AsyncPipe],
   templateUrl: './pet-registration-component.html',
-  styleUrls: ['../../../shared/styles/form-card.css',
-    './pet-registration-component.css'
-  ]
+  styleUrls: ['../../../shared/styles/form-card.css', './pet-registration-component.css']
 })
 export class PetRegistrationComponent {
 
-   protected breeds: string[] = [
-    'Labrador',
-    'Golden Retriever',
-    'Poodle',
-    'Bulldog',
-    'Vira-lata (SRD)',
-    'Siamês',
-    'Persa'
-  ];
-
   private fb = inject(FormBuilder);
   private petService = inject(PetService);
+  private breedService = inject(BreedService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
 
-  protected form = this.fb.nonNullable.group({
+
+  protected breeds$!: Observable<Breed[]>;
+
+  protected form = this.fb.group({
     name: ['', [Validators.required]],
     species: ['', [Validators.required]],
-    breed: ['', [Validators.required]],
+    breedId: [null as number | null, [Validators.required]],
     birthDate: ['', [Validators.required, pastOrPresentDateValidator]],
     notes: ['']
   });
+
+  ngOnInit(): void {
+    this.breeds$ = this.breedService.findAll();
+  }
+
+
 
   onSubmit(): void {
     if (this.form.invalid) {

@@ -1,7 +1,7 @@
 export interface PetInsertDTO {
   name: string;
   species: string;
-  breed: string;
+  breedId: number;
   birthDate: string;
   notes: string | null;
 }
