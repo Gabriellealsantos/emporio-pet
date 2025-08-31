@@ -31,7 +31,7 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "service_id")
-    private Service service;
+    private Services service;
 
     @ManyToOne
     @JoinColumn(name = "employee_id")
@@ -48,7 +48,7 @@ public class Appointment {
     public Appointment() {
     }
 
-    public Appointment(Long id, LocalDateTime startDateTime, LocalDateTime endDateTime, AppointmentStatus status, BigDecimal chargedAmount, Pet pet, Service service, Employee employee, Invoice invoice) {
+    public Appointment(Long id, LocalDateTime startDateTime, LocalDateTime endDateTime, AppointmentStatus status, BigDecimal chargedAmount, Pet pet, Services service, Employee employee, Invoice invoice) {
         this.id = id;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
@@ -110,11 +110,11 @@ public class Appointment {
         this.pet = pet;
     }
 
-    public Service getService() {
+    public Services getService() {
         return service;
     }
 
-    public void setService(Service service) {
+    public void setService(Services service) {
         this.service = service;
     }
 

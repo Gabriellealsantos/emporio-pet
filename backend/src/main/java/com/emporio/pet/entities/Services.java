@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tb_service")
-public class Service {
+public class Services {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,19 +23,21 @@ public class Service {
     private BigDecimal price;
 
     private int estimatedDurationInMinutes;
+    private Boolean active;
 
     @OneToMany(mappedBy = "service")
     private List<Appointment> appointments = new ArrayList<>();
 
-    public Service() {
+    public Services() {
     }
 
-    public Service(Long id, String name, String description, BigDecimal price, int estimatedDurationInMinutes) {
+    public Services(Long id, String name, String description, BigDecimal price, int estimatedDurationInMinutes) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.estimatedDurationInMinutes = estimatedDurationInMinutes;
+        this.active = true;
     }
 
 
@@ -83,11 +85,22 @@ public class Service {
         return appointments;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+    public boolean isActive() {
+        return active;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Service service = (Service) o;
+        Services service = (Services) o;
         return Objects.equals(id, service.id);
     }
 
