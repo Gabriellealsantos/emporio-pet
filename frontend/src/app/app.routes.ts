@@ -5,9 +5,7 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./features/components/login-component/login-component').then(
-        (m) => m.LoginComponent
-      ),
+      import('./features/components/login-component/login-component').then((m) => m.LoginComponent),
   },
   {
     path: 'cadastrar',
@@ -19,18 +17,17 @@ export const routes: Routes = [
   {
     path: 'recuperar-senha',
     loadComponent: () =>
-      import(
-        './features/components/forgot-password-component/forgot-password-component'
-      ).then((m) => m.ForgotPasswordComponent),
+      import('./features/components/forgot-password-component/forgot-password-component').then(
+        (m) => m.ForgotPasswordComponent
+      ),
   },
   {
     path: 'redefinir-senha',
     loadComponent: () =>
-      import(
-        './features/components/reset-password-component/reset-password-component'
-      ).then((m) => m.ResetPasswordComponent),
+      import('./features/components/reset-password-component/reset-password-component').then(
+        (m) => m.ResetPasswordComponent
+      ),
   },
-
   {
     path: 'onboarding',
     canActivate: [authGuard],
@@ -39,7 +36,6 @@ export const routes: Routes = [
         (m) => m.OnboardingComponent
       ),
   },
-
   {
     path: 'pets/cadastrar',
     canActivate: [authGuard],
@@ -48,8 +44,7 @@ export const routes: Routes = [
         (m) => m.PetRegistrationComponent
       ),
   },
-
-   {
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -58,14 +53,24 @@ export const routes: Routes = [
       ),
   },
 
+  // ✅ Nova rota Home
+  {
+    path: 'home',
+    loadComponent: () =>
+      import('./features/components/home-page-component/home-page-component').then(
+        (m) => m.HomePageComponent
+      ),
+  },
+
+  // ✅ Home como rota padrão
   {
     path: '',
-    redirectTo: '/',
+    redirectTo: 'home',
     pathMatch: 'full',
   },
 
   {
     path: '**',
-    redirectTo: '/',
+    redirectTo: 'home',
   },
 ];
