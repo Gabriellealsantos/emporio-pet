@@ -1,9 +1,9 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { User } from '../../models/User';
-import { ButtonComponent } from '../../../shared/components/button-component/button-component';
 import { AuthService } from '../../../core/services/auth.service';
+import { ButtonComponent } from '../../../shared/components/button-component/button-component';
+import { User } from '../../models/User';
 
 @Component({
   selector: 'app-login-component',
@@ -32,29 +32,37 @@ export class LoginComponent {
   });
 
 
-onSubmit(): void {
-  this.hasLoginError = false;
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    return;
-  }
-
-  this.authService.login(this.form.value).subscribe({
-    next: (user: User) => {
-      // CONDIÇÃO CORRIGIDA E FINAL
-      if (!user.pets || user.pets.length === 0) {
-        // Se o usuário não tem pets (lista nula, indefinida ou vazia),
-        // redireciona para a tela de onboarding.
-        this.router.navigate(['/onboarding']);
-      } else {
-        // Caso contrário, envia para o dashboard principal.
-        this.router.navigate(['/dashboard']);
-      }
-    },
-    error: (err) => {
-      console.error('Erro no login:', err);
-      this.hasLoginError = true;
-      this.cdr.detectChanges();
+  onSubmit(): void {
+    this.hasLoginError = false;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
-  });
-}}
+
+    this.authService.login(this.form.value).subscribe({
+      next: (user: User) => {
+        // 1 - A verificação de admin já existe aqui
+        const isAdmin = user.roles?.some(r => r.authority === 'ROLE_ADMIN');
+
+        if (isAdmin) {
+          this.router.navigate(['/admin']); // E o redirecionamento também
+          return;
+        }
+
+        // 2 - Se não tiver pets → vai para onboarding
+        if (!user.pets || user.pets.length === 0) {
+          this.router.navigate(['/onboarding']);
+          return;
+        }
+
+        // 3 - Senão, dashboard
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        console.error('Erro no login:', err);
+        this.hasLoginError = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+}

@@ -1,5 +1,6 @@
 package com.emporio.pet.entities;
 
+import com.emporio.pet.entities.enums.Species;
 import jakarta.persistence.*;
 import java.util.Objects;
 
@@ -14,17 +15,16 @@ public class Breed {
     @Column(unique = true, nullable = false)
     private String name;
 
-    private String species;
+    @Enumerated(EnumType.STRING)
+    private Species species;
 
     public Breed() {
     }
 
-    public Breed(Long id, String name, String species) {
+    public Breed(Long id, String name, Species species) {
         this.id = id;
         this.name = name;
         this.species = species;
-
-
     }
 
     public Long getId() {
@@ -43,15 +43,13 @@ public class Breed {
         this.name = name;
     }
 
-    public String getSpecies() {
+    public Species getSpecies() {
         return species;
     }
 
-    public void setSpecies(String species) {
+    public void setSpecies(Species species) {
         this.species = species;
     }
-
-
 
     @Override
     public boolean equals(Object o) {

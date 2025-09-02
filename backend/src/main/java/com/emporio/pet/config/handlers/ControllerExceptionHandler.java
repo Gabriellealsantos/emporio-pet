@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -47,16 +48,21 @@ public class ControllerExceptionHandler {
         return buildErrorResponse(e, "Argumento inválido", HttpStatus.BAD_REQUEST, request);
     }
 
+    // Dentro da classe ControllerExceptionHandler
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<StandardError> dataIntegrityViolation(DataIntegrityViolationException e, HttpServletRequest request) {
         String errorMessage = "Violação de integridade de dados.";
+        String specificCause = e.getMostSpecificCause().getMessage().toUpperCase();
 
-        if (e.getMostSpecificCause().getMessage().contains("TB_USER(EMAIL")) {
+        if (specificCause.contains("TB_USER(EMAIL")) {
             errorMessage = "O email informado já está em uso.";
-        } else if (e.getMostSpecificCause().getMessage().contains("TB_USER(CPF")) {
+        } else if (specificCause.contains("TB_USER(CPF")) {
             errorMessage = "O CPF informado já está em uso.";
-        } else if (e.getMostSpecificCause().getMessage().contains("TB_USER(PHONE")) {
+        } else if (specificCause.contains("TB_USER(PHONE")) {
             errorMessage = "O telefone informado já está em uso.";
+        } else if (specificCause.contains("TB_BREED(NAME")) {
+            errorMessage = "O nome da raça informado já existe.";
         }
 
         StandardError err = new StandardError();
@@ -70,7 +76,6 @@ public class ControllerExceptionHandler {
     }
 
 
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationError> validation(MethodArgumentNotValidException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
@@ -78,7 +83,7 @@ public class ControllerExceptionHandler {
         err.setTimestamp(Instant.now());
         err.setStatus(status.value());
         err.setError("Validation exception");
-        err.setMessage("Dados inválidos"); // Mensagem mais amigável para o usuário
+        err.setMessage("Dados inválidos");
         err.setPath(request.getRequestURI());
 
         for (FieldError f : e.getBindingResult().getFieldErrors()) {
@@ -108,6 +113,40 @@ public class ControllerExceptionHandler {
         }
         return ResponseEntity.status(status).body(err);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<StandardError> genericException(Exception e, HttpServletRequest request) {
+        String error = "Internal server error";
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR; // Erro 500
+
+        // IMPORTANTE: Logar o erro real para a equipe de desenvolvimento poder investigar.
+        // Em um projeto real, você usaria um sistema de logs como SLF4J.
+        System.err.println("ERRO INESPERADO CAPTURADO: " + e.getMessage());
+        e.printStackTrace();
+
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError(error);
+        // Mensagem genérica e segura para o usuário final.
+        err.setMessage("Ocorreu um erro inesperado no sistema. Tente novamente mais tarde.");
+        err.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<StandardError> badCredentials(BadCredentialsException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("Unauthorized");
+        err.setMessage("Usuário inexistente ou senha inválida");
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
 
     private ResponseEntity<StandardError> buildErrorResponse(
             Exception e, String error, HttpStatus status, HttpServletRequest request) {
