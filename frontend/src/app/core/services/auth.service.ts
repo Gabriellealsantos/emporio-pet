@@ -4,8 +4,8 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { User } from '../../features/models/User';
 import { Credentials } from '../../features/models/Credentials';
+import { User } from '../../features/models/User';
 
 interface LoginResponse {
   token: string;
@@ -23,23 +23,19 @@ export class AuthService {
   private user$ = new BehaviorSubject<User | null>(null);
 
   constructor() {
-   this.checkTokenAndFetchUserOnStart();
+    // A verificação agora é mais simples: se tem token, tenta carregar o usuário.
+    this.loadUserOnStart();
   }
 
-  /**
-   * ALTERAÇÃO 2: Esta função agora também BUSCA os dados do usuário se o token existir.
-   */
-  private checkTokenAndFetchUserOnStart(): void {
+  private loadUserOnStart(): void {
     if (isPlatformBrowser(this.platformId)) {
       const token = this.getToken();
       if (token) {
-        // Se encontramos um token, imediatamente tentamos buscar os dados do usuário.
-        // O .subscribe() é necessário para "disparar" a chamada HTTP do getMe().
+        // Apenas disparamos a chamada. O guard vai lidar com a espera.
         this.getMe().subscribe({
           error: (err) => {
-            // Se o token for inválido (ex: expirado), o getMe() dará erro.
-            // Nesse caso, limpamos o token antigo e deslogamos.
-            console.error("Token inválido, fazendo logout.", err);
+            // Se o token for inválido, apenas limpamos o estado.
+            console.error("Sessão expirada ou token inválido.", err);
             this.logout();
           }
         });
@@ -65,18 +61,16 @@ export class AuthService {
       .post<LoginResponse>(`${environment.BASE_URL}/auth/login`, credentials)
       .pipe(
         tap((response) => this.saveToken(response.token)),
-        switchMap(() => this.getMe())
+        switchMap(() => this.getMe()) // Após salvar o token, busca os dados do usuário
       );
   }
 
-  // ALTERAÇÃO 4: Adicionar verificação de plataforma
   saveToken(token: string): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.TOKEN_KEY, token);
     }
   }
 
-  // ALTERAÇÃO 5: Adicionar verificação de plataforma
   getToken(): string | null {
     if (isPlatformBrowser(this.platformId)) {
       return localStorage.getItem(this.TOKEN_KEY);
@@ -84,7 +78,6 @@ export class AuthService {
     return null;
   }
 
-  // ALTERAÇÃO 6: Adicionar verificação de plataforma
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.TOKEN_KEY);

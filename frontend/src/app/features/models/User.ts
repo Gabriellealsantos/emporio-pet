@@ -8,7 +8,7 @@ export interface User {
   userStatus: 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'SUSPENDED';
   phone: string;
   birthDate: string;
-  role: Role[];
+  roles: Role[];
   cpf: string;
   pets: Pet[];
 }

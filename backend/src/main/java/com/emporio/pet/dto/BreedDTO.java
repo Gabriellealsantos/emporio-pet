@@ -1,6 +1,7 @@
 package com.emporio.pet.dto;
 
 import com.emporio.pet.entities.Breed;
+import com.emporio.pet.entities.enums.Species;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -12,13 +13,13 @@ public class BreedDTO {
     @Size(min = 2, max = 80)
     private String name;
 
-    private String species;
+    private Species species;
 
 
     public BreedDTO() {
     }
 
-    public BreedDTO(Long id, String name, String species) {
+    public BreedDTO(Long id, String name, Species species) {
         this.id = id;
         this.name = name;
         this.species = species;
@@ -46,11 +47,11 @@ public class BreedDTO {
         this.name = name;
     }
 
-    public String getSpecies() {
+    public Species getSpecies() {
         return species;
     }
 
-    public void setSpecies(String species) {
+    public void setSpecies(Species species) {
         this.species = species;
     }
 }

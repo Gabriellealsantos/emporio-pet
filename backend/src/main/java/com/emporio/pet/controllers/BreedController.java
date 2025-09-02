@@ -1,6 +1,7 @@
 package com.emporio.pet.controllers;
 
 import com.emporio.pet.dto.BreedDTO;
+import com.emporio.pet.entities.enums.Species;
 import com.emporio.pet.services.BreedService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -84,5 +85,10 @@ public class BreedController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         breedService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/species")
+    public ResponseEntity<Species[]> findAllSpecies() {
+        return ResponseEntity.ok(Species.values());
     }
 }

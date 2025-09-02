@@ -1,5 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { AdminLayoutComponent } from './features/components/admin-layout-component/admin-layout-component';
+import { DashboardComponent } from './features/components/dashboard-component/dashboard-component';
+import { BreedsPageComponent } from './features/components/breeds-component/breeds-component';
+import { ErrorPageComponent } from './features/components/error-page-component/error-page-component';
 
 export const routes: Routes = [
   {
@@ -49,7 +53,7 @@ export const routes: Routes = [
       ),
   },
 
-   {
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -57,6 +61,28 @@ export const routes: Routes = [
         (m) => m.DashboardComponent
       ),
   },
+
+  {
+    path: 'admin',
+    canActivate: [authGuard],
+    component: AdminLayoutComponent,
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: { title: 'Dashboard' }
+      },
+      {
+        path: 'racas',
+        component: BreedsPageComponent,
+        data: { title: 'Gerenciamento de Raças' }
+      },
+
+    ]
+  },
+
+  { path: 'error', component: ErrorPageComponent },
 
   {
     path: '',

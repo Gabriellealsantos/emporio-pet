@@ -1,0 +1,20 @@
+<main
+  class="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 flex flex-col items-center justify-center p-4 text-center"
+>
+  <div class="w-full max-w-lg md:max-w-xl lg:max-w-2xl flex items-center justify-center">
+    <canvas #riveCanvas width="450" height="450"></canvas>
+  </div>
+
+  <h1 class="mt-8 text-3xl md:text-4xl font-extrabold text-purple-700">Miau! Página sumiu!</h1>
+  <p class="mt-2 text-lg text-gray-700">
+    Parece que o gatinho comeu esta página...
+    <br />Mas não se preocupe, vamos te levar de volta para um lugar seguro!
+  </p>
+
+  <button
+    (click)="goHome()"
+    class="mt-8 px-8 py-4 bg-purple-500 text-white font-bold text-xl rounded-full shadow-lg hover:bg-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-300 transition-all transform hover:scale-105"
+  >
+    Voltar para Casa
+  </button>
+</main>
