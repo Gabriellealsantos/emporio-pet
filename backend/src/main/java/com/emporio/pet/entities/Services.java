@@ -2,9 +2,7 @@ package com.emporio.pet.entities;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_service")
@@ -22,8 +20,12 @@ public class Services {
     @Column(nullable = false)
     private BigDecimal price;
 
+    @ManyToMany(mappedBy = "skilledServices")
+    private Set<Employee> qualifiedEmployees = new HashSet<>();
+
+    @Column(nullable = false)
     private int estimatedDurationInMinutes;
-    private Boolean active;
+    private Boolean active = true;
 
     @OneToMany(mappedBy = "service")
     private List<Appointment> appointments = new ArrayList<>();
@@ -71,6 +73,10 @@ public class Services {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public Set<Employee> getQualifiedEmployees() {
+        return qualifiedEmployees;
     }
 
     public int getEstimatedDurationInMinutes() {

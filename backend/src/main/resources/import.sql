@@ -31,9 +31,14 @@ INSERT INTO tb_breed (name, species) VALUES ('SRD (Sem Raça Definida)', 'Cachor
 INSERT INTO tb_breed (name, species) VALUES ('Siamês', 'Gato');
 
 -- SERVICES (Estrutura mantida)
-INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes) VALUES ('Banho e Tosa Completo', 'Banho, tosa higiênica e tosa de pelagem', 80.00, 90);
-INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes) VALUES ('Consulta Veterinária', 'Consulta geral com avaliação de saúde e prescrição', 150.00, 30);
-INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes) VALUES ('Vacinação Antirrábica', 'Aplicação da vacina contra raiva', 60.00, 20);
+INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active) VALUES ('Banho e Tosa Completo', 'Banho, tosa higiênica e tosa de pelagem', 80.00, 90, true);
+INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active) VALUES ('Consulta Veterinária', 'Consulta geral com avaliação de saúde e prescrição', 150.00, 30, true);
+INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active) VALUES ('Vacinação Antirrábica', 'Aplicação da vacina contra raiva', 60.00, 20, true);
+
+-- HABILIDADES DOS FUNCIONÁRIOS (NOVO)
+-- Dizendo que o funcionário João (user_id=3) pode fazer Banho e Tosa (service_id=1) e Vacinação (service_id=3)
+INSERT INTO tb_employee_service (employee_id, service_id) VALUES (3, 1);
+INSERT INTO tb_employee_service (employee_id, service_id) VALUES (3, 3);
 
 -- PET (CORRIGIDO para usar breed_id)
 INSERT INTO tb_pet (name, birth_date, notes, customer_id, breed_id, ativo) VALUES ('Rex', '2020-05-10', 'Gosta muito de brincar com bola', 2, 1, true); -- Rex é um Labrador (breed_id=1)

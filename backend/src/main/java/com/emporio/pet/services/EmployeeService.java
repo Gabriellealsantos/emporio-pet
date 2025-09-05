@@ -5,9 +5,11 @@ import com.emporio.pet.dto.EmployeeInsertDTO;
 import com.emporio.pet.dto.EmployeeUpdateDTO;
 import com.emporio.pet.entities.Employee;
 import com.emporio.pet.entities.Role;
+import com.emporio.pet.entities.Services;
 import com.emporio.pet.entities.enums.UserStatus;
 import com.emporio.pet.repositories.EmployeeRepository;
 import com.emporio.pet.repositories.RoleRepository;
+import com.emporio.pet.repositories.ServiceRepository;
 import com.emporio.pet.repositories.UserRepository;
 import com.emporio.pet.services.exceptions.DatabaseException;
 import com.emporio.pet.services.exceptions.ForbiddenException;
@@ -24,15 +26,17 @@ public class EmployeeService {
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    ServiceRepository serviceRepository;
 
     public EmployeeService(EmployeeRepository employeeRepository, UserRepository userRepository,
                            AuthService authService, PasswordEncoder passwordEncoder,
-                           RoleRepository roleRepository) {
+                           RoleRepository roleRepository, ServiceRepository serviceRepository) {
         this.employeeRepository = employeeRepository;
         this.userRepository = userRepository;
         this.authService = authService;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.serviceRepository = serviceRepository;
     }
 
     @Transactional
@@ -76,5 +80,33 @@ public class EmployeeService {
 
         employeeEntity = employeeRepository.save(employeeEntity);
         return new EmployeeDTO(employeeEntity);
+    }
+
+    @Transactional
+    public EmployeeDTO addServiceToEmployee(Long employeeId, Long serviceId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado com o ID: " + employeeId));
+
+        Services service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + serviceId));
+
+        employee.getSkilledServices().add(service);
+        employee = employeeRepository.save(employee);
+        return new EmployeeDTO(employee);
+    }
+
+    @Transactional
+    public void removeServiceFromEmployee(Long employeeId, Long serviceId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado com o ID: " + employeeId));
+
+
+        Services serviceToRemove = employee.getSkilledServices().stream()
+                .filter(service -> service.getId().equals(serviceId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não possui associação com o serviço de ID: " + serviceId));
+
+        employee.getSkilledServices().remove(serviceToRemove);
+        employeeRepository.save(employee);
     }
 }

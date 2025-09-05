@@ -1,10 +1,7 @@
 package com.emporio.pet.config.handlers;
 
 import com.emporio.pet.controllers.exceptions.ValidationError;
-import com.emporio.pet.services.exceptions.DatabaseException;
-import com.emporio.pet.services.exceptions.EmailException;
-import com.emporio.pet.services.exceptions.ForbiddenException;
-import com.emporio.pet.services.exceptions.ResourceNotFoundException;
+import com.emporio.pet.services.exceptions.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -12,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -48,7 +46,37 @@ public class ControllerExceptionHandler {
         return buildErrorResponse(e, "Argumento inválido", HttpStatus.BAD_REQUEST, request);
     }
 
-    // Dentro da classe ControllerExceptionHandler
+
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<StandardError> conflict(AuthorizationDeniedException e, HttpServletRequest request) {
+        String error = "Denied Acesses";
+        HttpStatus status = HttpStatus.FORBIDDEN;
+
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError(error);
+        err.setMessage(e.getMessage()); // Usamos a mensagem original da exceção
+        err.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<StandardError> conflict(ConflictException e, HttpServletRequest request) {
+        String error = "Resource conflict";
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError(error);
+        err.setMessage(e.getMessage()); // Usamos a mensagem original da exceção
+        err.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<StandardError> dataIntegrityViolation(DataIntegrityViolationException e, HttpServletRequest request) {
