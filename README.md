@@ -58,3 +58,13 @@ ng serve --open
 
 O navegador abrirá automaticamente em:
 👉 http://localhost:4200
+
+💡 Dica: Autocomplete no terminal
+
+Na primeira execução do ng, pode aparecer a seguinte pergunta:
+
+```bash
+Would you like to enable autocompletion? (Y/n)
+```
+
+Responda Y para habilitar o autocompletar de comandos Angular CLI no terminal.
