@@ -1,21 +1,6 @@
-<header class="nav-container">
-  <nav class="nav-main">
-    <img src="assets/images/LogoEmporioPetFooterEDIT.png" alt="Logo emporio pet" />
-    <h1 class="nav-title">Empório Pet</h1>
-    <div class="nav-bar">
-      <ul class="menu-items">
-        <li><a href="#">Serviços</a></li>
-        <li><a href="#">Sobre Nós</a></li>
-      </ul>
-    </div>
-    <div class="container-account">
-      <a href="#">Login</a>
-      <a href="#">Registro</a>
-    </div>
-  </nav>
-</header>
+<app-header></app-header>
 
-<main>
+<main class="page-main">
   <section>
     <div class="content-frases">
       <div class="first-title">
@@ -24,9 +9,7 @@
       <img src="assets/images/imgPrincipal.png" alt="imagem principal" />
 
       <div class="sub-title">
-        <p>
-          Na Empório Pet você encontra produtos, serviços veterinarios, Banho, tosa e muito mais!
-        </p>
+        <p>Na Empório Pet você encontra produtos, serviços veterinarios, Banho, tosa e muito mais!</p>
       </div>
     </div>
   </section>
@@ -48,38 +31,29 @@
     </div>
   </section>
 
-  <!-- Carrossel -->
   <section class="carrossel">
     <div class="carrossel-title">
       <h2>Descrição Serviços</h2>
     </div>
 
     <div class="swiper">
-      <!-- Wrapper obrigatório -->
       <div class="swiper-wrapper">
-        <!-- Slide 1 -->
         <div class="swiper-slide">
           <div class="card-servico">
             <img src="assets/images/carrossel-cachorro.png" alt="banho cachorro" />
             <h3>Banho</h3>
-            <p>
-              Higienização completa com shampoos especiais. Inclui secagem, escovação e perfume.
-            </p>
+            <p>Higienização completa com shampoos especiais. Inclui secagem, escovação e perfume.</p>
             <p><b>Média de tempo:</b> 40/60 minutos</p>
             <p><b>Valor:</b> R$ 80,00 a R$ 200,00</p>
             <button class="btn-agendar">Agende agora</button>
           </div>
         </div>
 
-        <!-- Slide 2 -->
         <div class="swiper-slide">
           <div class="card-servico">
             <img src="assets/images/carrossel-gato.png" alt="tosa felino" />
             <h3>Tosa</h3>
-            <p>
-              Serviço de tosa realizado por profissionais especializados. Inclui penteado final e
-              verificação de pele e pelagem.
-            </p>
+            <p>Serviço de tosa realizado por profissionais especializados. Inclui penteado final e verificação de pele e pelagem.</p>
             <p><b>Média de tempo:</b> 60/90 minutos</p>
             <p><b>Valor:</b> R$ 150,00 a R$ 350,00</p>
             <button class="btn-agendar">Agende agora</button>
@@ -87,28 +61,12 @@
         </div>
       </div>
 
-      <!-- Botões de navegação (fora do wrapper, mas dentro do .swiper) -->
       <div class="swiper-button-next"></div>
       <div class="swiper-button-prev"></div>
 
-      <!-- Paginação -->
       <div class="swiper-pagination"></div>
     </div>
   </section>
 </main>
 
-<footer>
-  <div class="imagem-Logo">
-    <img src="assets/images/LogoEmporioPetFooterEDIT.png" alt="Logo emporio pet" />
-  </div>
-  <div class="links-footer">
-    <a href="#">Termos de uso</a>
-    <a href="#">Política de privacidade</a>
-    <p>© 2025 Empório Pet. Todos os direitos reservados.</p>
-  </div>
-  <div class="redes-sociais">
-    <a href="#"><img src="assets/images/instagram.svg" alt="instagram" /></a>
-    <a href="#"><img src="assets/images/whatsapp.svg" alt="whatsapp" /></a>
-    <a href="#"><img src="assets/images/github.svg" alt="github" /></a>
-  </div>
-</footer>
+<app-footer></app-footer>

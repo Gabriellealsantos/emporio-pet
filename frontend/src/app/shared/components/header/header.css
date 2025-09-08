@@ -1,0 +1,132 @@
+/* Container principal que ocupa 100% da largura */
+.nav-container {
+  background-color: var(--emp-color-text-primary);
+  color: var(--emp-color-text-inverse);
+  height: 100px;
+  width: 100%;
+  padding: 5px 20px; /* Padding para segurança em telas pequenas */
+  display: flex;
+  align-items: center;
+}
+
+/* Container do conteúdo, centralizado e com largura máxima */
+.nav-main {
+  width: 100%;
+  max-width: 1200px; /* Largura máxima do conteúdo */
+  margin: 0 auto; /* O truque para centralizar */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Espaça o grupo da esquerda e o da direita */
+}
+
+/* Grupo da Esquerda (Logo + Título) */
+.logo-title-group {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Espaço entre o logo e o título */
+}
+
+.logo-title-group img {
+  width: 50px;
+  height: auto;
+}
+
+.logo-title-group .nav-title {
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Grupo da Direita (Menu + Conta) */
+.menu-account-group {
+  display: flex;
+  align-items: center;
+  gap: 30px; /* Espaço entre o menu e a área de conta */
+}
+
+.menu-items {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-items li {
+  display: none; /* Oculto em telas pequenas */
+}
+
+.container-account {
+  display: flex;
+  gap: 15px; /* Espaço entre Login e Registro */
+}
+
+.container-account a {
+  color: var(--emp-color-text-inverse);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* =============================================== */
+/* Responsividade */
+/* =============================================== */
+
+@media (max-width: 420px) {
+  /* 1. Esconde o título "Empório Pet" */
+  .logo-title-group .nav-title {
+    display: none;
+  }
+
+  /* 2. Remove o espaçamento extra quando o título some */
+  .logo-title-group {
+    gap: 0;
+  }
+
+  /* 3. Reduz um pouco mais a fonte de Login/Registro */
+  .container-account a {
+    font-size: 0.8rem;
+  }
+
+  /* 4. Reduz o padding horizontal para dar mais espaço */
+  .nav-container {
+    padding: 5px 15px;
+  }
+}
+
+@media (min-width: 768px) {
+  .logo-title-group img {
+    width: 70px;
+  }
+
+  .logo-title-group .nav-title {
+    font-size: 2.5rem;
+  }
+
+  .menu-items li {
+    display: inline-block; /* Mostra o menu */
+    font-size: 1.2rem;
+    margin-left: 25px;
+  }
+
+  .container-account a {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .nav-container {
+    height: 120px;
+  }
+  .logo-title-group img {
+    width: 80px;
+  }
+  .logo-title-group .nav-title {
+    font-size: 3rem;
+  }
+  .menu-items li {
+    font-size: 1.4rem;
+  }
+  .container-account a {
+    font-size: 1.2rem;
+  }
+}
+
+
