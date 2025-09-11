@@ -101,13 +101,13 @@ export class ServicesPageComponent implements OnInit {
   // === MÉTODOS DE AÇÃO (serão implementados com o modal) ===
 
   openCreateModal(): void {
-    this.editingService.set(null); // Garante que estamos no modo "criar"
-    this.isFormModalOpen.set(true); // Abre o modal
+    this.editingService.set(null);
+    this.isFormModalOpen.set(true);
   }
 
   openEditModal(service: Service): void {
-    this.editingService.set(service); // Define qual serviço estamos editando
-    this.isFormModalOpen.set(true); // Abre o modal
+    this.editingService.set(service);
+    this.isFormModalOpen.set(true);
   }
 
 
