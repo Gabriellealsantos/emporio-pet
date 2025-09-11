@@ -11,6 +11,7 @@ export interface EmployeeFilters {
   size?: number;
   name?: string;
   status?: string;
+  searchTerm?: string;
 }
 
 @Injectable({
@@ -25,18 +26,19 @@ export class EmployeeService {
     return this.http.post<User>(this.employeeApiUrl, employeeData);
   }
 
-  findAll(filters: EmployeeFilters): Observable<Page<User>> {
+   findAll(filters: EmployeeFilters): Observable<Page<User>> {
     let params = new HttpParams()
       .set('role', 'EMPLOYEE')
       .set('page', filters.page?.toString() ?? '0')
       .set('size', filters.size?.toString() ?? '10');
 
-    if (filters.name) {
-      params = params.set('name', filters.name);
+    if (filters.searchTerm) {
+      params = params.set('searchTerm', filters.searchTerm);
     }
     if (filters.status && filters.status !== 'all') {
       params = params.set('status', filters.status);
     }
+
     return this.http.get<Page<User>>(this.userApiUrl, { params });
   }
 

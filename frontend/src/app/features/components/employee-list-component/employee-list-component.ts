@@ -41,7 +41,7 @@ export class EmployeeListComponent implements OnInit {
 
   isEmployeeModalOpen = signal(false);
 
-   openCreateEmployeeModal(): void {
+  openCreateEmployeeModal(): void {
     this.isEmployeeModalOpen.set(true);
   }
 
@@ -70,7 +70,11 @@ export class EmployeeListComponent implements OnInit {
   loadEmployees(page: number = 0): void {
     this.isLoading.set(true);
     this.currentPage.set(page);
-    const filters = { page: this.currentPage(), name: this.searchTerm(), status: this.statusFilter() };
+    const filters = {
+      page: this.currentPage(),
+      searchTerm: this.searchTerm(),
+      status: this.statusFilter(),
+    };
 
     this.employeeService.findAll(filters).subscribe({
       next: (pageResponse) => {
@@ -94,9 +98,11 @@ export class EmployeeListComponent implements OnInit {
       });
   }
 
+
   onSearchInput(event: Event): void {
     this.searchSubject.next((event.target as HTMLInputElement).value);
   }
+
 
   onStatusFilterChange(event: Event): void {
     this.statusFilter.set((event.target as HTMLSelectElement).value);

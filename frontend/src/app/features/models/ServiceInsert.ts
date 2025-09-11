@@ -1,7 +1,6 @@
-export interface Service {
-  id: number;
+export interface ServiceInsert {
   name: string;
+  description?: string;
   price: number;
   estimatedDurationInMinutes: number;
-  active: boolean;
 }

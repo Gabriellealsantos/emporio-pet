@@ -31,13 +31,11 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserDTO>> findAll(
             Pageable pageable,
-            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "searchTerm", required = false) String searchTerm,
             @RequestParam(value = "status", required = false) UserStatus status,
             @RequestParam(value = "role", required = false) String role) {
 
-        // Agora chama a nova versão do método no serviço, passando todos os filtros
-        Page<UserDTO> page = userService.findAll(pageable, name, status, role);
-
+        Page<UserDTO> page = userService.findAll(pageable, searchTerm, status, role);
         return ResponseEntity.ok(page);
     }
 

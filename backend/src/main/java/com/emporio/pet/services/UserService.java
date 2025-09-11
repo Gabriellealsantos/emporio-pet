@@ -37,36 +37,30 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> findAll(Pageable pageable, String name, UserStatus status, String role) {
+    public Page<UserDTO> findAll(Pageable pageable, String searchTerm, UserStatus status, String role) {
 
         Specification<User> spec = (root, query, criteriaBuilder) -> {
-
             List<Predicate> predicates = new ArrayList<>();
 
-            if (name != null && !name.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.upper(root.get("name")),
-                        "%" + name.toUpperCase() + "%"
-                ));
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchTerm.toUpperCase() + "%");
+                Predicate jobTitlePredicate = criteriaBuilder.like(criteriaBuilder.upper(root.get("jobTitle")), "%" + searchTerm.toUpperCase() + "%");
+                predicates.add(criteriaBuilder.or(namePredicate, jobTitlePredicate));
             }
 
+            // Filtros de status e role continuam iguais
             if (status != null) {
                 predicates.add(criteriaBuilder.equal(root.get("userStatus"), status));
             }
-
             if (role != null && !role.trim().isEmpty()) {
                 Join<User, Role> rolesJoin = root.join("roles");
-                predicates.add(criteriaBuilder.equal(
-                        rolesJoin.get("authority"),
-                        "ROLE_" + role.toUpperCase()
-                ));
+                predicates.add(criteriaBuilder.equal(rolesJoin.get("authority"), "ROLE_" + role.toUpperCase()));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
         Page<User> userPage = userRepository.findAll(spec, pageable);
-
         return userPage.map(user -> {
             if (user instanceof Customer) {
                 return new CustomerDTO((Customer) user);

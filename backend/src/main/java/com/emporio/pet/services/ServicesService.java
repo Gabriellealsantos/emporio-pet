@@ -30,27 +30,26 @@ public class ServicesService {
      */
     @Transactional
     public ServicesDTO createService(ServicesInsertDTO dto) {
-        if (!authService.isSelfOrAdmin(authService.authenticated().getId())) {
-            throw new ForbiddenException("Acesso negado. Apenas administradores podem criar serviços.");
-        }
-
         Services service = new Services();
         service.setName(dto.getName());
         service.setDescription(dto.getDescription());
         service.setPrice(dto.getPrice());
-        // service.setActive(true);
+        service.setEstimatedDurationInMinutes(dto.getEstimatedDurationInMinutes());
+        service.setActive(true);
 
         service = serviceRepository.save(service);
         return new ServicesDTO(service);
     }
 
-    /**
-     * Retorna todos os serviços ativos.
-     */
+    @Transactional(readOnly = true)
+    public List<ServicesDTO> findAll(String name, Boolean active) {
+        List<Services> services = serviceRepository.findAllFiltered(name, active);
+        return services.stream().map(ServicesDTO::new).collect(Collectors.toList());
+    }
+
     @Transactional(readOnly = true)
     public List<ServicesDTO> findAllActiveServices() {
-        List<Services> services = serviceRepository.findByActiveTrue();
-        return services.stream().map(ServicesDTO::new).collect(Collectors.toList());
+        return findAll(null, true);
     }
 
     /**
@@ -61,11 +60,6 @@ public class ServicesService {
     public ServicesDTO findById(Long id) {
         Services service = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + id));
-
-        if (!service.isActive()) {
-            throw new ForbiddenException("Acesso negado. O serviço está inativo.");
-        }
-
         return new ServicesDTO(service);
     }
 

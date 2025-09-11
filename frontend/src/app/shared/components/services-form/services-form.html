@@ -1,0 +1,32 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ serviceToEdit ? 'Editar Serviço' : 'Adicionar Novo Serviço' }}</h3>
+      <button (click)="onClose()" class="close-button">
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </button>
+    </div>
+    <form [formGroup]="serviceForm" (ngSubmit)="onSave()">
+      <div class="modal-body">
+        <div>
+          <input type="text" formControlName="name" class="form-input" placeholder="Nome do Serviço">
+        </div>
+        <div>
+          <textarea formControlName="description" rows="3" class="form-input" placeholder="Descrição (opcional)"></textarea>
+        </div>
+        <div>
+          <input type="number" formControlName="price" class="form-input" placeholder="Preço (ex: 80.00)">
+        </div>
+        <div>
+          <input type="number" formControlName="estimatedDurationInMinutes" class="form-input" placeholder="Duração em Minutos (ex: 90)">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="onClose()" class="button-cancel">Cancelar</button>
+        <button type="submit" [disabled]="serviceForm.invalid" class="button-save">
+          {{ serviceToEdit ? 'Salvar Alterações' : 'Adicionar Serviço' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

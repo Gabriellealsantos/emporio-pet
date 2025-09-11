@@ -7,16 +7,18 @@ public class ServicesInsertDTO {
     private String name;
     private String description;
     private BigDecimal price;
+    private int estimatedDurationInMinutes;
 
     public ServicesInsertDTO() {}
 
-    public ServicesInsertDTO(String name, String description, BigDecimal price) {
+    public ServicesInsertDTO(String name, String description, BigDecimal price, int estimatedDurationInMinutes) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.estimatedDurationInMinutes = estimatedDurationInMinutes;
     }
 
-    // Getters e Setters
+
     public String getName() {
         return name;
     }
@@ -39,5 +41,13 @@ public class ServicesInsertDTO {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public int getEstimatedDurationInMinutes() {
+        return estimatedDurationInMinutes;
+    }
+
+    public void setEstimatedDurationInMinutes(int estimatedDurationInMinutes) {
+        this.estimatedDurationInMinutes = estimatedDurationInMinutes;
     }
 }

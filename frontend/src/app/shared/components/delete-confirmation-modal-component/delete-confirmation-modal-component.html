@@ -4,26 +4,23 @@
       <div class="header-icon-container">
         <fa-icon [icon]="faExclamationTriangle" class="header-icon"></fa-icon>
       </div>
-      <h3 class="modal-title">Confirmar Exclusão</h3>
+      <h3 class="modal-title">{{ title }}</h3>
       <button (click)="onClose()" class="close-button">
         <fa-icon [icon]="faTimes"></fa-icon>
       </button>
     </div>
     <div class="modal-body">
-      <p>
-        Tem certeza que deseja excluir <strong>"{{ itemName }}"</strong>?
-      </p>
+      <p>{{ message }}</p>
       <p class="warning-text">
-        Esta ação não pode ser desfeita.
+        Esta ação pode não ser reversível.
       </p>
     </div>
     <div class="modal-footer">
       <button (click)="onClose()" class="button-cancel">
         Cancelar
       </button>
-      <button (click)="onConfirm()" class="button-delete">
-        <fa-icon [icon]="faTrash" class="mr-2"></fa-icon>
-        Excluir
+      <button (click)="onConfirm()" class="action-button" [ngClass]="confirmButtonClass">
+        {{ confirmButtonText }}
       </button>
     </div>
   </div>

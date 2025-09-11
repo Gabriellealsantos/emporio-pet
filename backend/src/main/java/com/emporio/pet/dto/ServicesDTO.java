@@ -10,15 +10,17 @@ public class ServicesDTO {
     private String name;
     private String description;
     private BigDecimal price;
+    private int estimatedDurationInMinutes;
     private Boolean active;
 
     public ServicesDTO() {}
 
-    public ServicesDTO(Long id, String name, String description, BigDecimal price, Boolean active) {
+    public ServicesDTO(Long id, String name, String description, BigDecimal price, int estimatedDurationInMinutes, Boolean active) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.estimatedDurationInMinutes = estimatedDurationInMinutes;
         this.active = active;
     }
 
@@ -27,10 +29,10 @@ public class ServicesDTO {
         this.name = entity.getName();
         this.description = entity.getDescription();
         this.price = entity.getPrice();
+        this.estimatedDurationInMinutes = entity.getEstimatedDurationInMinutes();
         this.active = entity.isActive();
     }
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -61,6 +63,14 @@ public class ServicesDTO {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public int getEstimatedDurationInMinutes() {
+        return estimatedDurationInMinutes;
+    }
+
+    public void setEstimatedDurationInMinutes(int estimatedDurationInMinutes) {
+        this.estimatedDurationInMinutes = estimatedDurationInMinutes;
     }
 
     public Boolean getActive() {

@@ -23,25 +23,13 @@ public class ServicesController {
         this.servicesService = servicesService;
     }
 
-    /**
-     * JUSTIFICATIVA DE DESIGN:
-     * Este endpoint de listagem (GET /services) é PÚBLICO. A decisão foi tomada
-     * porque
-     * os clientes precisam ter acesso à lista de serviços disponíveis para agendar
-     * ou consultar informações sobre os serviços oferecidos pelo petshop.
-     */
     @GetMapping
-    public ResponseEntity<List<ServicesDTO>> findAllActiveServices() {
-        return ResponseEntity.ok(servicesService.findAllActiveServices());
+    public ResponseEntity<List<ServicesDTO>> findAll(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "active", required = false) Boolean active) {
+        return ResponseEntity.ok(servicesService.findAll(name, active));
     }
 
-    /**
-     * JUSTIFICATIVA DE DESIGN:
-     * Assim como a listagem, a busca por um ID de serviço específico (GET
-     * /services/{id})
-     * também é PÚBLICA, permitindo que a interface do cliente exiba detalhes
-     * de um serviço, se necessário.
-     */
     @GetMapping(value = "/{id}")
     public ResponseEntity<ServicesDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(servicesService.findById(id));

@@ -2,6 +2,7 @@ package com.emporio.pet.repositories;
 
 import com.emporio.pet.entities.Services;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -10,9 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ServiceRepository extends JpaRepository<Services, Long> {
+public interface ServiceRepository extends JpaRepository<Services, Long>, JpaSpecificationExecutor<Services> {
 
-    List<Services> findByActiveTrue();
+    @Query("SELECT s FROM Services s WHERE " +
+            "(:name IS NULL OR UPPER(s.name) LIKE UPPER(CONCAT('%', :name, '%'))) AND " +
+            "(:active IS NULL OR s.active = :active)")
+    List<Services> findAllFiltered(String name, Boolean active);
 
     @Query("SELECT s FROM Services s " +
             "LEFT JOIN FETCH s.qualifiedEmployees e " +
