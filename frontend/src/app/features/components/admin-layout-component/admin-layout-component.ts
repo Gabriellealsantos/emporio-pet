@@ -31,18 +31,30 @@ export class AdminLayoutComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
-  ngOnInit(): void {
+   ngOnInit(): void {
+    // Função para extrair o título da rota ativa
+    const getTitleFromRoute = () => {
+      let child = this.activatedRoute.firstChild;
+      while (child?.firstChild) {
+        child = child.firstChild;
+      }
+      return child?.snapshot.data['title'] || '';
+    };
+
+    // 1. Define o título inicial assim que o componente carrega
+    const initialTitle = getTitleFromRoute();
+    if (initialTitle) {
+      this.pageTitle.set(initialTitle);
+    }
+
+    // 2. Continua ouvindo por mudanças de rota para o futuro
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      map(() => {
-        let child = this.activatedRoute.firstChild;
-        while (child?.firstChild) {
-          child = child.firstChild;
-        }
-        return child?.snapshot.data['title'] || '';
-      })
-    ).subscribe((title: string) => {
-      this.pageTitle.set(title);
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      const title = getTitleFromRoute();
+      if (title) {
+        this.pageTitle.set(title);
+      }
     });
   }
 

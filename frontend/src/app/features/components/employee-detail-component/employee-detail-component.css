@@ -1,0 +1,11 @@
+.button-save {
+  @apply px-4 py-2 rounded-md font-semibold text-sm transition-transform bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed;
+}
+
+.form-input {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
+}
+
+.button-save {
+  @apply px-4 py-2 rounded-md font-semibold text-sm transition-transform bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed;
+}

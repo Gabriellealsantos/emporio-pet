@@ -2,6 +2,7 @@ package com.emporio.pet.services;
 
 import com.emporio.pet.dto.BreedDTO;
 import com.emporio.pet.entities.Breed;
+import com.emporio.pet.entities.enums.Species;
 import com.emporio.pet.repositories.BreedRepository;
 import com.emporio.pet.services.exceptions.DatabaseException;
 import com.emporio.pet.services.exceptions.ResourceNotFoundException;
@@ -28,8 +29,10 @@ public class BreedService {
     }
 
     @Transactional(readOnly = true)
-    public List<BreedDTO> findAll() {
-        List<Breed> list = breedRepository.findAll();
+    public List<BreedDTO> findAll(String name, Species species) {
+        String nameFilter = (name != null && name.trim().isEmpty()) ? null : name;
+
+        List<Breed> list = breedRepository.findByNameContainingAndSpecies(nameFilter, species);
         return list.stream().map(BreedDTO::new).collect(Collectors.toList());
     }
 

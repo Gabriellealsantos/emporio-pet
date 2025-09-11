@@ -1,0 +1,30 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="header-icon-container">
+        <fa-icon [icon]="faExclamationTriangle" class="header-icon"></fa-icon>
+      </div>
+      <h3 class="modal-title">Confirmar Exclusão</h3>
+      <button (click)="onClose()" class="close-button">
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>
+        Tem certeza que deseja excluir <strong>"{{ itemName }}"</strong>?
+      </p>
+      <p class="warning-text">
+        Esta ação não pode ser desfeita.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button (click)="onClose()" class="button-cancel">
+        Cancelar
+      </button>
+      <button (click)="onConfirm()" class="button-delete">
+        <fa-icon [icon]="faTrash" class="mr-2"></fa-icon>
+        Excluir
+      </button>
+    </div>
+  </div>
+</div>

@@ -6,6 +6,7 @@ import com.emporio.pet.dto.CustomerUpdateDTO;
 import com.emporio.pet.services.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -31,6 +32,7 @@ public class CustomerController {
         return ResponseEntity.created(uri).body(newDto);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     @PutMapping("/{id}")
     public ResponseEntity<CustomerDTO> update(@PathVariable Long id, @Valid @RequestBody CustomerUpdateDTO dto) {
         CustomerDTO updatedDto = customerService.update(id, dto);

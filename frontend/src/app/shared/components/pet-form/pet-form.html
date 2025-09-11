@@ -1,0 +1,41 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ petToEdit ? 'Editar Pet' : 'Adicionar Novo Pet' }}</h3>
+      <button (click)="onClose()" class="close-button">
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </button>
+    </div>
+    <form [formGroup]="petForm" (ngSubmit)="onSave()">
+      <div class="modal-body">
+        <div>
+          <label for="petName" class="form-label">Nome do Pet</label>
+          <input type="text" id="petName" formControlName="name" class="form-input">
+        </div>
+        <div>
+          <label for="petBreed" class="form-label">Raça</label>
+          <select id="petBreed" formControlName="breedId" class="form-input">
+            <option [ngValue]="null" disabled>Selecione uma raça</option>
+            @for (breed of breeds; track breed.id) {
+              <option [value]="breed.id">{{ breed.name }} ({{ breed.species | titlecase }})</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label for="petBirthDate" class="form-label">Data de Nascimento</label>
+          <input type="date" id="petBirthDate" formControlName="birthDate" class="form-input">
+        </div>
+        <div>
+          <label for="petNotes" class="form-label">Observações</label>
+          <textarea id="petNotes" formControlName="notes" rows="3" class="form-input"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="onClose()" class="button-cancel">Cancelar</button>
+        <button type="submit" [disabled]="petForm.invalid" class="button-save">
+          {{ petToEdit ? 'Salvar Alterações' : 'Adicionar Pet' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

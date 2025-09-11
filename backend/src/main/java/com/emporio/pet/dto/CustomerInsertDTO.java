@@ -29,7 +29,6 @@ public class CustomerInsertDTO implements UserCreateRequest {
         public LocalDate birthDate;
 
         @NotBlank(message = "CPF é obrigatório")
-        @CPF(message = "CPF inválido")
         public String cpf;
 
         // Constructor

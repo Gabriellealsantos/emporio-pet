@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChange
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { faCat, faDog } from '@fortawesome/free-solid-svg-icons';
 import { Breed } from '../../../features/models/Breed';
-import { BreedService } from '../../../core/services/breed-service';
+import { BreedService } from '../../../core/services/breed.service';
 
 @Component({
   selector: 'app-breed-form',

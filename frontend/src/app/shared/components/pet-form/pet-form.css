@@ -1,0 +1,70 @@
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50;
+}
+
+.modal-card {
+  @apply bg-white rounded-lg w-11/12 max-w-lg shadow-xl;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/*
+  Cabeçalho, Corpo e Rodapé do Modal
+*/
+.modal-header {
+  @apply flex justify-between items-center p-4 border-b border-gray-200;
+}
+
+.modal-title {
+  @apply text-lg font-semibold text-gray-800;
+}
+
+.close-button {
+  @apply text-gray-400 hover:text-gray-600 transition-colors;
+}
+
+.modal-body {
+  @apply p-6 space-y-4; /* Adiciona espaçamento entre os campos do formulário */
+}
+
+.modal-footer {
+  @apply flex justify-end gap-3 p-4 bg-gray-50 rounded-b-lg;
+}
+
+/*
+  Estilos para os Campos do Formulário
+  - 'form-label': Etiqueta acima de cada campo.
+  - 'form-input': Estilo padrão para inputs, selects e textareas.
+*/
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.form-input {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
+}
+
+/*
+  Estilos para os Botões
+*/
+.button-cancel, .button-save {
+  @apply px-4 py-2 rounded-md font-semibold text-sm transition-transform;
+}
+
+.button-cancel {
+  @apply bg-white border border-gray-300 text-gray-700 hover:bg-gray-50;
+}
+
+.button-save {
+  @apply bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed;
+}
+
+.error-container {
+
+  min-height: 1.25rem;
+}
+
+/* Animação de entrada do modal */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

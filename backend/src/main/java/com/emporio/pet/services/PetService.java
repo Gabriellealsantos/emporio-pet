@@ -1,5 +1,6 @@
 package com.emporio.pet.services;
 
+import com.emporio.pet.dto.PetAdminInsertDTO;
 import com.emporio.pet.dto.PetDTO;
 import com.emporio.pet.dto.PetInsertDTO;
 import com.emporio.pet.dto.PetUpdateDTO;
@@ -7,6 +8,7 @@ import com.emporio.pet.entities.Breed;
 import com.emporio.pet.entities.Customer;
 import com.emporio.pet.entities.Pet;
 import com.emporio.pet.entities.User;
+import com.emporio.pet.repositories.CustomerRepository;
 import com.emporio.pet.repositories.PetRepository;
 import com.emporio.pet.services.exceptions.ForbiddenException;
 import com.emporio.pet.services.exceptions.ResourceNotFoundException;
@@ -22,11 +24,13 @@ public class PetService {
     private final PetRepository petRepository;
     private final AuthService authService;
     private final BreedService breedService;
+    private final CustomerRepository customerRepository;
 
-    public PetService(PetRepository petRepository, AuthService authService, BreedService breedService) {
+    public PetService(PetRepository petRepository, AuthService authService, BreedService breedService, CustomerRepository customerRepository) {
         this.petRepository = petRepository;
         this.authService = authService;
         this.breedService = breedService;
+        this.customerRepository = customerRepository;
     }
 
     /**
@@ -44,6 +48,24 @@ public class PetService {
         if (!(user instanceof Customer owner)) {
             throw new ForbiddenException("Acesso negado. Apenas clientes podem cadastrar pets.");
         }
+
+        Breed breed = breedService.findEntityById(dto.getBreedId());
+
+        Pet pet = new Pet();
+        pet.setName(dto.getName());
+        pet.setBirthDate(dto.getBirthDate());
+        pet.setNotes(dto.getNotes());
+        pet.setOwner(owner);
+        pet.setBreed(breed);
+
+        pet = petRepository.save(pet);
+        return new PetDTO(pet);
+    }
+
+    @Transactional
+    public PetDTO adminCreatePet(PetAdminInsertDTO dto) {
+        Customer owner = customerRepository.findById(dto.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com o ID: " + dto.getOwnerId()));
 
         Breed breed = breedService.findEntityById(dto.getBreedId());
 

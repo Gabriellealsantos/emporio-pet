@@ -78,7 +78,7 @@ public class SecurityConfig {
         // Permite requisições de QUALQUER origem
         configuration.setAllowedOrigins(Arrays.asList("*"));
         // Permite os métodos mais comuns
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         // Permite QUALQUER cabeçalho
         configuration.setAllowedHeaders(Arrays.asList("*"));
 

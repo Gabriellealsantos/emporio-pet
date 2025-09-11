@@ -1,0 +1,110 @@
+@if (!isLoading() && client()) {
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <nav>
+      <ol class="flex items-center text-sm text-gray-600">
+        <li><a routerLink="/admin/dashboard" class="text-blue-600 hover:underline">Admin</a></li>
+        <li class="mx-2 text-gray-400">/</li>
+        <li><a routerLink="/admin/clientes" class="text-blue-600 hover:underline">Clientes</a></li>
+        <li class="mx-2 text-gray-400">/</li>
+        <li class="text-gray-500">{{ client()?.name }}</li>
+      </ol>
+    </nav>
+    <button (click)="goBack()" class="flex items-center text-sm text-gray-600 hover:text-gray-900">
+      <fa-icon [icon]="faArrowLeft" class="mr-2"></fa-icon>
+      Voltar
+    </button>
+  </div>
+  <h1 class="text-3xl font-bold text-gray-800 mb-8">Detalhes de {{ client()?.name }}</h1>
+
+  <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+    <div class="flex flex-col lg:flex-row gap-8">
+
+      <div class="w-full lg:w-7/12">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+            <fa-icon [icon]="faUser" class="w-5 h-5 mr-2 text-blue-500"></fa-icon>
+            Informações do Cliente
+          </h2>
+          <div class="space-y-5">
+            <div class="relative">
+              <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
+              <input type="text" formControlName="name" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg">
+            </div>
+            <div class="relative">
+              <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
+              <input type="email" formControlName="email" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
+            </div>
+            <div class="relative">
+              <fa-icon [icon]="faIdCard" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
+              <input type="text" formControlName="cpf" mask="000.000.000-00" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg">
+            </div>
+            <div class="relative">
+              <fa-icon [icon]="faPhone" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
+              <input type="tel" formControlName="phone" mask="(00) 00000-0000" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg">
+            </div>
+            <div class="relative">
+              <fa-icon [icon]="faCalendar" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
+              <input type="date" formControlName="birthDate" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg">
+            </div>
+          </div>
+          <button type="submit" [disabled]="clientForm.pristine || clientForm.invalid" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition disabled:bg-blue-300 disabled:cursor-not-allowed">
+            Salvar Alterações
+          </button>
+        </div>
+      </div>
+
+      <div class="w-full lg:w-5/12 space-y-6">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <fa-icon [icon]="faCog" class="w-5 h-5 mr-2 text-blue-500"></fa-icon>
+            Gerenciamento
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status do Cliente</label>
+              <select id="status" formControlName="status" (change)="onStatusChange($event)" class="w-full py-2 px-3 border border-gray-300 rounded-lg">
+                @for (status of statusList; track status) {
+                  <option [value]="status">{{ translateStatus(status) }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <fa-icon [icon]="faHeart" class="w-5 h-5 mr-2 text-blue-500"></fa-icon>
+            Pets Cadastrados
+          </h2>
+          <div class="space-y-3 mb-4">
+            @for (pet of client()?.pets; track pet.id) {
+              <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                <span>{{ pet.name }}</span>
+                <button type="button" (click)="openEditPetModal(pet)" class="text-blue-600 hover:text-blue-900 text-sm">
+                  Editar
+                </button>
+              </div>
+            } @empty {
+              <p class="text-sm text-gray-500">Nenhum pet cadastrado.</p>
+            }
+          </div>
+          <button type="button" (click)="openCreatePetModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg flex items-center justify-center">
+            <fa-icon [icon]="faPlus" class="w-4 h-4 mr-2"></fa-icon>
+            Adicionar Novo Pet
+          </button>
+        </div>
+      </div>
+    </div>
+  </form> </div>
+
+@if (isPetModalOpen()) {
+  <app-pet-form
+    [petToEdit]="editingPet()"
+    (save)="onSavePet($event)"
+    (close)="closePetModal()">
+  </app-pet-form>
+}
+
+} @else {
+  <p class="text-center py-10">Carregando dados do cliente...</p>
+}

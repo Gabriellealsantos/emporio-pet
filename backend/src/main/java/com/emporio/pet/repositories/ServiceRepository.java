@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface ServiceRepository extends JpaRepository<Services, Long> {
+
     List<Services> findByActiveTrue();
 
     @Query("SELECT s FROM Services s " +

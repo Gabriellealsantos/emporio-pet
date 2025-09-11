@@ -1,15 +1,15 @@
-import { Component, inject } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '../../../shared/components/button-component/button-component';
+import { Observable } from 'rxjs';
+import { BreedService } from '../../../core/services/breed.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { PetService } from '../../../core/services/PetService';
-import { PetInsertDTO } from '../../models/PetInsertDTO';
-import { BreedService } from '../../../core/services/breed-service';
-import { Observable } from 'rxjs';
+import { ButtonComponent } from '../../../shared/components/button-component/button-component';
 import { Breed } from '../../models/Breed';
+import { PetInsertDTO } from '../../models/PetInsertDTO';
 
 export const pastOrPresentDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   if (!control.value) { return null; }
@@ -54,7 +54,7 @@ export class PetRegistrationComponent {
   });
 
   ngOnInit(): void {
-    this.breeds$ = this.breedService.findAll();
+    this.breeds$ = this.breedService.findAll({ name: '', species: '' });
   }
 
 

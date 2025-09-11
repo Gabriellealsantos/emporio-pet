@@ -4,6 +4,9 @@ import { AdminLayoutComponent } from './features/components/admin-layout-compone
 import { DashboardComponent } from './features/components/dashboard-component/dashboard-component';
 import { BreedsPageComponent } from './features/components/breeds-component/breeds-component';
 import { ErrorPageComponent } from './features/components/error-page-component/error-page-component';
+import { userResolver } from './core/resolvers/user.resolver';
+import { ClientPageComponent } from './features/components/client-page-component/client-page-component';
+import { EmployeeListComponent } from './features/components/employee-list-component/employee-list-component';
 
 export const routes: Routes = [
   {
@@ -58,7 +61,6 @@ export const routes: Routes = [
       ),
   },
 
-  // ✅ Nova rota Home
   {
     path: 'home',
     loadComponent: () =>
@@ -67,10 +69,12 @@ export const routes: Routes = [
       ),
   },
 
-  // ✅ Home como rota padrão
   {
     path: 'admin',
     canActivate: [authGuard],
+    resolve: {
+      user: userResolver
+    },
     component: AdminLayoutComponent,
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -84,6 +88,26 @@ export const routes: Routes = [
         component: BreedsPageComponent,
         data: { title: 'Gerenciamento de Raças' },
       },
+      {
+        path: 'clientes',
+        component: ClientPageComponent,
+        data: { title: 'Gerenciamento de Clientes' },
+      },
+      {
+        path: 'clientes/:id',
+        loadComponent: () => import('./features/components/client-detail-component/client-detail-component').then(m => m.ClientDetailComponent),
+        data: { title: 'Detalhes do Cliente' },
+      },
+      {
+        path: 'funcionarios', // Rota da lista
+        component: EmployeeListComponent,
+        data: { title: 'Gerenciamento de Funcionários' },
+      },
+      {
+        path: 'funcionarios/:id',
+        loadComponent: () => import('./features/components/employee-detail-component/employee-detail-component').then(m => m.EmployeeDetailComponent),
+        data: { title: 'Detalhes do Funcionário' },
+      }
     ],
   },
 

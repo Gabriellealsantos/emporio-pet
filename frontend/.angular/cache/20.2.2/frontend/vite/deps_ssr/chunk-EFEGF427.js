@@ -4,16 +4,16 @@ import {
   ROUTES,
   Router,
   loadChildren
-} from "./chunk-E3SCESVF.js";
+} from "./chunk-PQ73BKYO.js";
+import {
+  HTTP_ROOT_INTERCEPTOR_FNS
+} from "./chunk-7ICQVXAS.js";
 import {
   BrowserDomAdapter,
   BrowserModule,
   EVENT_MANAGER_PLUGINS,
   EventManagerPlugin
 } from "./chunk-B4S7VP3P.js";
-import {
-  HTTP_ROOT_INTERCEPTOR_FNS
-} from "./chunk-7ICQVXAS.js";
 import {
   APP_BASE_HREF,
   NullViewportScroller,
@@ -29517,4 +29517,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-BI5BJNZ6.js.map
+//# sourceMappingURL=chunk-EFEGF427.js.map

@@ -1,46 +1,42 @@
+// Em src/app/core/guards/auth.guard.ts
+
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, map, of, switchMap, take } from 'rxjs';
+// Adicione 'take' aos imports do rxjs
+import { catchError, finalize, map, of, switchMap, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { LoadingService } from '../services/loading.service';
 
 export const authGuard = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const loadingService = inject(LoadingService);
 
-  // Pega o estado atual do usuário
+  const token = authService.getToken();
+  if (!token) {
+    router.navigate(['/login']);
+    return of(false);
+  }
+
+  loadingService.show();
+
   return authService.getCurrentUser().pipe(
-    take(1), // Pega apenas o valor atual e encerra
+    // AQUI ESTÁ A CORREÇÃO:
+    // Pegamos apenas o 1º valor emitido e completamos o fluxo.
+    take(1),
+
     switchMap(user => {
-      // 1. Se já temos um usuário no serviço, a pessoa está logada.
       if (user) {
         return of(true);
       }
-
-      // 2. Se não temos usuário, verificamos se há um token no storage.
-      const token = authService.getToken();
-      if (!token) {
-        // Se não há token, com certeza não está logado.
-        router.navigate(['/login']);
-        return of(false);
-      }
-
-      // 3. Se há um token, mas não há usuário, tentamos buscar o usuário (validação do token).
       return authService.getMe().pipe(
-        map(fetchedUser => {
-          // Se o backend retornou um usuário, o token é válido.
-          if (fetchedUser) {
-            return true;
-          }
-          // Se por algum motivo não veio usuário, bloqueia.
-          router.navigate(['/login']);
-          return false;
-        }),
+        map(fetchedUser => !!fetchedUser),
         catchError(() => {
-          // Se a chamada getMe() deu erro (ex: 401), o token é inválido.
-          authService.logout(); // Limpa o estado e redireciona
+          authService.logout();
           return of(false);
         })
       );
-    })
+    }),
+    finalize(() => loadingService.hide())
   );
 };

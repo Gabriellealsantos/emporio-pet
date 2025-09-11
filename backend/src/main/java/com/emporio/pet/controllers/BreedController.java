@@ -29,8 +29,10 @@ public class BreedController {
      * selecionar uma ao cadastrar ou editar um de seus pets.
      */
     @GetMapping
-    public ResponseEntity<List<BreedDTO>> findAll() {
-        return ResponseEntity.ok(breedService.findAll());
+    public ResponseEntity<List<BreedDTO>> findAll(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "species", required = false) Species species) {
+        return ResponseEntity.ok(breedService.findAll(name, species));
     }
 
     /**

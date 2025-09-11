@@ -1,15 +1,14 @@
 package com.emporio.pet.controllers;
 
 import com.emporio.pet.dto.UserDTO;
+import com.emporio.pet.dto.UserStatusUpdateDTO;
+import com.emporio.pet.entities.enums.UserStatus;
 import com.emporio.pet.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -30,8 +29,15 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<UserDTO>> findAll(Pageable pageable) {
-        Page<UserDTO> page = userService.findAll(pageable);
+    public ResponseEntity<Page<UserDTO>> findAll(
+            Pageable pageable,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "status", required = false) UserStatus status,
+            @RequestParam(value = "role", required = false) String role) {
+
+        // Agora chama a nova versão do método no serviço, passando todos os filtros
+        Page<UserDTO> page = userService.findAll(pageable, name, status, role);
+
         return ResponseEntity.ok(page);
     }
 
@@ -40,6 +46,13 @@ public class UserController {
     public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
         UserDTO dto = userService.findById(id);
         return ResponseEntity.ok(dto);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<UserDTO> updateStatus(@PathVariable Long id, @RequestBody UserStatusUpdateDTO dto) {
+        UserDTO updatedUser = userService.updateStatus(id, dto.getNewStatus());
+        return ResponseEntity.ok(updatedUser);
     }
 
 }

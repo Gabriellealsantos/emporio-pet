@@ -1,0 +1,104 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Adicionar Novo Funcionário</h3>
+      <button (click)="onClose()" class="close-button">
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </button>
+    </div>
+    <form [formGroup]="employeeForm" (ngSubmit)="onSave()">
+      <div class="modal-body">
+        <div>
+          <input
+            type="text"
+            formControlName="name"
+            class="form-input"
+            placeholder="Nome Completo"
+          />
+          @if (employeeForm.get('name')?.invalid && employeeForm.get('name')?.touched) {
+          <p class="error-message">Nome é obrigatório (mín. 3 caracteres).</p>
+          }
+        </div>
+
+        <div>
+          <input type="email" formControlName="email" class="form-input" placeholder="Email" />
+          @if (employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched) { @if
+          (employeeForm.get('email')?.hasError('required')) {
+          <p class="error-message">Email é obrigatório.</p>
+          } @if (employeeForm.get('email')?.hasError('email')) {
+          <p class="error-message">Formato de email inválido.</p>
+          } }
+        </div>
+
+        <div>
+          <input type="text" formControlName="phone" class="form-input" placeholder="Telefone" />
+          @if (employeeForm.get('phone')?.invalid && employeeForm.get('phone')?.touched) {
+          <p class="error-message">Telefone é obrigatório.</p>
+          }
+        </div>
+
+        <div>
+          <input
+            formControlName="birthDate"
+            class="form-input"
+            placeholder="Data de Nascimento"
+            type="text"
+            onfocus="(this.type='date')"
+            onblur="(this.type='text')"
+          />
+          @if (employeeForm.get('birthDate')?.invalid && employeeForm.get('birthDate')?.touched) {
+          <p class="error-message">Data de Nascimento é obrigatória.</p>
+          }
+        </div>
+
+        <div>
+          <input
+            type="text"
+            formControlName="jobTitle"
+            class="form-input"
+            placeholder="Cargo (ex: Tosador, Recepcionista)"
+          />
+          @if (employeeForm.get('jobTitle')?.invalid && employeeForm.get('jobTitle')?.touched) {
+          <p class="error-message">Cargo é obrigatório.</p>
+          }
+        </div>
+
+        <div>
+          <input
+            type="password"
+            formControlName="password"
+            class="form-input"
+            placeholder="Senha (mín. 6 caracteres)"
+          />
+          @if (employeeForm.get('password')?.invalid && employeeForm.get('password')?.touched) {
+          <p class="error-message">Senha é obrigatória (mín. 6 caracteres).</p>
+          }
+        </div>
+
+        <div>
+          <input
+            type="password"
+            formControlName="confirmPassword"
+            class="form-input"
+            placeholder="Confirmar Senha"
+          />
+          @if (employeeForm.get('confirmPassword')?.invalid &&
+          employeeForm.get('confirmPassword')?.touched) {
+          <p class="error-message">Confirmação de senha é obrigatória.</p>
+          }
+        </div>
+
+        @if (employeeForm.errors?.['passwordMismatch'] &&
+        employeeForm.get('confirmPassword')?.touched) {
+        <p class="error-message">As senhas não coincidem.</p>
+        }
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="onClose()" class="button-cancel">Cancelar</button>
+        <button type="submit" [disabled]="employeeForm.invalid" class="button-save">
+          Adicionar Funcionário
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

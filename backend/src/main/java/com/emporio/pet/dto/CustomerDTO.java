@@ -1,6 +1,8 @@
 package com.emporio.pet.dto;
 
 import com.emporio.pet.entities.Customer;
+import com.emporio.pet.entities.enums.UserStatus;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +19,6 @@ public class CustomerDTO extends UserDTO {
     public CustomerDTO(Customer entity) {
         super(entity);
         this.cpf = entity.getCpf();
-
         if (entity.getPets() != null) {
             this.pets = entity.getPets().stream().map(PetDTO::new).collect(Collectors.toList());
         }

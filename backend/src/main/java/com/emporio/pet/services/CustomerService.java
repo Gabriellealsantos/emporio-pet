@@ -64,20 +64,21 @@ public class CustomerService {
 
     @Transactional
     public CustomerDTO update(Long id, CustomerUpdateDTO dto) {
-
-        if (!authService.isSelfOrAdmin(id)) { // Simplificaremos este método
+        // A verificação de segurança (isSelfOrAdmin) já está aqui, perfeito.
+        if (!authService.isSelfOrAdmin(id)) {
             throw new ForbiddenException("Acesso negado");
         }
-
 
         Customer customerEntity = customerRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
 
-
+        // Atualiza os campos se eles foram fornecidos no DTO
         if (dto.getName() != null) customerEntity.setName(dto.getName());
         if (dto.getPhone() != null) customerEntity.setPhone(dto.getPhone());
         if (dto.getCpf() != null) customerEntity.setCpf(dto.getCpf());
+        if (dto.getBirthDate() != null) customerEntity.setBirthDate(dto.getBirthDate());
+
 
         customerEntity = customerRepository.save(customerEntity);
         return new CustomerDTO(customerEntity);
