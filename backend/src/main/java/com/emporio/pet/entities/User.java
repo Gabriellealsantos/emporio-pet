@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,6 +38,9 @@ public abstract class User implements UserDetails {
 
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private LocalDate birthDate;
+
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant creationTimestamp;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tb_user_role",
@@ -115,6 +119,14 @@ public abstract class User implements UserDetails {
 
     public void addRole(Role role) {
         roles.add(role);
+    }
+
+    @PrePersist
+    public void prePersist() {
+        creationTimestamp = Instant.now();
+    }
+    public Instant getCreationTimestamp() {
+        return creationTimestamp;
     }
 
     public boolean hasRole(String roleName) {

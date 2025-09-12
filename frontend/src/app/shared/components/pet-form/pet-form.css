@@ -59,8 +59,11 @@
 }
 
 .error-container {
-
   min-height: 1.25rem;
+}
+
+textarea.form-input {
+  resize: none;
 }
 
 /* Animação de entrada do modal */

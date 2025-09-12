@@ -1,4 +1,5 @@
 import { Breed } from "./Breed";
+import { User } from "./User";
 
 export interface Pet {
   id: number;
@@ -6,4 +7,5 @@ export interface Pet {
   birthDate: string;
   notes: string | null;
   breed: Breed;
+  owner: User;
 }

@@ -23,4 +23,6 @@ public interface ServiceRepository extends JpaRepository<Services, Long>, JpaSpe
             "LEFT JOIN FETCH e.roles " +
             "WHERE s.id = :id")
     Optional<Services> findByIdWithQualifiedEmployees(@Param("id") Long id);
+
+    Optional<Services> findByNameIgnoreCase(String name);
 }

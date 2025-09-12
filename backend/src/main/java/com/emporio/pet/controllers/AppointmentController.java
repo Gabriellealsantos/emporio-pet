@@ -3,8 +3,11 @@ package com.emporio.pet.controllers;
 import com.emporio.pet.dto.AppointmentDTO;
 import com.emporio.pet.dto.AppointmentInsertDTO;
 import com.emporio.pet.dto.AppointmentStatusUpdateDTO;
+import com.emporio.pet.entities.enums.AppointmentStatus;
 import com.emporio.pet.services.AppointmentService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,14 +56,16 @@ public class AppointmentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE', 'ROLE_ADMIN')")
-    public ResponseEntity<List<AppointmentDTO>> findAppointmentsByDate(
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<Page<AppointmentDTO>> findAppointmentsByDate(
             @RequestParam(value = "minDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate minDate,
             @RequestParam(value = "maxDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate maxDate,
-            @RequestParam(value = "employeeId", required = false) Long employeeId) {
+            @RequestParam(value = "employeeId", required = false) Long employeeId,
+            @RequestParam(value = "status", required = false) AppointmentStatus status,
+            Pageable pageable) { // Pageable é injetado automaticamente
 
-        List<AppointmentDTO> list = appointmentService.findAppointmentsByDate(minDate, maxDate, employeeId);
-        return ResponseEntity.ok(list);
+        Page<AppointmentDTO> page = appointmentService.findAppointmentsByDate(minDate, maxDate, employeeId, status, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @PatchMapping("/{id}/status")
@@ -71,7 +76,7 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN')")
     public ResponseEntity<Void> cancel(@PathVariable Long id) {
         appointmentService.cancel(id);
         return ResponseEntity.noContent().build();

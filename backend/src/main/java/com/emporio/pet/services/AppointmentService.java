@@ -8,6 +8,8 @@ import com.emporio.pet.repositories.*;
 import com.emporio.pet.services.exceptions.ConflictException;
 import com.emporio.pet.services.exceptions.ForbiddenException;
 import com.emporio.pet.services.exceptions.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -160,6 +162,8 @@ public class AppointmentService {
         long duration = service.getEstimatedDurationInMinutes(); // Não inclui o buffer aqui
         entity.setEndDateTime(dto.getStartDateTime().plusMinutes(duration));
 
+        entity.setChargedAmount(service.getPrice());
+
         entity.setStatus(AppointmentStatus.SCHEDULED); // Status inicial
 
         entity = appointmentRepository.save(entity);
@@ -198,16 +202,13 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> findAppointmentsByDate(LocalDate min, LocalDate max, Long employeeId) {
-        // Converte as datas para LocalDateTime para abranger o dia inteiro
-        LocalDateTime minDate = min.atStartOfDay(); // Ex: 2025-09-10T00:00:00
-        LocalDateTime maxDate = max.atTime(23, 59, 59); // Ex: 2025-09-10T23:59:59
+    public Page<AppointmentDTO> findAppointmentsByDate(LocalDate min, LocalDate max, Long employeeId, AppointmentStatus status, Pageable pageable) {
+        LocalDateTime minDate = min.atStartOfDay();
+        LocalDateTime maxDate = max.atTime(23, 59, 59);
 
-        List<Appointment> appointments = appointmentRepository.findAppointmentsByFilter(minDate, maxDate, employeeId);
+        Page<Appointment> appointmentsPage = appointmentRepository.findAppointmentsByFilter(minDate, maxDate, employeeId, status, pageable);
 
-        return appointments.stream()
-                .map(AppointmentDTO::new)
-                .collect(Collectors.toList());
+        return appointmentsPage.map(AppointmentDTO::new);
     }
 
     @Transactional
@@ -228,33 +229,33 @@ public class AppointmentService {
 
     @Transactional
     public void cancel(Long id) {
-        // 1. Pega o usuário e verifica se é um cliente
         User user = authService.authenticated();
-        if (!(user instanceof Customer customer)) {
-            throw new ForbiddenException("Acesso negado. Apenas clientes podem cancelar agendamentos.");
-        }
-
-        // 2. Busca o agendamento
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado com o ID: " + id));
 
-        // 3. Validação de Segurança: O agendamento pertence a este cliente?
-        if (!appointment.getPet().getOwner().getId().equals(customer.getId())) {
-            throw new ForbiddenException("Acesso negado. Você só pode cancelar seus próprios agendamentos.");
+        if (user.hasRole("ADMIN")) {
+            if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+                throw new ConflictException("Agendamentos concluídos não podem ser cancelados.");
+            }
+            appointment.setStatus(AppointmentStatus.CANCELED);
+            appointmentRepository.save(appointment);
+            return;
         }
 
-        // 4. Validação de Regra de Negócio: Antecedência de 24 horas
-        if (LocalDateTime.now().plusHours(24).isAfter(appointment.getStartDateTime())) {
-            throw new ConflictException("Cancelamento não permitido. O agendamento deve ser cancelado com mais de 24 horas de antecedência.");
+        if (user instanceof Customer customer) {
+            if (!appointment.getPet().getOwner().getId().equals(customer.getId())) {
+                throw new ForbiddenException("Acesso negado. Você só pode cancelar seus próprios agendamentos.");
+            }
+            if (LocalDateTime.now().plusHours(24).isAfter(appointment.getStartDateTime())) {
+                throw new ConflictException("Cancelamento não permitido. O agendamento deve ser cancelado com mais de 24 horas de antecedência.");
+            }
+            if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELED) {
+                throw new ConflictException("Este agendamento não pode mais ser cancelado.");
+            }
+            appointment.setStatus(AppointmentStatus.CANCELED);
+            appointmentRepository.save(appointment);
+        } else {
+            throw new ForbiddenException("Acesso negado.");
         }
-
-        // 5. Validação de Status: Não cancelar o que já foi concluído
-        if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELED) {
-            throw new ConflictException("Este agendamento não pode mais ser cancelado.");
-        }
-
-        // 6. Altera o status e salva
-        appointment.setStatus(AppointmentStatus.CANCELED);
-        appointmentRepository.save(appointment);
     }
 }

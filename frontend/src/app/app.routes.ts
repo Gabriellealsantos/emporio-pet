@@ -8,6 +8,7 @@ import { userResolver } from './core/resolvers/user.resolver';
 import { ClientPageComponent } from './features/components/client-page-component/client-page-component';
 import { EmployeeListComponent } from './features/components/employee-list-component/employee-list-component';
 import { ServicesPageComponent } from './features/components/services-page-component/services-page-component';
+import { AppointmentsPageComponent } from './features/components/appointments-page-component/appointments-page-component';
 
 export const routes: Routes = [
   {
@@ -83,6 +84,11 @@ export const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
         data: { title: 'Dashboard' },
+      },
+      {
+        path: 'agendamentos',
+        component: AppointmentsPageComponent,
+        data: { title: 'Gerenciamento de Agendamentos' },
       },
       {
         path: 'servicos',

@@ -5,12 +5,14 @@ import com.emporio.pet.dto.ServicesInsertDTO;
 import com.emporio.pet.dto.ServicesUpdateDTO;
 import com.emporio.pet.entities.Services;
 import com.emporio.pet.repositories.ServiceRepository;
+import com.emporio.pet.services.exceptions.ConflictException;
 import com.emporio.pet.services.exceptions.ForbiddenException;
 import com.emporio.pet.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +32,10 @@ public class ServicesService {
      */
     @Transactional
     public ServicesDTO createService(ServicesInsertDTO dto) {
+        Optional<Services> existingService = serviceRepository.findByNameIgnoreCase(dto.getName());
+        if (existingService.isPresent()) {
+            throw new ConflictException("Já existe um serviço com este nome.");
+        }
         Services service = new Services();
         service.setName(dto.getName());
         service.setDescription(dto.getDescription());
@@ -71,6 +77,14 @@ public class ServicesService {
     public ServicesDTO update(Long id, ServicesUpdateDTO dto) {
         if (!authService.isSelfOrAdmin(authService.authenticated().getId())) {
             throw new ForbiddenException("Acesso negado. Apenas administradores podem atualizar serviços.");
+        }
+
+        if (dto.getName() != null) {
+            Optional<Services> existingService = serviceRepository.findByNameIgnoreCase(dto.getName());
+            if (existingService.isPresent() && !existingService.get().getId().equals(id)) {
+                throw new ConflictException("Já existe outro serviço com este nome.");
+            }
+            dto.setName(dto.getName());
         }
 
         Services service = serviceRepository.findById(id)

@@ -9,7 +9,7 @@ import { NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 @Component({
   selector: 'app-services-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FaIconComponent, NgxMaskPipe],
+  imports: [CommonModule, ReactiveFormsModule, FaIconComponent],
   providers: [provideNgxMask()],
   templateUrl: './services-form.html',
   styleUrls: ['../pet-form/pet-form.css']

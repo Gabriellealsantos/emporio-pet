@@ -10,6 +10,7 @@ public class PetDTO {
     private LocalDate birthDate;
     private String notes;
     private BreedDTO breed;
+    private UserDTO owner;
 
     public PetDTO() {
     }
@@ -21,6 +22,9 @@ public class PetDTO {
         this.notes = entity.getNotes();
         if (entity.getBreed() != null) {
             this.breed = new BreedDTO(entity.getBreed());
+        }
+        if (entity.getOwner() != null) {
+            this.owner = new UserDTO(entity.getOwner());
         }
     }
 
@@ -62,5 +66,13 @@ public class PetDTO {
 
     public void setBreed(BreedDTO breed) {
         this.breed = breed;
+    }
+
+    public UserDTO getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserDTO owner) {
+        this.owner = owner;
     }
 }
