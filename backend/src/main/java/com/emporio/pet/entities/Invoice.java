@@ -1,14 +1,16 @@
 package com.emporio.pet.entities;
 
-import com.emporio.pet.entities.enums.OrderStatus;
+import com.emporio.pet.entities.enums.InvoiceStatus;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_invoice") // CORRIGIDO: Nome da tabela para maior clareza
+@Table(name = "tb_invoice")
 public class Invoice {
 
     @Id
@@ -19,25 +21,29 @@ public class Invoice {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    private Instant timestamp;
-
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-
     @OneToMany(mappedBy = "invoice")
     private List<Appointment> appointments = new ArrayList<>();
+
+    @Column(nullable = false)
+    private Instant timestamp;
+
+    @Column(nullable = false)
+    private BigDecimal totalAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InvoiceStatus status;
 
     public Invoice() {
     }
 
-    public Invoice(Long id, Customer customer, Instant timestamp, OrderStatus status) {
+    public Invoice(Long id, Customer customer, Instant timestamp, BigDecimal totalAmount, InvoiceStatus status) {
         this.id = id;
         this.customer = customer;
         this.timestamp = timestamp;
+        this.totalAmount = totalAmount;
         this.status = status;
     }
-
 
     public Long getId() {
         return id;
@@ -55,6 +61,10 @@ public class Invoice {
         this.customer = customer;
     }
 
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
     public Instant getTimestamp() {
         return timestamp;
     }
@@ -63,28 +73,20 @@ public class Invoice {
         this.timestamp = timestamp;
     }
 
-    public OrderStatus getStatus() {
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public InvoiceStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(InvoiceStatus status) {
         this.status = status;
     }
 
-    public List<Appointment> getAppointments() {
-        return appointments;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Invoice invoice = (Invoice) o;
-        return Objects.equals(id, invoice.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }

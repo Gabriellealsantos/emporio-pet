@@ -50,6 +50,19 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
+    public List<AppointmentDTO> findFaturableByCustomer(Long customerId) {
+        if (!customerRepository.existsById(customerId)) {
+            throw new ResourceNotFoundException("Cliente não encontrado com o ID: " + customerId);
+        }
+
+        List<Appointment> appointments = appointmentRepository.findFaturableAppointmentsByCustomer(customerId);
+
+        return appointments.stream()
+                .map(AppointmentDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<LocalDateTime> findAvailableTimes(Long serviceId, LocalDate date, Long employeeId) {  {
 
         // 1. Buscar Informações Iniciais

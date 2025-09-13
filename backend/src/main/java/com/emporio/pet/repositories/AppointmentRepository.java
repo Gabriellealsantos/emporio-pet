@@ -60,8 +60,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     Integer countByStartDateTimeBetween(LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT SUM(a.chargedAmount) FROM Appointment a WHERE a.status = 'COMPLETED' AND a.startDateTime BETWEEN :start AND :end")
-    BigDecimal sumCompletedAppointmentsByDate(LocalDateTime start, LocalDateTime end);
+    @Query("SELECT a FROM Appointment a WHERE a.pet.owner.id = :customerId AND a.status = 'COMPLETED' AND a.invoice IS NULL ORDER BY a.startDateTime ASC")
+    List<Appointment> findFaturableAppointmentsByCustomer(@Param("customerId") Long customerId);
 
     List<Appointment> findTop5ByOrderByStartDateTimeDesc();
 }

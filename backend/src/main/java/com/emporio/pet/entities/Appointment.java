@@ -60,8 +60,6 @@ public class Appointment {
         this.invoice = invoice;
     }
 
-    // Getters e Setters para todos os campos
-
     public Long getId() {
         return id;
     }
@@ -125,8 +123,6 @@ public class Appointment {
     public void setEmployee(Employee employee) {
         this.employee = employee;
     }
-
-
 
     public Invoice getInvoice() {
         return invoice;

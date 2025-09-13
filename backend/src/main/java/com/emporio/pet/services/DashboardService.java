@@ -4,14 +4,17 @@ import com.emporio.pet.dto.DashboardDTO;
 import com.emporio.pet.dto.RecentActivityDTO;
 import com.emporio.pet.entities.Appointment;
 import com.emporio.pet.entities.Customer;
+import com.emporio.pet.entities.enums.InvoiceStatus;
 import com.emporio.pet.repositories.AppointmentRepository;
 import com.emporio.pet.repositories.CustomerRepository;
+import com.emporio.pet.repositories.InvoiceRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.print.Pageable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -25,10 +28,14 @@ public class DashboardService {
 
     private final AppointmentRepository appointmentRepository;
     private final CustomerRepository customerRepository;
+    private final InvoiceRepository invoiceRepository; // 1. Injetar a dependência
 
-    public DashboardService(AppointmentRepository appointmentRepository, CustomerRepository customerRepository) {
+    public DashboardService(AppointmentRepository appointmentRepository,
+                            CustomerRepository customerRepository,
+                            InvoiceRepository invoiceRepository) {
         this.appointmentRepository = appointmentRepository;
         this.customerRepository = customerRepository;
+        this.invoiceRepository = invoiceRepository;
     }
 
     @Transactional(readOnly = true)
@@ -51,12 +58,22 @@ public class DashboardService {
         dto.setNovosClientesMesVsPassado(calculatePercentageChange(novosClientesMesPassado, novosClientesMes));
 
         // --- 3. Lógica de Faturamento ---
-        BigDecimal faturamentoMes = appointmentRepository.sumCompletedAppointmentsByDate(currentMonth.atDay(1).atStartOfDay(), currentMonth.atEndOfMonth().atTime(23, 59, 59));
-        BigDecimal faturamentoMesPassado = appointmentRepository.sumCompletedAppointmentsByDate(lastMonth.atDay(1).atStartOfDay(), lastMonth.atEndOfMonth().atTime(23, 59, 59));
+        YearMonth currentMonthInvoice = YearMonth.now();
+        YearMonth lastMonthInvoice = currentMonth.minusMonths(1);
 
-        // Garante que não seja nulo se não houver faturamento
+        Instant startOfCurrentMonth = currentMonthInvoice.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+        Instant endOfCurrentMonth = lastMonthInvoice.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
+
+        Instant startOfLastMonth = lastMonth.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+        Instant endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
+
+        // Usa o novo método para buscar faturas com status PAID
+        BigDecimal faturamentoMes = invoiceRepository.sumPaidInvoicesByDate(InvoiceStatus.PAID, startOfCurrentMonth, endOfCurrentMonth);
+        BigDecimal faturamentoMesPassado = invoiceRepository.sumPaidInvoicesByDate(InvoiceStatus.PAID, startOfLastMonth, endOfLastMonth);
+
         dto.setFaturamentoMes(faturamentoMes == null ? BigDecimal.ZERO : faturamentoMes);
         dto.setFaturamentoMesVsPassado(calculatePercentageChange(faturamentoMesPassado, faturamentoMes));
+
 
         List<RecentActivityDTO> recentActivities = new ArrayList<>();
 

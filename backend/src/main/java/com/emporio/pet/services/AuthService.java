@@ -4,6 +4,7 @@ import com.emporio.pet.dto.LoginRequestDTO;
 import com.emporio.pet.dto.MessageDTO;
 import com.emporio.pet.entities.PasswordRecover;
 import com.emporio.pet.entities.User;
+import com.emporio.pet.repositories.InvoiceRepository;
 import com.emporio.pet.repositories.PasswordRecoverRepository;
 import com.emporio.pet.repositories.UserRepository;
 import com.emporio.pet.services.exceptions.EmailException;
@@ -32,6 +33,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordRecoverRepository passwordRecoverRepository;
     private final JavaMailSender emailSender;
+    private final InvoiceRepository invoiceRepository;
 
     @Value("${email.password-recover.token.minutes}")
     private Long tokenMinutes;
@@ -40,13 +42,14 @@ public class AuthService {
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager, JwtService jwtService,
-                       PasswordRecoverRepository passwordRecoverRepository, JavaMailSender emailSender) {
+                       PasswordRecoverRepository passwordRecoverRepository, JavaMailSender emailSender, InvoiceRepository invoiceRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.passwordRecoverRepository = passwordRecoverRepository;
         this.emailSender = emailSender;
+        this.invoiceRepository = invoiceRepository;
     }
 
 
@@ -54,6 +57,20 @@ public class AuthService {
         var usernamePassword = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
         Authentication auth = this.authenticationManager.authenticate(usernamePassword);
         return jwtService.generateToken(auth);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean canAccessInvoice(Long invoiceId) {
+        User authenticatedUser = authenticated();
+
+        // Se for admin ou funcionário, sempre pode acessar.
+        if (authenticatedUser.hasRole("ROLE_ADMIN") || authenticatedUser.hasRole("ROLE_EMPLOYEE")) {
+            return true;
+        }
+
+        return invoiceRepository.findById(invoiceId)
+                .map(invoice -> invoice.getCustomer().getId().equals(authenticatedUser.getId()))
+                .orElse(false);
     }
 
     public User authenticated() {

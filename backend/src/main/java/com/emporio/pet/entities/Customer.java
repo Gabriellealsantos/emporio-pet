@@ -15,9 +15,6 @@ public class Customer extends User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer")
-    private List<Invoice> invoices = new ArrayList<>();
-
     public Customer() {
         super();
     }
@@ -36,7 +33,4 @@ public class Customer extends User {
         return pets;
     }
 
-    public List<Invoice> getInvoices() {
-        return invoices;
-    }
 }

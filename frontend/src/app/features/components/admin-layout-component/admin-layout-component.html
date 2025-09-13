@@ -13,7 +13,7 @@
   </div>
 
   @if (isSidebarOpen()) {
-  <div (click)="toggleSidebar()" class="overlay open"></div>
+    <div (click)="toggleSidebar()" class="overlay open"></div>
   }
 
   <div class="sidebar bg-white w-64 shadow-md flex-shrink-0" [class.open]="isSidebarOpen()">
@@ -33,7 +33,6 @@
             <span>Dashboard</span>
           </a>
         </li>
-
         <li>
           <a routerLink="agendamentos" routerLinkActive="active" class="nav-link">
             <fa-icon [icon]="faCalendarAlt" class="mr-3 w-5 text-center"></fa-icon>
@@ -72,16 +71,35 @@
     <header class="bg-white shadow-sm p-4 sticky top-0 z-10">
       <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold text-gray-800">{{ pageTitle() }}</h1>
+
         <div class="flex items-center space-x-4">
           <button class="text-gray-600">
             <fa-icon [icon]="faBell"></fa-icon>
           </button>
-          <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-              <fa-icon [icon]="faUser"></fa-icon>
+
+          @if (currentUser(); as user) {
+            <div class="relative">
+              <button (click)="toggleDropdown()" class="flex items-center space-x-2 cursor-pointer">
+                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span class="font-bold text-blue-600">{{ user.name.charAt(0) }}</span>
+                </div>
+                <span class="hidden md:inline text-gray-700 font-medium">{{ user.name.split(' ')[0] }}</span>
+              </button>
+
+              @if (isDropdownOpen()) {
+                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                  <a routerLink="perfil" (click)="toggleDropdown()" class="dropdown-item">
+                    <fa-icon [icon]="faUserCircle" class="mr-2"></fa-icon>
+                    Meu Perfil
+                  </a>
+                  <button (click)="logout()" class="dropdown-item w-full text-left">
+                    <fa-icon [icon]="faSignOutAlt" class="mr-2"></fa-icon>
+                    Sair
+                  </button>
+                </div>
+              }
             </div>
-            <span class="hidden md:inline text-gray-700">Gabriel</span>
-          </div>
+          }
         </div>
       </div>
     </header>

@@ -75,6 +75,13 @@ public class AppointmentController {
         return ResponseEntity.ok(updatedDto);
     }
 
+    @GetMapping("/faturable")
+    @PreAuthorize("hasAnyRole('ROLE_EMPLOYEE', 'ROLE_ADMIN')")
+    public ResponseEntity<List<AppointmentDTO>> findFaturableAppointments(@RequestParam Long customerId) {
+        List<AppointmentDTO> list = appointmentService.findFaturableByCustomer(customerId);
+        return ResponseEntity.ok(list);
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN')")
     public ResponseEntity<Void> cancel(@PathVariable Long id) {
