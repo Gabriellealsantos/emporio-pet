@@ -42,6 +42,11 @@ export class AppointmentService {
     return this.http.get<Page<Appointment>>(this.apiUrl, { params });
   }
 
+  findFaturableByCustomer(customerId: number): Observable<Appointment[]> {
+    const params = new HttpParams().set('customerId', customerId.toString());
+    return this.http.get<Appointment[]>(`${this.apiUrl}/faturable`, { params });
+  }
+
   // Futuramente, implementaremos os métodos de ação
   updateStatus(id: number, newStatus: string): Observable<Appointment> {
     // A ser implementado

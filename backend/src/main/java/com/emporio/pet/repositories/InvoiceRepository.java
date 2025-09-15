@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
@@ -35,4 +36,12 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             @Param("minDate") Instant minDate,
             @Param("maxDate") Instant maxDate,
             @Param("status") InvoiceStatus status);
+
+    @Query("SELECT i FROM Invoice i " +
+            "JOIN FETCH i.customer c " +
+            "JOIN FETCH i.appointments a " +
+            "JOIN FETCH a.pet p " +
+            "JOIN FETCH a.service s " +
+            "WHERE i.id = :id")
+    Optional<Invoice> findByIdWithDetails(@Param("id") Long id);
 }

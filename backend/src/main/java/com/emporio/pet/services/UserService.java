@@ -3,6 +3,7 @@ package com.emporio.pet.services;
 import com.emporio.pet.dto.CustomerDTO;
 import com.emporio.pet.dto.EmployeeDTO;
 import com.emporio.pet.dto.UserDTO;
+import com.emporio.pet.dto.UserUpdateDTO;
 import com.emporio.pet.entities.Customer;
 import com.emporio.pet.entities.Employee;
 import com.emporio.pet.entities.Role;
@@ -11,6 +12,7 @@ import com.emporio.pet.entities.enums.UserStatus;
 import com.emporio.pet.repositories.EmployeeRepository;
 import com.emporio.pet.repositories.UserRepository;
 import com.emporio.pet.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,31 +38,29 @@ public class UserService {
         this.employeeRepository = employeeRepository;
     }
 
+
     @Transactional(readOnly = true)
     public Page<UserDTO> findAll(Pageable pageable, String searchTerm, UserStatus status, String role) {
 
-        Specification<User> spec = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+        String roleAuthority = "ROLE_" + role.toUpperCase();
+        Page<User> userPage;
 
-            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-                Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchTerm.toUpperCase() + "%");
-                Predicate jobTitlePredicate = criteriaBuilder.like(criteriaBuilder.upper(root.get("jobTitle")), "%" + searchTerm.toUpperCase() + "%");
-                predicates.add(criteriaBuilder.or(namePredicate, jobTitlePredicate));
-            }
+        // Se o termo de busca não for fornecido, buscamos todos os usuários com aquele role/status
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
 
-            // Filtros de status e role continuam iguais
-            if (status != null) {
-                predicates.add(criteriaBuilder.equal(root.get("userStatus"), status));
-            }
-            if (role != null && !role.trim().isEmpty()) {
-                Join<User, Role> rolesJoin = root.join("roles");
-                predicates.add(criteriaBuilder.equal(rolesJoin.get("authority"), "ROLE_" + role.toUpperCase()));
-            }
+        // Remove todos os caracteres não numéricos
+        String cleanNumericTerm = searchTerm.replaceAll("[^0-9]", "");
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
+        // DECISÃO: Se o termo limpo tiver 1 ou mais dígitos, asumimos que é uma busca por CPF.
+        if (cleanNumericTerm.length() > 0) {
+            userPage = userRepository.findByCpfAndRole(cleanNumericTerm, status, roleAuthority, pageable);
+        } else {
+            userPage = userRepository.findByNameAndRole(searchTerm, status, roleAuthority, pageable);
+        }
 
-        Page<User> userPage = userRepository.findAll(spec, pageable);
+        // Mapeamento para DTOs continua o mesmo
         return userPage.map(user -> {
             if (user instanceof Customer) {
                 return new CustomerDTO((Customer) user);
@@ -71,7 +71,6 @@ public class UserService {
             }
         });
     }
-
     @Transactional
     public UserDTO findById(Long id) {
         User user = userRepository.findById(id)
@@ -96,6 +95,24 @@ public class UserService {
             return new CustomerDTO((Customer) user);
         }
         if (user instanceof Employee) {
+            return new EmployeeDTO((Employee) user);
+        }
+        return new UserDTO(user);
+    }
+
+    @Transactional
+    public UserDTO updateMe(UserUpdateDTO dto) {
+        User user = authService.authenticated();
+
+        if (dto.getName() != null) user.setName(dto.getName());
+        if (dto.getPhone() != null) user.setPhone(dto.getPhone());
+        if (dto.getBirthDate() != null) user.setBirthDate(dto.getBirthDate());
+
+        user = userRepository.save(user);
+
+        if (user instanceof Customer) {
+            return new CustomerDTO((Customer) user);
+        } else if (user instanceof Employee) {
             return new EmployeeDTO((Employee) user);
         }
         return new UserDTO(user);

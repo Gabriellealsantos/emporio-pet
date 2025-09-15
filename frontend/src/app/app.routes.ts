@@ -75,16 +75,33 @@ export const routes: Routes = [
     path: 'admin',
     canActivate: [authGuard],
     resolve: {
-      user: userResolver
+      user: userResolver,
     },
     component: AdminLayoutComponent,
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
+        path: 'caixa',
+        loadComponent: () =>
+          import('./features/components/invoicing-page-component/invoicing-page-component').then(
+            (m) => m.InvoicingPageComponent
+          ),
+        data: { title: 'Caixa' },
+      },
+      {
         path: 'dashboard',
         component: DashboardComponent,
         data: { title: 'Dashboard' },
       },
+      {
+        path: 'perfil',
+        loadComponent: () =>
+          import('./features/components/profile-page-component/profile-page-component').then(
+            (m) => m.ProfileComponent
+          ),
+        data: { title: 'Meu Perfil' },
+      },
+
       {
         path: 'agendamentos',
         component: AppointmentsPageComponent,
@@ -107,7 +124,10 @@ export const routes: Routes = [
       },
       {
         path: 'clientes/:id',
-        loadComponent: () => import('./features/components/client-detail-component/client-detail-component').then(m => m.ClientDetailComponent),
+        loadComponent: () =>
+          import('./features/components/client-detail-component/client-detail-component').then(
+            (m) => m.ClientDetailComponent
+          ),
         data: { title: 'Detalhes do Cliente' },
       },
       {
@@ -117,9 +137,12 @@ export const routes: Routes = [
       },
       {
         path: 'funcionarios/:id',
-        loadComponent: () => import('./features/components/employee-detail-component/employee-detail-component').then(m => m.EmployeeDetailComponent),
+        loadComponent: () =>
+          import('./features/components/employee-detail-component/employee-detail-component').then(
+            (m) => m.EmployeeDetailComponent
+          ),
         data: { title: 'Detalhes do Funcionário' },
-      }
+      },
     ],
   },
 

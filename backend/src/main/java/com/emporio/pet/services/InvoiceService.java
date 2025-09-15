@@ -144,7 +144,10 @@ public class InvoiceService {
 
         invoice = invoiceRepository.save(invoice);
 
-        return new InvoiceDTO(invoice);
+        Invoice completeInvoice = invoiceRepository.findByIdWithDetails(invoice.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Fatura recém-criada não encontrada."));
+
+        return new InvoiceDTO(completeInvoice);
     }
 
 }

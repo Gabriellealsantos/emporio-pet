@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Credentials } from '../../features/models/Credentials';
 import { User } from '../../features/models/User';
+import { PasswordChange } from '../../features/models/PasswordChange';
 
 interface LoginResponse {
   token: string;
@@ -41,6 +42,17 @@ export class AuthService {
         });
       }
     }
+  }
+
+  updateCurrentUser(user: User): void {
+    this.user$.next(user);
+  }
+
+  changePassword(dto: PasswordChange): Observable<void> {
+    return this.http.put<void>(
+      `${environment.BASE_URL}/auth/change-password`,
+      dto
+    );
   }
 
   getCurrentUser(): Observable<User | null> {

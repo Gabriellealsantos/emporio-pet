@@ -13,7 +13,7 @@ public class InvoiceDTO {
     private Instant timestamp;
     private BigDecimal totalAmount;
     private InvoiceStatus status;
-    private Long customerId;
+    private CustomerDTO customer;
     private List<AppointmentDTO> appointments;
 
     public InvoiceDTO(Invoice entity) {
@@ -21,16 +21,35 @@ public class InvoiceDTO {
         this.timestamp = entity.getTimestamp();
         this.totalAmount = entity.getTotalAmount();
         this.status = entity.getStatus();
-        this.customerId = entity.getCustomer().getId();
+
+        this.customer = new CustomerDTO(entity.getCustomer());
+
         this.appointments = entity.getAppointments().stream()
                 .map(AppointmentDTO::new)
                 .collect(Collectors.toList());
     }
 
-    public Long getId() { return id; }
-    public Instant getTimestamp() { return timestamp; }
-    public BigDecimal getTotalAmount() { return totalAmount; }
-    public InvoiceStatus getStatus() { return status; }
-    public Long getCustomerId() { return customerId; }
-    public List<AppointmentDTO> getAppointments() { return appointments; }
+    public Long getId() {
+        return id;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public InvoiceStatus getStatus() {
+        return status;
+    }
+
+    public CustomerDTO getCustomer() {
+        return customer;
+    }
+
+    public List<AppointmentDTO> getAppointments() {
+        return appointments;
+    }
 }

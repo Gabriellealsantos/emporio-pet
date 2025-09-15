@@ -1,17 +1,11 @@
 package com.emporio.pet.controllers;
 
-import com.emporio.pet.dto.ForgotPasswordDTO;
-import com.emporio.pet.dto.LoginRequestDTO;
-import com.emporio.pet.dto.LoginResponseDTO;
-import com.emporio.pet.dto.MessageDTO;
-import com.emporio.pet.dto.ResetPasswordDTO;
+import com.emporio.pet.dto.*;
 import com.emporio.pet.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -38,5 +32,12 @@ public class AuthController {
     @PostMapping("/new-password")
     public ResponseEntity<MessageDTO> resetPassword(@RequestBody @Valid ResetPasswordDTO body) {
         return ResponseEntity.ok(authService.saveNewPassword(body.getToken(), body.getNewPassword()));
+    }
+
+    @PutMapping("/change-password")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN', 'CLIENT')")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody PasswordChangeDTO dto) {
+        authService.changePassword(dto);
+        return ResponseEntity.noContent().build();
     }
 }

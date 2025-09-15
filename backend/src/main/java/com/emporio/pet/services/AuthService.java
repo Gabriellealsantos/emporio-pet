@@ -2,6 +2,7 @@ package com.emporio.pet.services;
 
 import com.emporio.pet.dto.LoginRequestDTO;
 import com.emporio.pet.dto.MessageDTO;
+import com.emporio.pet.dto.PasswordChangeDTO;
 import com.emporio.pet.entities.PasswordRecover;
 import com.emporio.pet.entities.User;
 import com.emporio.pet.repositories.InvoiceRepository;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -127,5 +129,18 @@ public class AuthService {
 
         String message = "Senha alterada com sucesso!";
         return new MessageDTO(message);
+    }
+
+    @Transactional
+    public void changePassword(PasswordChangeDTO dto) {
+        User user = authenticated();
+
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Senha atual incorreta.");
+        }
+
+
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        userRepository.save(user);
     }
 }

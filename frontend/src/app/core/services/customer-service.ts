@@ -39,7 +39,7 @@ export class CustomerService {
 
     // Filtros dinâmicos
     if (filters.name) {
-      params = params.set('name', filters.name);
+      params = params.set('searchTerm', filters.name);
     }
     if (filters.status && filters.status !== 'all') {
       params = params.set('status', filters.status);

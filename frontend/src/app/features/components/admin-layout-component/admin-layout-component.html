@@ -13,7 +13,7 @@
   </div>
 
   @if (isSidebarOpen()) {
-    <div (click)="toggleSidebar()" class="overlay open"></div>
+  <div (click)="toggleSidebar()" class="overlay open"></div>
   }
 
   <div class="sidebar bg-white w-64 shadow-md flex-shrink-0" [class.open]="isSidebarOpen()">
@@ -22,11 +22,19 @@
         <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
           <fa-icon [icon]="faPaw" class="text-blue-500"></fa-icon>
         </div>
-        <h1 class="text-lg font-bold text-gray-800">Empório Pet Admin</h1>
+        <a routerLink="home" routerLinkActive="active" class="nav-link">
+          <h1 class="text-lg font-bold text-gray-800">Empório Pet Admin</h1>
+        </a>
       </div>
     </div>
     <nav class="mt-4">
       <ul>
+        <li>
+          <a routerLink="caixa" routerLinkActive="active" class="nav-link">
+            <fa-icon [icon]="faCashRegister" class="mr-3 w-5 text-center"></fa-icon>
+            <span>Caixa</span>
+          </a>
+        </li>
         <li>
           <a routerLink="dashboard" routerLinkActive="active" class="nav-link">
             <fa-icon [icon]="faChartPie" class="mr-3 w-5 text-center"></fa-icon>
@@ -78,27 +86,29 @@
           </button>
 
           @if (currentUser(); as user) {
-            <div class="relative">
-              <button (click)="toggleDropdown()" class="flex items-center space-x-2 cursor-pointer">
-                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span class="font-bold text-blue-600">{{ user.name.charAt(0) }}</span>
-                </div>
-                <span class="hidden md:inline text-gray-700 font-medium">{{ user.name.split(' ')[0] }}</span>
-              </button>
+          <div class="relative">
+            <button (click)="toggleDropdown()" class="flex items-center space-x-2 cursor-pointer">
+              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <span class="font-bold text-blue-600">{{ user.name.charAt(0) }}</span>
+              </div>
+              <span class="hidden md:inline text-gray-700 font-medium">{{
+                user.name.split(' ')[0]
+              }}</span>
+            </button>
 
-              @if (isDropdownOpen()) {
-                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
-                  <a routerLink="perfil" (click)="toggleDropdown()" class="dropdown-item">
-                    <fa-icon [icon]="faUserCircle" class="mr-2"></fa-icon>
-                    Meu Perfil
-                  </a>
-                  <button (click)="logout()" class="dropdown-item w-full text-left">
-                    <fa-icon [icon]="faSignOutAlt" class="mr-2"></fa-icon>
-                    Sair
-                  </button>
-                </div>
-              }
+            @if (isDropdownOpen()) {
+            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+              <a routerLink="perfil" (click)="toggleDropdown()" class="dropdown-item">
+                <fa-icon [icon]="faUserCircle" class="mr-2"></fa-icon>
+                Meu Perfil
+              </a>
+              <button (click)="logout()" class="dropdown-item w-full text-left">
+                <fa-icon [icon]="faSignOutAlt" class="mr-2"></fa-icon>
+                Sair
+              </button>
             </div>
+            }
+          </div>
           }
         </div>
       </div>

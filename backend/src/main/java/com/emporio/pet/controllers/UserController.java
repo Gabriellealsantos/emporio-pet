@@ -2,8 +2,10 @@ package com.emporio.pet.controllers;
 
 import com.emporio.pet.dto.UserDTO;
 import com.emporio.pet.dto.UserStatusUpdateDTO;
+import com.emporio.pet.dto.UserUpdateDTO;
 import com.emporio.pet.entities.enums.UserStatus;
 import com.emporio.pet.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +39,13 @@ public class UserController {
 
         Page<UserDTO> page = userService.findAll(pageable, searchTerm, status, role);
         return ResponseEntity.ok(page);
+    }
+
+    @PutMapping("/me")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN', 'CLIENT')")
+    public ResponseEntity<UserDTO> updateMe(@Valid @RequestBody UserUpdateDTO dto) {
+        UserDTO updatedUser = userService.updateMe(dto);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/{id}")
