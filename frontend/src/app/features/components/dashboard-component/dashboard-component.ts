@@ -9,7 +9,9 @@ import {
   faShoppingCart,
   faArrowDown,
   faUser,
-  faCalendarPlus
+  faCalendarPlus,
+  faPaw,
+  faFileInvoiceDollar,
 } from '@fortawesome/free-solid-svg-icons';
 import { DashboardData } from '../../models/DashboardData';
 import { DashboardService } from '../../../core/services/dashboard.service';
@@ -20,7 +22,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [FaIconComponent, CommonModule],
   templateUrl: './dashboard-component.html',
-  styleUrls: ['./dashboard-component.css']
+  styleUrls: ['./dashboard-component.css'],
 })
 export class DashboardComponent {
   private dashboardService = inject(DashboardService);
@@ -34,6 +36,8 @@ export class DashboardComponent {
   faArrowDown = faArrowDown;
   faUser = faUser;
   faCalendarPlus = faCalendarPlus;
+  faPaw = faPaw;
+  faFileInvoiceDollar = faFileInvoiceDollar;
 
   dashboardData = signal<DashboardData | null>(null);
   isLoading = signal(true);
@@ -50,10 +54,24 @@ export class DashboardComponent {
         this.isLoading.set(false);
       },
       error: () => {
-        console.error("Erro ao carregar dados do dashboard.");
+        console.error('Erro ao carregar dados do dashboard.');
         this.isLoading.set(false);
-      }
+      },
     });
   }
-}
 
+  getActivityStyle(type: string): { icon: any; class: string } {
+    switch (type) {
+      case 'NEW_CUSTOMER':
+        return { icon: this.faUserPlus, class: 'bg-green-100 text-green-500' };
+      case 'APPOINTMENT':
+        return { icon: this.faCalendarPlus, class: 'bg-blue-100 text-blue-500' };
+      case 'INVOICE_PAID':
+        return { icon: this.faFileInvoiceDollar, class: 'bg-purple-100 text-purple-500' };
+      case 'NEW_PET':
+        return { icon: this.faPaw, class: 'bg-indigo-100 text-indigo-500' };
+      default:
+        return { icon: this.faCalendarCheck, class: 'bg-gray-100 text-gray-500' };
+    }
+  }
+}

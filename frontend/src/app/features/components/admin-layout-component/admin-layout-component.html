@@ -30,15 +30,21 @@
     <nav class="mt-4">
       <ul>
         <li>
+          <a routerLink="dashboard" routerLinkActive="active" class="nav-link">
+            <fa-icon [icon]="faChartPie" class="mr-3 w-5 text-center"></fa-icon>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
           <a routerLink="caixa" routerLinkActive="active" class="nav-link">
             <fa-icon [icon]="faCashRegister" class="mr-3 w-5 text-center"></fa-icon>
             <span>Caixa</span>
           </a>
         </li>
         <li>
-          <a routerLink="dashboard" routerLinkActive="active" class="nav-link">
-            <fa-icon [icon]="faChartPie" class="mr-3 w-5 text-center"></fa-icon>
-            <span>Dashboard</span>
+          <a routerLink="faturas" routerLinkActive="active" class="nav-link">
+            <fa-icon [icon]="faFileInvoiceDollar" class="mr-3 w-5 text-center"></fa-icon>
+            <span>Faturas</span>
           </a>
         </li>
         <li>

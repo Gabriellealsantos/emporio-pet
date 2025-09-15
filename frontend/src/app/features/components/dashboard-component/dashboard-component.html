@@ -1,129 +1,95 @@
-@if (!isLoading() && dashboardData(); as data) {
-<div class="space-y-8">
-  <div class="mb-6">
-    <h2 class="text-xl font-semibold text-gray-700">Olá, Gabriel! Bem-vindo(a) de volta.</h2>
-    <p class="text-gray-500">Aqui está o resumo das atividades do seu pet shop.</p>
-  </div>
+@if (isLoading()) {
+  <p class="text-center py-10">Carregando dados do dashboard...</p>
+} @else if (dashboardData(); as data) {
+  <div class="space-y-8">
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-700">Olá! Bem-vindo(a) de volta.</h2>
+      <p class="text-gray-500">Aqui está o resumo das atividades do seu pet shop.</p>
+    </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-gray-500 text-sm font-medium">Agendamentos para Hoje</p>
-          <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ data.agendamentosHoje }}</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium">Agendamentos para Hoje</p>
+            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ data.agendamentosHoje }}</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+            <fa-icon [icon]="faCalendarCheck" class="text-blue-500 text-xl"></fa-icon>
+          </div>
         </div>
-        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-          <fa-icon [icon]="faCalendarCheck" class="text-blue-500 text-xl"></fa-icon>
+        @if (data.agendamentosHojeVsOntem !== 0) {
+          <div class="mt-4">
+            <span class="text-sm font-medium" [ngClass]="data.agendamentosHojeVsOntem >= 0 ? 'text-green-500' : 'text-red-500'">
+              <fa-icon [icon]="data.agendamentosHojeVsOntem >= 0 ? faArrowUp : faArrowDown" class="mr-1"></fa-icon>
+              {{ Math.abs(data.agendamentosHojeVsOntem) | number:'1.0-0' }}% em relação a ontem
+            </span>
+          </div>
+        }
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium">Novos Clientes (Mês)</p>
+            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ data.novosClientesMes }}</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+            <fa-icon [icon]="faUserPlus" class="text-green-500 text-xl"></fa-icon>
+          </div>
         </div>
+        @if (data.novosClientesMesVsPassado !== 0) {
+          <div class="mt-4">
+            <span class="text-sm font-medium" [ngClass]="data.novosClientesMesVsPassado >= 0 ? 'text-green-500' : 'text-red-500'">
+              <fa-icon [icon]="data.novosClientesMesVsPassado >= 0 ? faArrowUp : faArrowDown" class="mr-1"></fa-icon>
+              {{ Math.abs(data.novosClientesMesVsPassado) | number:'1.0-0' }}% em relação ao mês passado
+            </span>
+          </div>
+        }
       </div>
-      @if (data.agendamentosHojeVsOntem !== 0) {
-      <div class="mt-4">
-        <span
-          class="text-sm font-medium"
-          [ngClass]="data.agendamentosHojeVsOntem >= 0 ? 'text-green-500' : 'text-red-500'"
-        >
-          <fa-icon
-            [icon]="data.agendamentosHojeVsOntem >= 0 ? faArrowUp : faArrowDown"
-            class="mr-1"
-          ></fa-icon>
-          {{ Math.abs(data.agendamentosHojeVsOntem) | number : '1.0-0' }}% em relação a ontem
-        </span>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium">Faturamento Parcial (Mês)</p>
+            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ data.faturamentoMes | currency:'BRL' }}</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+            <fa-icon [icon]="faDollarSign" class="text-purple-500 text-xl"></fa-icon>
+          </div>
+        </div>
+        @if (data.faturamentoMesVsPassado !== 0) {
+          <div class="mt-4">
+            <span class="text-sm font-medium" [ngClass]="data.faturamentoMesVsPassado >= 0 ? 'text-green-500' : 'text-red-500'">
+              <fa-icon [icon]="data.faturamentoMesVsPassado >= 0 ? faArrowUp : faArrowDown" class="mr-1"></fa-icon>
+              {{ Math.abs(data.faturamentoMesVsPassado) | number:'1.0-0' }}% em relação ao mês passado
+            </span>
+          </div>
+        }
       </div>
-      }
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-gray-500 text-sm font-medium">Novos Clientes (Mês)</p>
-          <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ data.novosClientesMes }}</h3>
-        </div>
-        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-          <fa-icon [icon]="faUserPlus" class="text-green-500 text-xl"></fa-icon>
-        </div>
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Atividades Recentes</h2>
+      <div class="space-y-4">
+        @for (activity of data.recentActivities; track $index) {
+          @let style = getActivityStyle(activity.type);
+          <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center" [ngClass]="style.class">
+              <fa-icon [icon]="style.icon"></fa-icon>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-gray-700">{{ activity.title }}</p>
+              <p class="text-xs text-gray-500">{{ activity.description }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-gray-400">{{ activity.timestamp | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+        } @empty {
+          <p class="text-sm text-gray-500 text-center py-4">Nenhuma atividade recente.</p>
+        }
       </div>
-      @if (data.novosClientesMesVsPassado !== 0) {
-      <div class="mt-4">
-        <span
-          class="text-sm font-medium"
-          [ngClass]="data.novosClientesMesVsPassado >= 0 ? 'text-green-500' : 'text-red-500'"
-        >
-          <fa-icon
-            [icon]="data.novosClientesMesVsPassado >= 0 ? faArrowUp : faArrowDown"
-            class="mr-1"
-          ></fa-icon>
-          {{ Math.abs(data.novosClientesMesVsPassado) | number : '1.0-0' }}% em relação ao mês
-          passado
-        </span>
-      </div>
-      }
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-gray-500 text-sm font-medium">Faturamento Parcial (Mês)</p>
-          <h3 class="text-2xl font-bold text-gray-800 mt-1">
-            {{ data.faturamentoMes | currency : 'BRL' }}
-          </h3>
-        </div>
-        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-          <fa-icon [icon]="faDollarSign" class="text-purple-500 text-xl"></fa-icon>
-        </div>
-      </div>
-      @if (data.faturamentoMesVsPassado !== 0) {
-      <div class="mt-4">
-        <span
-          class="text-sm font-medium"
-          [ngClass]="data.faturamentoMesVsPassado >= 0 ? 'text-green-500' : 'text-red-500'"
-        >
-          <fa-icon
-            [icon]="data.faturamentoMesVsPassado >= 0 ? faArrowUp : faArrowDown"
-            class="mr-1"
-          ></fa-icon>
-          {{ Math.abs(data.faturamentoMesVsPassado) | number : '1.0-0' }}% em relação ao mês passado
-        </span>
-      </div>
-      }
     </div>
   </div>
-
-
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold text-gray-800">Atividades Recentes</h2>
-    </div>
-
-    <div class="space-y-4">
-      @if (data.recentActivities && data.recentActivities.length > 0) { @for (activity of
-      data.recentActivities; track activity) {
-      <div class="flex items-center space-x-4">
-        <div
-          class="w-10 h-10 rounded-full flex items-center justify-center"
-          [ngClass]="activity.type === 'NEW_CUSTOMER' ? 'bg-green-100' : 'bg-blue-100'"
-        >
-          @if (activity.type === 'NEW_CUSTOMER') {
-          <fa-icon [icon]="faUser" class="text-green-500"></fa-icon>
-          } @else {
-          <fa-icon [icon]="faCalendarPlus" class="text-blue-500"></fa-icon>
-          }
-        </div>
-
-        <div class="flex-1">
-          <p class="text-sm font-semibold text-gray-700">{{ activity.title }}</p>
-          <p class="text-xs text-gray-500">{{ activity.description }}</p>
-        </div>
-
-        <div class="text-right">
-          <p class="text-xs text-gray-400">{{ activity.timestamp | date : 'dd/MM/yyyy HH:mm' }}</p>
-        </div>
-      </div>
-      } } @else {
-      <p class="text-sm text-gray-500 text-center py-4">Nenhuma atividade recente.</p>
-      }
-    </div>
-  </div>
-</div>
-} @else {
-<p class="text-center py-10">Carregando dados do dashboard...</p>
 }

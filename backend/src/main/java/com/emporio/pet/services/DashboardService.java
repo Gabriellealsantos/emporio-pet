@@ -8,6 +8,7 @@ import com.emporio.pet.entities.enums.InvoiceStatus;
 import com.emporio.pet.repositories.AppointmentRepository;
 import com.emporio.pet.repositories.CustomerRepository;
 import com.emporio.pet.repositories.InvoiceRepository;
+import com.emporio.pet.repositories.PetRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,14 +29,17 @@ public class DashboardService {
 
     private final AppointmentRepository appointmentRepository;
     private final CustomerRepository customerRepository;
-    private final InvoiceRepository invoiceRepository; // 1. Injetar a dependência
+    private final InvoiceRepository invoiceRepository;
+    private final PetRepository petRepository;
 
     public DashboardService(AppointmentRepository appointmentRepository,
                             CustomerRepository customerRepository,
-                            InvoiceRepository invoiceRepository) {
+                            InvoiceRepository invoiceRepository,
+                            PetRepository petRepository) {
         this.appointmentRepository = appointmentRepository;
         this.customerRepository = customerRepository;
         this.invoiceRepository = invoiceRepository;
+        this.petRepository = petRepository;
     }
 
     @Transactional(readOnly = true)
@@ -50,47 +54,45 @@ public class DashboardService {
         dto.setAgendamentosHojeVsOntem(calculatePercentageChange(agendamentosOntem, agendamentosHoje));
 
         // --- 2. Lógica de Novos Clientes ---
-        YearMonth currentMonth = YearMonth.now();
-        YearMonth lastMonth = currentMonth.minusMonths(1);
-        int novosClientesMes = customerRepository.countByCreationTimestampBetween(currentMonth.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), currentMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
-        int novosClientesMesPassado = customerRepository.countByCreationTimestampBetween(lastMonth.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), lastMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+        YearMonth currentMonthCustomer = YearMonth.now();
+        YearMonth lastMonthCustomer = currentMonthCustomer.minusMonths(1);
+        int novosClientesMes = customerRepository.countByCreationTimestampBetween(currentMonthCustomer.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), currentMonthCustomer.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+        int novosClientesMesPassado = customerRepository.countByCreationTimestampBetween(lastMonthCustomer.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), lastMonthCustomer.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
         dto.setNovosClientesMes(novosClientesMes);
         dto.setNovosClientesMesVsPassado(calculatePercentageChange(novosClientesMesPassado, novosClientesMes));
 
-        // --- 3. Lógica de Faturamento ---
-        YearMonth currentMonthInvoice = YearMonth.now();
-        YearMonth lastMonthInvoice = currentMonth.minusMonths(1);
+        // --- 3. Lógica de Faturamento (COM CORREÇÃO) ---
+        YearMonth currentMonth = YearMonth.now();
+        YearMonth lastMonth = currentMonth.minusMonths(1);
 
-        Instant startOfCurrentMonth = currentMonthInvoice.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-        Instant endOfCurrentMonth = lastMonthInvoice.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
+        Instant startOfCurrentMonth = currentMonth.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        // 👇 CORREÇÃO: Usar 'currentMonth' para o fim do mês atual, não 'lastMonthInvoice'
+        Instant endOfCurrentMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
 
-        Instant startOfLastMonth = lastMonth.atDay(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+        Instant startOfLastMonth = lastMonth.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
         Instant endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
 
-        // Usa o novo método para buscar faturas com status PAID
         BigDecimal faturamentoMes = invoiceRepository.sumPaidInvoicesByDate(InvoiceStatus.PAID, startOfCurrentMonth, endOfCurrentMonth);
         BigDecimal faturamentoMesPassado = invoiceRepository.sumPaidInvoicesByDate(InvoiceStatus.PAID, startOfLastMonth, endOfLastMonth);
 
         dto.setFaturamentoMes(faturamentoMes == null ? BigDecimal.ZERO : faturamentoMes);
         dto.setFaturamentoMesVsPassado(calculatePercentageChange(faturamentoMesPassado, faturamentoMes));
 
-
+        // --- 4. Lógica de Atividades Recentes (MELHORADA) ---
         List<RecentActivityDTO> recentActivities = new ArrayList<>();
 
-        List<Customer> recentCustomers = customerRepository.findTop5ByOrderByCreationTimestampDesc();
-        recentCustomers.forEach(customer -> {
+        // Atividade 1: Novos clientes
+        customerRepository.findTop5ByOrderByCreationTimestampDesc().forEach(customer -> {
             RecentActivityDTO activity = new RecentActivityDTO();
             activity.setType("NEW_CUSTOMER");
             activity.setTitle("Novo cliente cadastrado");
-            activity.setDescription(customer.getName() +
-                    " - Pet: " + (customer.getPets().isEmpty() ? "N/A" : customer.getPets().get(0).getName()));
+            activity.setDescription(customer.getName());
             activity.setTimestamp(customer.getCreationTimestamp());
             recentActivities.add(activity);
         });
 
-// Busca últimos 5 agendamentos
-        List<Appointment> recentAppointments = appointmentRepository.findTop5ByOrderByStartDateTimeDesc();
-        recentAppointments.forEach(app -> {
+        // Atividade 2: Últimos agendamentos
+        appointmentRepository.findTop5ByOrderByStartDateTimeDesc().forEach(app -> {
             RecentActivityDTO activity = new RecentActivityDTO();
             activity.setType("APPOINTMENT");
             activity.setTitle("Agendamento: " + app.getStatus().toString().toLowerCase());
@@ -99,10 +101,31 @@ public class DashboardService {
             recentActivities.add(activity);
         });
 
+        // 4. NOVO: Atividade 3: Faturas Pagas
+        invoiceRepository.findTop5ByStatusOrderByTimestampDesc(InvoiceStatus.PAID).forEach(invoice -> {
+            RecentActivityDTO activity = new RecentActivityDTO();
+            activity.setType("INVOICE_PAID");
+            activity.setTitle("Fatura Paga");
+            activity.setDescription("Fatura #" + invoice.getId() + " de " + invoice.getCustomer().getName());
+            activity.setTimestamp(invoice.getTimestamp());
+            recentActivities.add(activity);
+        });
+
+        // 5. NOVO: Atividade 4: Novos Pets Cadastrados
+        petRepository.findTop5ByOrderByIdDesc().forEach(pet -> {
+            RecentActivityDTO activity = new RecentActivityDTO();
+            activity.setType("NEW_PET");
+            activity.setTitle("Novo pet cadastrado");
+            activity.setDescription(pet.getName() + " (Dono(a): " + pet.getOwner().getName() + ")");
+            // Pet não tem timestamp, então usamos o do dono como uma aproximação para ordenação.
+            // Em um sistema real, o ideal seria que Pet também tivesse um 'creationTimestamp'.
+            activity.setTimestamp(pet.getOwner().getCreationTimestamp());
+            recentActivities.add(activity);
+        });
+
+        // Ordena a lista combinada de todas as atividades e pega as 5 mais recentes
         List<RecentActivityDTO> sortedActivities = recentActivities.stream()
-                .sorted(Comparator.comparing(RecentActivityDTO::getTimestamp,
-                                Comparator.nullsLast(Comparator.naturalOrder()))
-                        .reversed()) // Ordena normalmente e joga os nulos para o final
+                .sorted(Comparator.comparing(RecentActivityDTO::getTimestamp, Comparator.nullsLast(Comparator.reverseOrder())))
                 .limit(5)
                 .collect(Collectors.toList());
 

@@ -21,8 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @EntityGraph(attributePaths = {"roles"})
     Page<User> findAll(Specification<User> spec, Pageable pageable);
+
     @Query("SELECT u FROM User u JOIN u.roles r WHERE " +
-            "UPPER(u.name) LIKE UPPER(CONCAT('%', :name, '%')) AND " +
+            "(:name IS NULL OR UPPER(u.name) LIKE UPPER(CONCAT('%', :name, '%'))) AND " + // <-- MUDANÇA AQUI
             "(:status IS NULL OR u.userStatus = :status) AND " +
             "r.authority = :role")
     Page<User> findByNameAndRole(

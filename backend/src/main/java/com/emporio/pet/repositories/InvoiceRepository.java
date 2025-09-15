@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -44,4 +45,25 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             "JOIN FETCH a.service s " +
             "WHERE i.id = :id")
     Optional<Invoice> findByIdWithDetails(@Param("id") Long id);
+
+    @Query(value = "SELECT i FROM Invoice i JOIN i.customer c WHERE " +
+            "(:customerName IS NULL OR UPPER(c.name) LIKE UPPER(CONCAT('%', :customerName, '%'))) AND " +
+            "(:minDate IS NULL OR i.timestamp >= :minDate) AND " +
+            "(:maxDate IS NULL OR i.timestamp <= :maxDate) AND " +
+            "(:status IS NULL OR i.status = :status)",
+
+            countQuery = "SELECT COUNT(i) FROM Invoice i JOIN i.customer c WHERE " +
+                    "(:customerName IS NULL OR UPPER(c.name) LIKE UPPER(CONCAT('%', :customerName, '%'))) AND " +
+                    "(:minDate IS NULL OR i.timestamp >= :minDate) AND " +
+                    "(:maxDate IS NULL OR i.timestamp <= :maxDate) AND " +
+                    "(:status IS NULL OR i.status = :status)")
+    Page<Invoice> findFiltered(
+            Pageable pageable,
+            @Param("customerName") String customerName,
+            @Param("minDate") Instant minDate,
+            @Param("maxDate") Instant maxDate,
+            @Param("status") InvoiceStatus status
+    );
+
+    List<Invoice> findTop5ByStatusOrderByTimestampDesc(InvoiceStatus status);
 }

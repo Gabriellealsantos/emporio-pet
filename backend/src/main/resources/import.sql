@@ -41,6 +41,17 @@ INSERT INTO tb_pet (name, birth_date, notes, customer_id, breed_id, ativo) VALUE
 -- CORREÇÃO APLICADA AQUI: Inclusão do 'total_amount'
 INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES (2, '2025-08-10T09:00:00Z', 80.00, 'PAID'); -- Fatura para o Banho e Tosa
 INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES ( 2, '2025-08-19T11:00:00Z', 60.00, 'AWAITING_PAYMENT'); -- Fatura para a Vacinação
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES ( 2, '2025-08-19T11:00:00Z', 60.00, 'AWAITING_PAYMENT'); -- Fatura para a Vacinação
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES (2, '2025-08-10T09:00:00Z', 80.00, 'PAID'); -- Fatura para o Banho e Tosa
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES ( 2, '2025-08-19T11:00:00Z', 60.00, 'AWAITING_PAYMENT'); -- Fatura para a Vacinação
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES ( 2, '2025-08-19T11:00:00Z', 60.00, 'AWAITING_PAYMENT'); -- Fatura para a Vacinação
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES (2, '2025-08-10T09:00:00Z', 80.00, 'PAID'); -- Fatura para o Banho e Tosa
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES ( 2, '2025-08-19T11:00:00Z', 60.00, 'AWAITING_PAYMENT'); -- Fatura para a Vacinação
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES ( 2, '2025-08-19T11:00:00Z', 60.00, 'AWAITING_PAYMENT'); -- Fatura para a Vacinação
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES (2, '2025-08-10T09:00:00Z', 80.00, 'PAID'); -- Fatura para o Banho e Tosa
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES ( 2, '2025-08-19T11:00:00Z', 60.00, 'AWAITING_PAYMENT'); -- Fatura para a Vacinação
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES (2, '2025-09-10T09:00:00Z', 80.00, 'PAID');
+INSERT INTO tb_invoice ( customer_id, timestamp, total_amount, status) VALUES (2, '2025-09-10T09:00:00Z', 80.00, 'PAID');
 
 INSERT INTO tb_appointment (pet_id, service_id, employee_id, start_date_time, end_date_time, status, charged_amount, invoice_id) VALUES ( 1, 1, 3, '2025-08-10T10:00:00', '2025-08-10T11:30:00', 'COMPLETED', 80.00, 1);
 INSERT INTO tb_appointment (pet_id, service_id, employee_id, start_date_time, end_date_time, status, charged_amount, invoice_id) VALUES ( 1, 3, 3, '2025-08-20T14:00:00', '2025-08-20T14:20:00', 'SCHEDULED', 60.00, 2);

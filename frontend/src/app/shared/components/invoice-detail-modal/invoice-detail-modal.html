@@ -1,0 +1,61 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      @if (invoice(); as inv) {
+        <h3 class="modal-title">Detalhes da Fatura #{{ inv.id }}</h3>
+      }
+      <button (click)="closeModal()" class="close-button">
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      @if (isLoading()) {
+        <p>Carregando detalhes...</p>
+      } @else if (invoice(); as inv) {
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Cliente</p>
+            <p class="text-lg text-gray-800">{{ inv.customer.name }}</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-500">Data de Emissão</p>
+            <p class="text-gray-800">{{ inv.timestamp | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-500">Status</p>
+            <span class="px-2 py-1 text-xs font-semibold leading-tight rounded-full"
+              [ngClass]="{
+                'bg-yellow-100 text-yellow-800': inv.status === 'AWAITING_PAYMENT',
+                'bg-green-100 text-green-800': inv.status === 'PAID',
+                'bg-red-100 text-red-800': inv.status === 'CANCELED'
+              }">
+              {{ inv.status === 'AWAITING_PAYMENT' ? 'Pendente' : (inv.status === 'PAID' ? 'Paga' : 'Cancelada') }}
+            </span>
+          </div>
+
+          <div class="border-t pt-4">
+            <p class="text-sm font-medium text-gray-500 mb-2">Itens Faturados</p>
+            <div class="space-y-2">
+              @for (app of inv.appointments; track app.id) {
+                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                  <span class="text-gray-700">{{ app.service.name }} ({{ app.pet.name }})</span>
+                  <span class="font-medium text-gray-800">{{ app.service.price | currency:'BRL' }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      @if (invoice(); as inv) {
+        <div class="w-full flex justify-end items-center">
+          <span class="text-lg font-bold text-gray-800">VALOR TOTAL:</span>
+          <span class="text-2xl font-bold text-blue-600 ml-2">{{ inv.totalAmount | currency:'BRL' }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

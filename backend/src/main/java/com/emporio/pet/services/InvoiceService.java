@@ -150,4 +150,12 @@ public class InvoiceService {
         return new InvoiceDTO(completeInvoice);
     }
 
+    @Transactional(readOnly = true)
+    public Page<InvoiceDTO> find(Pageable pageable, String customerName, Instant minDate, Instant maxDate, InvoiceStatus status) {
+
+        Page<Invoice> page = invoiceRepository.findFiltered(pageable, customerName, minDate, maxDate, status);
+
+        return page.map(InvoiceDTO::new);
+    }
+
 }

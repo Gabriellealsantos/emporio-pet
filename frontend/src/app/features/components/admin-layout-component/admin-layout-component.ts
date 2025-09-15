@@ -20,7 +20,8 @@ import {
   faIdBadge,
   faUserCircle,
   faSignOutAlt,
-  faCashRegister
+  faCashRegister,
+  faFileInvoiceDollar
 } from '@fortawesome/free-solid-svg-icons';
 import { filter, map } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
@@ -51,6 +52,7 @@ export class AdminLayoutComponent implements OnInit {
   faUserCircle = faUserCircle;
   faSignOutAlt = faSignOutAlt;
   faCashRegister = faCashRegister;
+  faFileInvoiceDollar = faFileInvoiceDollar;
 
   pageTitle = signal('Carregando...');
   private router = inject(Router);

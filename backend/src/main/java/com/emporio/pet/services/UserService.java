@@ -45,22 +45,20 @@ public class UserService {
         String roleAuthority = "ROLE_" + role.toUpperCase();
         Page<User> userPage;
 
-        // Se o termo de busca não for fornecido, buscamos todos os usuários com aquele role/status
-        if (searchTerm == null || searchTerm.trim().isEmpty()) {
-            return Page.empty(pageable);
-        }
+        // Limpa o termo de busca ANTES, verificando se é nulo.
+        String cleanNumericTerm = (searchTerm != null) ? searchTerm.replaceAll("[^0-9]", "") : "";
 
-        // Remove todos os caracteres não numéricos
-        String cleanNumericTerm = searchTerm.replaceAll("[^0-9]", "");
-
-        // DECISÃO: Se o termo limpo tiver 1 ou mais dígitos, asumimos que é uma busca por CPF.
-        if (cleanNumericTerm.length() > 0) {
+        // Se o termo de busca parece ser um CPF...
+        if (searchTerm != null && cleanNumericTerm.length() > 0) {
             userPage = userRepository.findByCpfAndRole(cleanNumericTerm, status, roleAuthority, pageable);
-        } else {
+        }
+        // Senão (se for uma busca por nome ou se a busca estiver vazia/nula)...
+        else {
+            // Passamos o searchTerm (que pode ser nulo ou uma string de nome) para a busca por nome.
+            // A query `LIKE '%%'` no repositório vai lidar com a busca vazia/nula e retornar todos.
             userPage = userRepository.findByNameAndRole(searchTerm, status, roleAuthority, pageable);
         }
 
-        // Mapeamento para DTOs continua o mesmo
         return userPage.map(user -> {
             if (user instanceof Customer) {
                 return new CustomerDTO((Customer) user);
@@ -71,6 +69,7 @@ public class UserService {
             }
         });
     }
+
     @Transactional
     public UserDTO findById(Long id) {
         User user = userRepository.findById(id)

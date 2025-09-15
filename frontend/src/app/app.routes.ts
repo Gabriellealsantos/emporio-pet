@@ -80,6 +80,12 @@ export const routes: Routes = [
     component: AdminLayoutComponent,
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: { title: 'Dashboard' },
+      },
       {
         path: 'caixa',
         loadComponent: () =>
@@ -89,9 +95,12 @@ export const routes: Routes = [
         data: { title: 'Caixa' },
       },
       {
-        path: 'dashboard',
-        component: DashboardComponent,
-        data: { title: 'Dashboard' },
+        path: 'faturas',
+        loadComponent: () =>
+          import('./features/components/invoice-list-page-component/invoice-list-page-component').then(
+            (m) => m.InvoiceListPageComponent
+          ),
+        data: { title: 'Gerenciamento de Faturas' },
       },
       {
         path: 'perfil',
