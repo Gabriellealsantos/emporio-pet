@@ -1,5 +1,3 @@
-// Em src/app/features/components/client-detail-component/client-detail-component.ts
-
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common'; // Importe Location
 import { ActivatedRoute, RouterLink } from '@angular/router';

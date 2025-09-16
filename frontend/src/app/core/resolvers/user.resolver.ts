@@ -1,4 +1,3 @@
-// src/app/core/resolvers/user.resolver.ts
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, of, switchMap, take } from 'rxjs';

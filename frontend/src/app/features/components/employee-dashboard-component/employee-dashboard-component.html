@@ -1,0 +1,100 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Minha Agenda do Dia</h1>
+    <p class="text-gray-600 text-lg">
+      {{ today | date:'EEEE, d \'de\' MMMM \'de\' yyyy' | titlecase }}
+    </p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6">
+    @if (isLoading()) {
+      <p class="text-center text-gray-500 py-10">Carregando sua agenda...</p>
+    } @else {
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-800">Próximos Agendamentos</h2>
+        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+          {{ todaysAppointments().length }} agendamentos
+        </span>
+      </div>
+
+      <div class="space-y-4">
+        @for (app of todaysAppointments(); track app.id) {
+          <div class="border-b border-gray-100 py-4 first:pt-0 last:border-b-0 last:pb-0">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-start gap-4">
+                  <div class="p-3 rounded-lg min-w-[80px] text-center"
+                    [ngClass]="{
+                      'bg-blue-50': app.status === 'SCHEDULED',
+                      'bg-orange-50': app.status === 'IN_PROGRESS',
+                      'bg-green-50': app.status === 'COMPLETED'
+                    }">
+                    <span class="block font-semibold text-lg"
+                      [ngClass]="{
+                        'text-blue-600': app.status === 'SCHEDULED',
+                        'text-orange-600': app.status === 'IN_PROGRESS',
+                        'text-green-600': app.status === 'COMPLETED'
+                      }">
+                      {{ app.startDateTime | date:'HH:mm' }}
+                    </span>
+                    <span class="text-sm"
+                      [ngClass]="{
+                        'text-blue-500': app.status === 'SCHEDULED',
+                        'text-orange-500': app.status === 'IN_PROGRESS',
+                        'text-green-500': app.status === 'COMPLETED'
+                      }">
+                      - {{ app.endDateTime | date:'HH:mm' }}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-gray-800">{{ app.service.name }}</h3>
+                    <p class="text-gray-600 text-sm mt-1">
+                      Pet: {{ app.pet.name }} (Cliente: {{ app.pet.owner.name }})
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full"
+                  [ngClass]="{
+                    'bg-blue-100 text-blue-800': app.status === 'SCHEDULED',
+                    'bg-orange-100 text-orange-800': app.status === 'IN_PROGRESS',
+                    'bg-green-100 text-green-800': app.status === 'COMPLETED'
+                  }">
+                  {{ app.status === 'SCHEDULED' ? 'Agendado' : (app.status === 'IN_PROGRESS' ? 'Em Andamento' : 'Concluído') }}
+                </span>
+
+                @switch (app.status) {
+                  @case ('SCHEDULED') {
+                    <button (click)="updateAppointmentStatus(app.id, 'IN_PROGRESS')"
+                      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                      <fa-icon [icon]="faPlayCircle"></fa-icon> Iniciar
+                    </button>
+                  }
+                  @case ('IN_PROGRESS') {
+                    <button (click)="updateAppointmentStatus(app.id, 'COMPLETED')"
+                      class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                      <fa-icon [icon]="faCheckCircle"></fa-icon> Finalizar
+                    </button>
+                  }
+                  @case ('COMPLETED') {
+                    <div class="flex items-center gap-2 text-gray-400 text-sm px-4 py-2">
+                      <fa-icon [icon]="faCheckCircle"></fa-icon> Concluído
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="text-center py-12">
+            <div class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <fa-icon [icon]="faClock" class="w-8 h-8 text-green-600"></fa-icon>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Você não tem agendamentos para hoje.</h3>
+            <p class="text-gray-600">Aproveite para organizar suas ferramentas ou tomar um café!</p>
+          </div>
+        }
+      </div>
+  }
+</div>

@@ -14,6 +14,7 @@ public class AppointmentDTO {
     private PetDTO pet;
     private ServicesDTO service;
     private EmployeeDTO employee;
+    private ReviewDTO review;
 
     public AppointmentDTO(Appointment entity) {
         this.id = entity.getId();
@@ -23,61 +24,42 @@ public class AppointmentDTO {
         this.pet = new PetDTO(entity.getPet());
         this.service = new ServicesDTO(entity.getService());
         this.employee = new EmployeeDTO(entity.getEmployee());
+
+        if (entity.getReview() != null) {
+            this.review = new ReviewDTO(entity.getReview());
+        }
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public LocalDateTime getStartDateTime() {
         return startDateTime;
-    }
-
-    public void setStartDateTime(LocalDateTime startDateTime) {
-        this.startDateTime = startDateTime;
     }
 
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
-    public void setEndDateTime(LocalDateTime endDateTime) {
-        this.endDateTime = endDateTime;
-    }
-
     public AppointmentStatus getStatus() {
         return status;
-    }
-
-    public void setStatus(AppointmentStatus status) {
-        this.status = status;
     }
 
     public PetDTO getPet() {
         return pet;
     }
 
-    public void setPet(PetDTO pet) {
-        this.pet = pet;
-    }
-
     public ServicesDTO getService() {
         return service;
-    }
-
-    public void setService(ServicesDTO service) {
-        this.service = service;
     }
 
     public EmployeeDTO getEmployee() {
         return employee;
     }
 
-    public void setEmployee(EmployeeDTO employee) {
-        this.employee = employee;
+    // 3. GETTER ADICIONADO
+    public ReviewDTO getReview() {
+        return review;
     }
 }

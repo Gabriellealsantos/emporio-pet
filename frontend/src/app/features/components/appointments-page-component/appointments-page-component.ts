@@ -1,18 +1,16 @@
-// Em src/app/features/components/appointments-page/appointments-page.component.ts
-
-import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { User } from '../../models/User';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faCalendarAlt, faEdit, faFilter, faList, faTrash, faUserMd } from '@fortawesome/free-solid-svg-icons';
+import { Observable } from 'rxjs';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { faFilter, faCalendarAlt, faUserMd, faList, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { DeleteConfirmationModalComponent } from "../../../shared/components/delete-confirmation-modal-component/delete-confirmation-modal-component";
 import { Appointment } from '../../models/Appointment';
 import { AppointmentStatus } from '../../models/AppointmentStatus';
-import { Observable } from 'rxjs';
-import { DeleteConfirmationModalComponent } from "../../../shared/components/delete-confirmation-modal-component/delete-confirmation-modal-component";
+import { User } from '../../models/User';
 
 @Component({
   selector: 'app-appointments-page',

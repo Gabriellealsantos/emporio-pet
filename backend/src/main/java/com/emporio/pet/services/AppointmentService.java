@@ -63,6 +63,27 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
+    public Page<AppointmentDTO> findMyAppointments(Pageable pageable) {
+        User user = authService.authenticated();
+
+        if (!(user instanceof Customer customer)) {
+            return Page.empty();
+        }
+
+        Customer customerWithPets = customerRepository.findByIdWithPets(customer.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+
+        if (customerWithPets.getPets().isEmpty()) {
+            return Page.empty();
+        }
+
+
+        Page<Appointment> appointments = appointmentRepository.findByPetInOrderByStartDateTimeDesc(customerWithPets.getPets(), pageable);
+
+        return appointments.map(AppointmentDTO::new);
+    }
+
+    @Transactional(readOnly = true)
     public List<LocalDateTime> findAvailableTimes(Long serviceId, LocalDate date, Long employeeId) {  {
 
         // 1. Buscar Informações Iniciais
@@ -185,39 +206,9 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> findMyAppointments() {
-        User user = authService.authenticated();
-
-        // 2. Verifica se é um cliente
-        if (!(user instanceof Customer customer)) {
-            // Se não for um cliente (ex: admin, funcionário), retorna uma lista vazia
-            // pois este endpoint é específico para "meus" agendamentos como cliente.
-            return Collections.emptyList();
-        }
-
-        Customer customerWithPets = customerRepository.findByIdWithPets(customer.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
-
-        // 3. Busca os pets do cliente
-        // Não precisamos buscar no banco, pois a entidade Customer já tem a lista de pets.
-        // Se a lista estiver vazia, não há o que buscar.
-        if (customerWithPets.getPets().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // 4. Usa o novo método do repositório para buscar os agendamentos
-        List<Appointment> appointments = appointmentRepository.findByPetInOrderByStartDateTimeDesc(customerWithPets.getPets());
-
-        // 5. Converte a lista de entidades para uma lista de DTOs e retorna
-        return appointments.stream()
-                .map(AppointmentDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
     public Page<AppointmentDTO> findAppointmentsByDate(LocalDate min, LocalDate max, Long employeeId, AppointmentStatus status, Pageable pageable) {
-        LocalDateTime minDate = min.atStartOfDay();
-        LocalDateTime maxDate = max.atTime(23, 59, 59);
+        LocalDateTime minDate = (min != null) ? min.atStartOfDay() : null;
+        LocalDateTime maxDate = (max != null) ? max.atTime(23, 59, 59) : null;
 
         Page<Appointment> appointmentsPage = appointmentRepository.findAppointmentsByFilter(minDate, maxDate, employeeId, status, pageable);
 

@@ -50,19 +50,19 @@ public class AppointmentController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<AppointmentDTO>> findMyAppointments() {
-        List<AppointmentDTO> list = appointmentService.findMyAppointments();
-        return ResponseEntity.ok(list);
+    public ResponseEntity<Page<AppointmentDTO>> findMyAppointments(Pageable pageable) {
+        Page<AppointmentDTO> page = appointmentService.findMyAppointments(pageable);
+        return ResponseEntity.ok(page);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
     public ResponseEntity<Page<AppointmentDTO>> findAppointmentsByDate(
-            @RequestParam(value = "minDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate minDate,
-            @RequestParam(value = "maxDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate maxDate,
+            @RequestParam(value = "minDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate minDate,
+            @RequestParam(value = "maxDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate maxDate,
             @RequestParam(value = "employeeId", required = false) Long employeeId,
             @RequestParam(value = "status", required = false) AppointmentStatus status,
-            Pageable pageable) { // Pageable é injetado automaticamente
+            Pageable pageable) {
 
         Page<AppointmentDTO> page = appointmentService.findAppointmentsByDate(minDate, maxDate, employeeId, status, pageable);
         return ResponseEntity.ok(page);

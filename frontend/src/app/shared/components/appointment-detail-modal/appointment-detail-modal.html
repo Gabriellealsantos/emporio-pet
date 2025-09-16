@@ -1,0 +1,51 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    @if (appointment; as app) {
+      <div class="modal-header">
+        <h3 class="modal-title">Detalhes do Agendamento</h3>
+        <button (click)="closeModal()" class="close-button">
+          <fa-icon [icon]="faTimes"></fa-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Serviço Realizado</p>
+            <p class="text-lg text-gray-800">{{ app.service.name }}</p>
+            <p class="text-gray-600">{{ app.startDateTime | date:'fullDate' }} às {{ app.startDateTime | date:'HH:mm' }}</p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 border-t pt-4">
+            <div>
+              <p class="text-sm font-medium text-gray-500">Cliente</p>
+              <p class="text-gray-800">{{ app.pet.owner.name }}</p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Pet</p>
+              <p class="text-gray-800">{{ app.pet.name }} ({{ app.pet.breed.name }})</p>
+            </div>
+          </div>
+          @if (app.review) {
+            <div class="border-t pt-4">
+              <p class="text-sm font-medium text-gray-500">Avaliação do Cliente</p>
+              <div class="flex items-center text-yellow-400 mt-1">
+                @for (star of getStarsArray(app.review.rating); track $index) {
+                  <fa-icon [icon]="faStar"></fa-icon>
+                }
+                <span class="ml-2 text-gray-600 font-bold">({{ app.review.rating }})</span>
+              </div>
+              <p class="text-gray-700 italic mt-2 bg-gray-50 p-3 rounded-md">"{{ app.review.comment }}"</p>
+            </div>
+          } @else {
+            <div class="border-t pt-4">
+              <p class="text-sm font-medium text-gray-500">Avaliação do Cliente</p>
+              <p class="text-gray-500 mt-1">Este serviço ainda não foi avaliado.</p>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <p class="p-6">Carregando detalhes...</p>
+    }
+  </div>
+</div>

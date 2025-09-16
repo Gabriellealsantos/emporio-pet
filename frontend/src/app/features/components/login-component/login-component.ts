@@ -41,21 +41,35 @@ export class LoginComponent {
 
     this.authService.login(this.form.value).subscribe({
       next: (user: User) => {
-        // 1 - A verificação de admin já existe aqui
+        // Verificações hierárquicas
         const isAdmin = user.roles?.some(r => r.authority === 'ROLE_ADMIN');
+        const isEmployee = user.roles?.some(r => r.authority === 'ROLE_EMPLOYEE');
 
+        // 1. Se for ADMIN, vai para o dashboard de admin.
         if (isAdmin) {
-          this.router.navigate(['/admin']); // E o redirecionamento também
+          this.router.navigate(['/admin/dashboard']);
           return;
         }
 
-        // 2 - Se não tiver pets → vai para onboarding
+        // 2. Se for FUNCIONÁRIO, verificamos o cargo.
+        if (isEmployee) {
+          // Se o cargo for 'Caixa', vai direto para a tela de faturamento.
+          if (user.jobTitle?.toLowerCase() === 'caixa') {
+            this.router.navigate(['/admin/caixa']); // Reutilizamos a rota dentro do layout admin
+            return;
+          }
+          // Outros funcionários irão para sua própria dashboard (que ainda vamos criar).
+          this.router.navigate(['/employee/dashboard']);
+          return;
+        }
+
+        // 3. Se for CLIENTE, verificamos se tem pets.
         if (!user.pets || user.pets.length === 0) {
           this.router.navigate(['/onboarding']);
           return;
         }
 
-        // 3 - Senão, dashboard
+        // 4. Se for Cliente com pets, vai para a dashboard de cliente.
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {

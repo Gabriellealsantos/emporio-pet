@@ -3,14 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User } from '../../features/models/User';
-
-export interface Page<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number; // número da página atual (base 0)
-}
+import { Page } from '../../features/models/PageModel';
 
 export interface ClientFilters {
   page?: number;

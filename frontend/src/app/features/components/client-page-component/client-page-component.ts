@@ -1,8 +1,6 @@
-// Em src/app/features/components/client-page-component/client-page-component.ts
-
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router'; // Importe o RouterLink
+import { RouterLink } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faEdit, faSearch, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { Subject } from 'rxjs';

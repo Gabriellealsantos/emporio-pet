@@ -1,29 +1,29 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
-  RouterOutlet,
-  RouterLink,
-  RouterLinkActive,
-  Router,
   ActivatedRoute,
   NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
 } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import {
   faBars,
-  faPaw,
-  faChartPie,
   faBell,
-  faUser,
   faCalendarAlt,
-  faCut,
-  faUsers,
-  faIdBadge,
-  faUserCircle,
-  faSignOutAlt,
   faCashRegister,
-  faFileInvoiceDollar
+  faChartPie,
+  faCut,
+  faFileInvoiceDollar,
+  faIdBadge,
+  faPaw,
+  faSignOutAlt,
+  faUser,
+  faUserCircle,
+  faUsers
 } from '@fortawesome/free-solid-svg-icons';
-import { filter, map } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../models/User';
 

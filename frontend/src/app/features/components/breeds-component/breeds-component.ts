@@ -1,5 +1,3 @@
-// Em src/app/features/components/breeds-component/breeds-component.ts
-
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';

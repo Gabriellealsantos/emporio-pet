@@ -1,8 +1,5 @@
-// Em src/app/core/guards/auth.guard.ts
-
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-// Adicione 'take' aos imports do rxjs
 import { catchError, finalize, map, of, switchMap, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LoadingService } from '../services/loading.service';

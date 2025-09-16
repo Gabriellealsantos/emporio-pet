@@ -2,8 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Page } from './customer-service';
 import { Appointment } from '../../features/models/Appointment';
+import { Page } from '../../features/models/PageModel';
 
 export interface AppointmentFilters {
   page?: number;

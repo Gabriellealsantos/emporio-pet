@@ -1,8 +1,6 @@
-// src/app/features/components/error-page/error-page.component.ts
-
 import { Component, ElementRef, OnInit, ViewChild, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router'; // 1. Importe o Router
+import { Router } from '@angular/router';
 import { Rive, Fit, Alignment, Layout } from '@rive-app/canvas';
 
 @Component({

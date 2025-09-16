@@ -41,16 +41,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query(value = "SELECT a FROM Appointment a " +
             "JOIN FETCH a.pet p " +
-            "JOIN FETCH a.service " +
-            "JOIN FETCH a.employee e " +
+            "JOIN FETCH p.owner " +
+            "JOIN FETCH a.service s " +
+            "LEFT JOIN FETCH a.review r " +
             "WHERE (:employeeId IS NULL OR a.employee.id = :employeeId) AND " +
             "(:status IS NULL OR a.status = :status) AND " +
-            "a.startDateTime BETWEEN :minDate AND :maxDate " +
-            "ORDER BY a.startDateTime ASC",
+            "(:minDate IS NULL OR a.startDateTime >= :minDate) AND " +
+            "(:maxDate IS NULL OR a.startDateTime <= :maxDate) " +
+            "ORDER BY a.startDateTime DESC",
             countQuery = "SELECT COUNT(a) FROM Appointment a WHERE " +
                     "(:employeeId IS NULL OR a.employee.id = :employeeId) AND " +
                     "(:status IS NULL OR a.status = :status) AND " +
-                    "a.startDateTime BETWEEN :minDate AND :maxDate")
+                    "(:minDate IS NULL OR a.startDateTime >= :minDate) AND " +
+                    "(:maxDate IS NULL OR a.startDateTime <= :maxDate)")
     Page<Appointment> findAppointmentsByFilter(
             @Param("minDate") LocalDateTime minDate,
             @Param("maxDate") LocalDateTime maxDate,
@@ -62,6 +65,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("SELECT a FROM Appointment a WHERE a.pet.owner.id = :customerId AND a.status = 'COMPLETED' AND a.invoice IS NULL ORDER BY a.startDateTime ASC")
     List<Appointment> findFaturableAppointmentsByCustomer(@Param("customerId") Long customerId);
+
+    @Query(value = "SELECT a FROM Appointment a " +
+            "JOIN FETCH a.pet p " +
+            "JOIN FETCH a.service " +
+            "WHERE a.pet IN :pets " +
+            "ORDER BY a.startDateTime DESC",
+            countQuery = "SELECT COUNT(a) FROM Appointment a WHERE a.pet IN :pets")
+    Page<Appointment> findByPetInOrderByStartDateTimeDesc(@Param("pets") List<Pet> pets, Pageable pageable);
+
 
     List<Appointment> findTop5ByOrderByStartDateTimeDesc();
 }

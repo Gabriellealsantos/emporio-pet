@@ -1,5 +1,3 @@
-// Em src/app/features/components/employee-detail-component/employee-detail-component.ts
-
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';

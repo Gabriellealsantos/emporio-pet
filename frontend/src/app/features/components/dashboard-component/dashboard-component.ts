@@ -1,21 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import {
-  faArrowUp,
-  faCalendarDay,
-  faUserPlus,
-  faDollarSign,
-  faCalendarCheck,
-  faShoppingCart,
   faArrowDown,
-  faUser,
+  faArrowUp,
+  faCalendarCheck,
+  faCalendarDay,
   faCalendarPlus,
-  faPaw,
+  faDollarSign,
   faFileInvoiceDollar,
+  faPaw,
+  faShoppingCart,
+  faUser,
+  faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import { DashboardData } from '../../models/DashboardData';
 import { DashboardService } from '../../../core/services/dashboard.service';
-import { CommonModule } from '@angular/common';
+import { DashboardData } from '../../models/DashboardData';
 
 @Component({
   selector: 'app-dashboard',

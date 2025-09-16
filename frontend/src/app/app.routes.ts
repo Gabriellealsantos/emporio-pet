@@ -9,6 +9,11 @@ import { ClientPageComponent } from './features/components/client-page-component
 import { EmployeeListComponent } from './features/components/employee-list-component/employee-list-component';
 import { ServicesPageComponent } from './features/components/services-page-component/services-page-component';
 import { AppointmentsPageComponent } from './features/components/appointments-page-component/appointments-page-component';
+import { adminGuard } from './core/guards/admin.guard';
+import { employeeGuard } from './core/guards/employee.guard';
+import { EmployeeLayoutComponent } from './features/components/employee-layout-component/employee-layout-component';
+import { EmployeeDashboardComponent } from './features/components/employee-dashboard-component/employee-dashboard-component';
+import { EmployeeHistoryPageComponent } from './features/components/employee-history-page-component/employee-history-page-component';
 
 export const routes: Routes = [
   {
@@ -73,7 +78,7 @@ export const routes: Routes = [
 
   {
     path: 'admin',
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     resolve: {
       user: userResolver,
     },
@@ -97,9 +102,9 @@ export const routes: Routes = [
       {
         path: 'faturas',
         loadComponent: () =>
-          import('./features/components/invoice-list-page-component/invoice-list-page-component').then(
-            (m) => m.InvoiceListPageComponent
-          ),
+          import(
+            './features/components/invoice-list-page-component/invoice-list-page-component'
+          ).then((m) => m.InvoiceListPageComponent),
         data: { title: 'Gerenciamento de Faturas' },
       },
       {
@@ -140,7 +145,7 @@ export const routes: Routes = [
         data: { title: 'Detalhes do Cliente' },
       },
       {
-        path: 'funcionarios', // Rota da lista
+        path: 'funcionarios',
         component: EmployeeListComponent,
         data: { title: 'Gerenciamento de Funcionários' },
       },
@@ -151,6 +156,28 @@ export const routes: Routes = [
             (m) => m.EmployeeDetailComponent
           ),
         data: { title: 'Detalhes do Funcionário' },
+      },
+    ],
+  },
+
+  {
+    path: 'employee',
+    canActivate: [authGuard, employeeGuard],
+    component: EmployeeLayoutComponent,
+    resolve: {
+      user: userResolver,
+    },
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        component: EmployeeDashboardComponent,
+        data: { title: 'Minha Agenda do Dia' },
+      },
+      {
+        path: 'historico',
+        component: EmployeeHistoryPageComponent,
+        data: { title: 'Meu Histórico de Serviços' },
       },
     ],
   },
