@@ -70,7 +70,7 @@ export class LoginComponent {
         }
 
         // 4. Se for Cliente com pets, vai para a dashboard de cliente.
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/customer/dashboard']);
       },
       error: (err) => {
         console.error('Erro no login:', err);

@@ -19,7 +19,7 @@ import java.util.List;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    @Query("SELECT obj FROM Appointment obj WHERE " +
+    @Query("SELECT obj FROM Appointment obj JOIN FETCH obj.service WHERE " +
             "obj.employee IN :employees " +
             "AND obj.startDateTime < :endOfDay " +
             "AND obj.endDateTime > :startOfDay " +
@@ -27,17 +27,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findAppointmentsForEmployeesInInterval(
             List<Employee> employees, LocalDateTime startOfDay, LocalDateTime endOfDay, List<AppointmentStatus> statusesToExclude);
 
-    @Query("SELECT a FROM Appointment a " +
-            "JOIN FETCH a.pet p " +
-            "JOIN FETCH p.breed " +
-            "JOIN FETCH a.service " +
-            "JOIN FETCH a.employee e " +
-            "LEFT JOIN FETCH e.roles " +
-            "LEFT JOIN FETCH a.invoice " +
-            "LEFT JOIN FETCH a.review " +
-            "WHERE a.pet IN :pets " +
-            "ORDER BY a.startDateTime DESC")
-    List<Appointment> findByPetInOrderByStartDateTimeDesc(@Param("pets") List<Pet> pets);
 
     @Query(value = "SELECT a FROM Appointment a " +
             "JOIN FETCH a.pet p " +

@@ -1,0 +1,61 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white shadow-sm sticky top-0 z-20">
+    <div class="container mx-auto px-4 h-16 flex justify-between items-center">
+      <a routerLink="/home" class="flex items-center gap-2">
+        <fa-icon [icon]="faPaw" class="text-blue-600 text-2xl"></fa-icon>
+        <span class="font-bold text-xl text-gray-800">Empório Pet</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-6">
+        <a
+          routerLink="/app/dashboard"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link"
+        >
+          Dashboard
+        </a>
+
+        <a routerLink="/app/meus-pets" routerLinkActive="active-link" class="nav-link">
+          Meus Pets
+        </a>
+
+        <a routerLink="/app/historico" routerLinkActive="active-link" class="nav-link">
+          Histórico
+        </a>
+      </nav>
+
+      <div class="flex items-center">
+        @if (currentUser(); as user) {
+        <div class="relative">
+          <button (click)="toggleDropdown()" class="flex items-center space-x-2 cursor-pointer">
+            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+              <span class="font-bold text-blue-600">{{ user.name.charAt(0) }}</span>
+            </div>
+            <span class="hidden md:inline text-gray-700 font-medium">{{
+              user.name.split(' ')[0]
+            }}</span>
+          </button>
+
+          @if (isDropdownOpen()) {
+          <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-30">
+            <a routerLink="/customer/perfil" (click)="toggleDropdown()" class="dropdown-item">
+              <fa-icon [icon]="faUserCircle" class="mr-2"></fa-icon>
+              Meu Perfil
+            </a>
+            <button (click)="logout()" class="dropdown-item w-full text-left">
+              <fa-icon [icon]="faSignOutAlt" class="mr-2"></fa-icon>
+              Sair
+            </button>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+</div>

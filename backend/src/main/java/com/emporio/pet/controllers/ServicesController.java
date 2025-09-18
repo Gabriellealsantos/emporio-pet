@@ -1,5 +1,6 @@
 package com.emporio.pet.controllers;
 
+import com.emporio.pet.dto.EmployeeDTO;
 import com.emporio.pet.dto.ServicesDTO;
 import com.emporio.pet.dto.ServicesInsertDTO;
 import com.emporio.pet.dto.ServicesUpdateDTO;
@@ -92,5 +93,11 @@ public class ServicesController {
     public ResponseEntity<Void> activate(@PathVariable Long id) {
         servicesService.activate(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/employees")
+    public ResponseEntity<List<EmployeeDTO>> findQualifiedEmployees(@PathVariable Long id) {
+        List<EmployeeDTO> qualifiedEmployees = servicesService.findQualifiedEmployees(id);
+        return ResponseEntity.ok(qualifiedEmployees);
     }
 }

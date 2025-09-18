@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Appointment } from '../../features/models/Appointment';
 import { Page } from '../../features/models/PageModel';
+import { AppointmentInsertDTO } from '../../features/models/AppointmentInsertDTO';
 
 export interface AppointmentFilters {
   page?: number;
@@ -15,7 +16,7 @@ export interface AppointmentFilters {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppointmentService {
   private http = inject(HttpClient);
@@ -47,14 +48,35 @@ export class AppointmentService {
     return this.http.get<Appointment[]>(`${this.apiUrl}/faturable`, { params });
   }
 
-  // Futuramente, implementaremos os métodos de ação
   updateStatus(id: number, newStatus: string): Observable<Appointment> {
-    // A ser implementado
     return this.http.patch<Appointment>(`${this.apiUrl}/${id}/status`, { newStatus });
   }
 
   cancel(id: number): Observable<void> {
-    // A ser implementado
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  findMyAppointments(filters: { page: number; size: number }): Observable<Page<Appointment>> {
+    let params = new HttpParams()
+      .set('page', filters.page.toString())
+      .set('size', filters.size.toString());
+    return this.http.get<Page<Appointment>>(`${this.apiUrl}/my`, { params });
+  }
+
+  findAvailableTimes(serviceId: number, date: string, employeeId: number | null): Observable<string[]> {
+    let params = new HttpParams()
+      .set('serviceId', serviceId.toString())
+      .set('date', date);
+
+    if (employeeId) {
+      params = params.set('employeeId', employeeId.toString());
+    }
+
+    return this.http.get<string[]>(`${this.apiUrl}/availability`, { params });
+  }
+
+  create(dto: AppointmentInsertDTO): Observable<Appointment> {
+    return this.http.post<Appointment>(this.apiUrl, dto);
+  }
+
 }

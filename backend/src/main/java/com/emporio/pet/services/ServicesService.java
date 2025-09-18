@@ -1,5 +1,6 @@
 package com.emporio.pet.services;
 
+import com.emporio.pet.dto.EmployeeDTO;
 import com.emporio.pet.dto.ServicesDTO;
 import com.emporio.pet.dto.ServicesInsertDTO;
 import com.emporio.pet.dto.ServicesUpdateDTO;
@@ -140,5 +141,15 @@ public class ServicesService {
 
         service.setActive(true);
         serviceRepository.save(service);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmployeeDTO> findQualifiedEmployees(Long serviceId) {
+        Services service = serviceRepository.findByIdWithQualifiedEmployees(serviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + serviceId));
+
+        return service.getQualifiedEmployees().stream()
+                .map(EmployeeDTO::new)
+                .collect(Collectors.toList());
     }
 }

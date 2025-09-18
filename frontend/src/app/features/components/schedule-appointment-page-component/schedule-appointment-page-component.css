@@ -1,0 +1,34 @@
+.step {
+    @apply text-center text-gray-400;
+}
+.step-circle {
+    @apply w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold mx-auto transition;
+}
+.step-label {
+    @apply text-sm mt-1;
+}
+.step.active .step-circle {
+    @apply bg-blue-600 text-white;
+}
+.step.active .step-label {
+    @apply text-blue-600 font-semibold;
+}
+
+.selected-card {
+  border-color: #3b82f6; /* Cor da borda azul */
+  background-color: #eff6ff; /* Fundo azul bem claro */
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.disabled-time-slot {
+  background-color: #f3f4f6; /* Fundo cinza claro */
+  color: #9ca3af; /* Texto cinza */
+  border-color: #e5e7eb; /* Borda cinza */
+  cursor: not-allowed;
+  text-decoration: line-through; /* Tacha o texto */
+}
+
+/* Garante que o hover não tenha efeito no botão desabilitado */
+.disabled-time-slot:hover {
+  border-color: #e5e7eb;
+}

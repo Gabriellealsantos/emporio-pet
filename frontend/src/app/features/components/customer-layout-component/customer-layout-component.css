@@ -1,0 +1,21 @@
+.nav-link {
+    @apply font-medium text-gray-600 hover:text-blue-600 transition-colors;
+}
+
+.nav-link.active-link {
+    @apply text-blue-600;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #374151;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f3f4f6;
+}

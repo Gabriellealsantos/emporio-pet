@@ -12,7 +12,6 @@ public class AppointmentInsertDTO {
     @NotNull(message = "O ID do pet é obrigatório.")
     private Long petId;
 
-    @NotNull(message = "O ID do funcionário é obrigatório.")
     private Long employeeId;
 
     @NotNull(message = "A data/hora de início é obrigatória.")

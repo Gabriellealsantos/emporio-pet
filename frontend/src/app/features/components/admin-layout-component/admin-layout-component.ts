@@ -86,6 +86,16 @@ export class AdminLayoutComponent implements OnInit {
     });
   }
 
+  isAdmin(): boolean {
+    return this.currentUser()?.roles?.some(r => r.authority === 'ROLE_ADMIN') ?? false;
+  }
+
+  isCashier(): boolean {
+    const isEmployee = this.currentUser()?.roles?.some(r => r.authority === 'ROLE_EMPLOYEE') ?? false;
+    const jobTitle = this.currentUser()?.jobTitle?.toLowerCase() ?? '';
+    return isEmployee && jobTitle === 'caixa' && !this.isAdmin();
+  }
+
   toggleSidebar(): void {
     this.isSidebarOpen.set(!this.isSidebarOpen());
   }

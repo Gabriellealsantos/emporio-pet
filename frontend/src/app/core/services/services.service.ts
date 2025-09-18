@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { Service } from '../../features/models/Service';
 import { ServiceInsert } from '../../features/models/ServiceInsert';
 import { ServiceUpdate } from '../../features/models/ServiceUpdate';
+import { User } from '../../features/models/User';
 
 export interface ServiceFilters {
   name?: string;
@@ -34,6 +35,10 @@ export class ServicesService {
 
   findAllActiveServices(): Observable<Service[]> {
     return this.http.get<Service[]>(this.apiUrl);
+  }
+
+  findQualifiedEmployees(serviceId: number): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/${serviceId}/employees`);
   }
 
    deactivate(id: number): Observable<void> {

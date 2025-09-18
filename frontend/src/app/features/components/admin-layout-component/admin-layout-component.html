@@ -29,12 +29,14 @@
     </div>
     <nav class="mt-4">
       <ul>
+        @if (isAdmin()) {
         <li>
           <a routerLink="dashboard" routerLinkActive="active" class="nav-link">
             <fa-icon [icon]="faChartPie" class="mr-3 w-5 text-center"></fa-icon>
             <span>Dashboard</span>
           </a>
         </li>
+        } @if (isAdmin() || isCashier()) {
         <li>
           <a routerLink="caixa" routerLinkActive="active" class="nav-link">
             <fa-icon [icon]="faCashRegister" class="mr-3 w-5 text-center"></fa-icon>
@@ -47,6 +49,7 @@
             <span>Faturas</span>
           </a>
         </li>
+        } @if (isAdmin()) {
         <li>
           <a routerLink="agendamentos" routerLinkActive="active" class="nav-link">
             <fa-icon [icon]="faCalendarAlt" class="mr-3 w-5 text-center"></fa-icon>
@@ -65,18 +68,21 @@
             <span>Raças</span>
           </a>
         </li>
+        } @if (isAdmin()) {
         <li>
           <a routerLink="clientes" routerLinkActive="active" class="nav-link">
             <fa-icon [icon]="faUsers" class="mr-3 w-5 text-center"></fa-icon>
             <span>Clientes</span>
           </a>
         </li>
+        } @if (isAdmin()) {
         <li>
           <a routerLink="funcionarios" routerLinkActive="active" class="nav-link">
             <fa-icon [icon]="faIdBadge" class="mr-3 w-5 text-center"></fa-icon>
             <span>Funcionários</span>
           </a>
         </li>
+        }
       </ul>
     </nav>
   </div>

@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 public class AppointmentService {
 
     // --- CONSTANTES PARA CONFIGURAÇÃO ---
-    private static final int SLOT_INTERVAL_MINUTES = 30;
     private static final int PREPARATION_BUFFER_MINUTES = 15;
     private static final int START_HOUR = 8;
     private static final int END_HOUR = 18;
@@ -84,126 +84,119 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<LocalDateTime> findAvailableTimes(Long serviceId, LocalDate date, Long employeeId) {  {
-
-        // 1. Buscar Informações Iniciais
+    public List<LocalDateTime> findAvailableTimes(Long serviceId, LocalDate date, Long employeeId) {
+        // 1. Busca de Dados Essenciais
         Services service = serviceRepository.findByIdWithQualifiedEmployees(serviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
-        long totalDuration = service.getEstimatedDurationInMinutes() + PREPARATION_BUFFER_MINUTES;
+        long serviceDuration = service.getEstimatedDurationInMinutes();
 
-        // 2. Definir Horário de Trabalho
-        LocalDateTime startOfDay = date.atTime(START_HOUR, 0);
-        LocalDateTime endOfDay = date.atTime(END_HOUR, 0);
+        // 2. Define o Horário de Trabalho do Dia
+        LocalDateTime startOfWork = date.atTime(START_HOUR, 0);
+        LocalDateTime endOfWork = date.atTime(END_HOUR, 0);
         LocalDateTime lunchStart = date.atTime(LUNCH_START_HOUR, 0);
         LocalDateTime lunchEnd = date.atTime(LUNCH_END_HOUR, 0);
 
-        // 3. Filtrar Funcionários Relevantes
+        // 3. Filtra os Funcionários Relevantes
         List<Employee> qualifiedEmployees;
         if (employeeId != null) {
             Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
-            if (!employee.getSkilledServices().contains(service)) {
-                return new ArrayList<>(); // Retorna vazio se o funcionário não for qualificado
-            }
+            if (!employee.getSkilledServices().contains(service)) return new ArrayList<>();
             qualifiedEmployees = List.of(employee);
         } else {
             qualifiedEmployees = new ArrayList<>(service.getQualifiedEmployees());
         }
+        if (qualifiedEmployees.isEmpty()) return new ArrayList<>();
 
-        if (qualifiedEmployees.isEmpty()) {
-            return new ArrayList<>(); // Nenhum funcionário qualificado para este serviço
-        }
-
-        // 4. Buscar Agendamentos Existentes
+        // 4. Busca TODOS os agendamentos do dia para os funcionários qualificados
         List<AppointmentStatus> statusesToExclude = List.of(AppointmentStatus.CANCELED, AppointmentStatus.NO_SHOW);
         List<Appointment> existingAppointments = appointmentRepository.findAppointmentsForEmployeesInInterval(
-                qualifiedEmployees, startOfDay, endOfDay, statusesToExclude);
+                qualifiedEmployees, date.atStartOfDay(), date.atTime(23, 59), statusesToExclude);
 
-        // 5. Gerar e Validar Slots de Horário
-        List<LocalDateTime> availableSlots = new ArrayList<>();
-        LocalDateTime currentTime = startOfDay;
+        // 5. O NOVO ALGORITMO: Para cada funcionário, calcula os horários livres
+        return qualifiedEmployees.stream()
+                // Para cada funcionário, gera uma lista de seus horários disponíveis
+                .flatMap(employee -> {
+                    List<Appointment> employeeAppointments = existingAppointments.stream()
+                            .filter(app -> app.getEmployee().getId().equals(employee.getId()))
+                            .sorted(Comparator.comparing(Appointment::getStartDateTime))
+                            .collect(Collectors.toList());
 
-        while (currentTime.plusMinutes(totalDuration).isBefore(endOfDay) || currentTime.plusMinutes(totalDuration).isEqual(endOfDay)) {
-            LocalDateTime potentialStart = currentTime;
-            LocalDateTime potentialEnd = currentTime.plusMinutes(totalDuration);
+                    List<LocalDateTime> availableSlotsForEmployee = new ArrayList<>();
+                    LocalDateTime nextAvailableTime = startOfWork;
 
-            // Se o slot colidir com o almoço, avançamos o tempo para o fim do almoço
-            if (potentialStart.isBefore(lunchEnd) && potentialEnd.isAfter(lunchStart)) {
-                currentTime = lunchEnd;
-                continue;
-            }
+                    // Itera sobre os agendamentos existentes do funcionário
+                    for (Appointment existingApp : employeeAppointments) {
+                        findGaps(nextAvailableTime, existingApp.getStartDateTime(), serviceDuration, lunchStart, lunchEnd, availableSlotsForEmployee);
+                        // O próximo horário livre é o fim do agendamento atual + o tempo de preparação
+                        nextAvailableTime = existingApp.getEndDateTime().plusMinutes(PREPARATION_BUFFER_MINUTES);
+                    }
 
-            // Verifica se existe pelo menos um funcionário livre neste slot
-            boolean isSlotAvailable = qualifiedEmployees.stream().anyMatch(employee -> {
-                // Filtra os agendamentos apenas para este funcionário
-                List<Appointment> employeeAppointments = existingAppointments.stream()
-                        .filter(app -> app.getEmployee().getId().equals(employee.getId()))
-                        .toList();
+                    // Verifica o último espaço, entre o último agendamento e o fim do dia
+                    findGaps(nextAvailableTime, endOfWork, serviceDuration, lunchStart, lunchEnd, availableSlotsForEmployee);
 
-                // Verifica se o slot colide com algum agendamento do funcionário
-                return employeeAppointments.stream().noneMatch(existingApp ->
-                        potentialStart.isBefore(existingApp.getEndDateTime()) && potentialEnd.isAfter(existingApp.getStartDateTime())
-                );
-            });
-
-            if (isSlotAvailable) {
-                availableSlots.add(potentialStart);
-            }
-
-            currentTime = currentTime.plusMinutes(SLOT_INTERVAL_MINUTES);
-        }
-
-        return availableSlots;
-    }}
+                    return availableSlotsForEmployee.stream();
+                })
+                .distinct() // Remove horários duplicados (caso mais de um funcionário esteja livre)
+                .sorted()   // Ordena a lista final
+                .collect(Collectors.toList());
+    }
 
 
     @Transactional
     public AppointmentDTO create(AppointmentInsertDTO dto) {
-        // 1. Validação de Segurança e Entidades
+        // 1. Validações Iniciais (Cliente, Pet, Serviço)
         User user = authService.authenticated();
         if (!(user instanceof Customer owner)) {
             throw new ForbiddenException("Acesso negado. Apenas clientes podem criar agendamentos.");
         }
-
-        Services service = serviceRepository.findById(dto.getServiceId())
+        Services service = serviceRepository.findByIdWithQualifiedEmployees(dto.getServiceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
-
         Pet pet = petRepository.findById(dto.getPetId())
                 .orElseThrow(() -> new ResourceNotFoundException("Pet não encontrado"));
-
-        // Garante que o pet pertence ao cliente logado
         if (!pet.getOwner().getId().equals(owner.getId())) {
             throw new ForbiddenException("Acesso negado. Você só pode agendar para seus próprios pets.");
         }
 
-        Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
+        Employee designatedEmployee;
+        LocalDateTime startTime = dto.getStartDateTime();
 
-        // 2. Revalidação Crítica de Disponibilidade
-        // (Previne race conditions e requisições maliciosas)
-        List<LocalDateTime> availableTimes = findAvailableTimes(dto.getServiceId(), dto.getStartDateTime().toLocalDate(), dto.getEmployeeId());
-        if (!availableTimes.contains(dto.getStartDateTime())) {
-            throw new ConflictException("O horário selecionado não está mais disponível.");
+        // 2. Lógica de Designação de Funcionário
+        if (dto.getEmployeeId() != null) {
+            // CENÁRIO 1: O cliente ESCOLHEU um funcionário.
+            Employee chosenEmployee = employeeRepository.findById(dto.getEmployeeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Funcionário escolhido não encontrado."));
+
+            // Validação extra: O funcionário escolhido é qualificado e está realmente livre?
+            boolean isQualified = service.getQualifiedEmployees().contains(chosenEmployee);
+            List<LocalDateTime> availableTimesForEmployee = findAvailableTimes(service.getId(), startTime.toLocalDate(), chosenEmployee.getId());
+
+            if (!isQualified || !availableTimesForEmployee.contains(startTime)) {
+                throw new ConflictException("O funcionário escolhido não está disponível neste horário para este serviço.");
+            }
+            designatedEmployee = chosenEmployee;
+
+        } else {
+            // CENÁRIO 2: O cliente NÃO escolheu. O sistema encontra um.
+            // (Esta é a lógica que já tínhamos implementado)
+            designatedEmployee = findAvailableEmployeeForSlot(service, startTime);
         }
 
-        // 3. Criar e Salvar a Entidade
+        // 3. Criar e Salvar o Agendamento
         Appointment entity = new Appointment();
         entity.setService(service);
         entity.setPet(pet);
-        entity.setEmployee(employee);
-        entity.setStartDateTime(dto.getStartDateTime());
-
-        long duration = service.getEstimatedDurationInMinutes(); // Não inclui o buffer aqui
-        entity.setEndDateTime(dto.getStartDateTime().plusMinutes(duration));
-
+        entity.setEmployee(designatedEmployee);
+        entity.setStartDateTime(startTime);
+        long duration = service.getEstimatedDurationInMinutes();
+        entity.setEndDateTime(startTime.plusMinutes(duration));
         entity.setChargedAmount(service.getPrice());
-
-        entity.setStatus(AppointmentStatus.SCHEDULED); // Status inicial
+        entity.setStatus(AppointmentStatus.SCHEDULED);
 
         entity = appointmentRepository.save(entity);
-
         return new AppointmentDTO(entity);
     }
+
 
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findAppointmentsByDate(LocalDate min, LocalDate max, Long employeeId, AppointmentStatus status, Pageable pageable) {
@@ -260,6 +253,40 @@ public class AppointmentService {
             appointmentRepository.save(appointment);
         } else {
             throw new ForbiddenException("Acesso negado.");
+        }
+    }
+
+
+    private Employee findAvailableEmployeeForSlot(Services service, LocalDateTime potentialStart) {
+        long duration = service.getEstimatedDurationInMinutes();
+        LocalDateTime potentialEnd = potentialStart.plusMinutes(duration);
+        List<Employee> qualifiedEmployees = new ArrayList<>(service.getQualifiedEmployees());
+        if (qualifiedEmployees.isEmpty()) {
+            throw new ConflictException("Não há funcionários qualificados para este serviço.");
+        }
+        List<AppointmentStatus> statusesToExclude = List.of(AppointmentStatus.CANCELED, AppointmentStatus.NO_SHOW);
+        List<Appointment> existingAppointments = appointmentRepository.findAppointmentsForEmployeesInInterval(
+                qualifiedEmployees, potentialStart.toLocalDate().atStartOfDay(), potentialStart.toLocalDate().atTime(23, 59), statusesToExclude);
+
+        return qualifiedEmployees.stream()
+                .filter(employee -> existingAppointments.stream()
+                        .filter(app -> app.getEmployee().getId().equals(employee.getId()))
+                        .noneMatch(existingApp -> potentialStart.isBefore(existingApp.getEndDateTime()) && potentialEnd.isAfter(existingApp.getStartDateTime())))
+                .findFirst()
+                .orElseThrow(() -> new ConflictException("O horário selecionado não está mais disponível. Por favor, escolha outro."));
+    }
+
+    private void findGaps(LocalDateTime startGap, LocalDateTime endGap, long serviceDuration,
+                          LocalDateTime lunchStart, LocalDateTime lunchEnd, List<LocalDateTime> availableSlots) {
+        LocalDateTime potentialSlot = startGap;
+        while (!potentialSlot.plusMinutes(serviceDuration).isAfter(endGap)) {
+            LocalDateTime endOfSlot = potentialSlot.plusMinutes(serviceDuration);
+            // Verifica se o slot não colide com o almoço
+            if (!(potentialSlot.isBefore(lunchEnd) && endOfSlot.isAfter(lunchStart))) {
+                availableSlots.add(potentialSlot);
+            }
+            // Avança o ponteiro em incrementos de 15 minutos para testar o próximo slot
+            potentialSlot = potentialSlot.plusMinutes(15);
         }
     }
 }
