@@ -56,17 +56,35 @@ export class AppointmentService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  findMyAppointments(filters: { page: number; size: number }): Observable<Page<Appointment>> {
+  findMyAppointments(filters: {
+    page: number;
+    size?: number;
+    minDate?: string | null;
+    maxDate?: string | null;
+  }): Observable<Page<Appointment>> {
     let params = new HttpParams()
       .set('page', filters.page.toString())
-      .set('size', filters.size.toString());
+      .set('size', (filters.size ?? 10).toString());
+
+    // Adiciona os filtros de data se eles existirem
+    if (filters.minDate) {
+      params = params.set('minDate', new Date(filters.minDate).toISOString());
+    }
+    if (filters.maxDate) {
+      const endDate = new Date(filters.maxDate);
+      endDate.setHours(23, 59, 59, 999);
+      params = params.set('maxDate', endDate.toISOString());
+    }
+
     return this.http.get<Page<Appointment>>(`${this.apiUrl}/my`, { params });
   }
 
-  findAvailableTimes(serviceId: number, date: string, employeeId: number | null): Observable<string[]> {
-    let params = new HttpParams()
-      .set('serviceId', serviceId.toString())
-      .set('date', date);
+  findAvailableTimes(
+    serviceId: number,
+    date: string,
+    employeeId: number | null
+  ): Observable<string[]> {
+    let params = new HttpParams().set('serviceId', serviceId.toString()).set('date', date);
 
     if (employeeId) {
       params = params.set('employeeId', employeeId.toString());
@@ -78,5 +96,4 @@ export class AppointmentService {
   create(dto: AppointmentInsertDTO): Observable<Appointment> {
     return this.http.post<Appointment>(this.apiUrl, dto);
   }
-
 }

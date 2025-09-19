@@ -1,1 +1,81 @@
-<p>customer-appointment-history-component works!</p>
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Histórico de Agendamentos</h1>
+
+    <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="flex items-center gap-2">
+      <input type="date" formControlName="minDate" class="form-input">
+      <span>até</span>
+      <input type="date" formControlName="maxDate" class="form-input">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
+        Filtrar
+      </button>
+      @if (filterForm.hasError('dateRange') && (filterForm.get('minDate')?.touched || filterForm.get('maxDate')?.touched)) {
+        <small class="text-red-500 text-xs mt-1">A data final não pode ser anterior à data inicial.</small>
+      }
+    </form>
+  </div>
+
+  @if (isLoading()) {
+    <p class="text-center text-gray-500 py-10">Carregando histórico...</p>
+  } @else {
+    <div class="space-y-4">
+      @for (app of appointments(); track app.id) {
+        <div class="bg-white rounded-lg shadow-sm border p-5">
+          <div class="flex justify-between items-start mb-3">
+            <p class="text-gray-800 font-semibold">{{ app.startDateTime | date:'EEEE, dd/MM/yyyy - HH:mm' }}</p>
+            <span class="px-2 py-1 text-xs font-medium rounded-full"
+              [ngClass]="{
+                'bg-blue-100 text-blue-800': app.status === 'SCHEDULED',
+                'bg-green-100 text-green-800': app.status === 'COMPLETED',
+                'bg-gray-100 text-gray-800': app.status === 'CANCELED'
+              }">
+              {{ app.status === 'SCHEDULED' ? 'Confirmado' : (app.status === 'COMPLETED' ? 'Realizado' : 'Cancelado') }}
+            </span>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ app.service.name }} para o {{ app.pet.name }}</h3>
+          <p class="text-sm text-gray-600 mb-4">Profissional: {{ app.employee.name }}</p>
+
+          <div class="border-t pt-3 flex items-center justify-between">
+            @if (app.status === 'COMPLETED' && app.review) {
+              <div class="flex items-center text-yellow-400 text-sm" title="{{ app.review.comment }}">
+                <span>Sua Avaliação:</span>
+                @for (star of getStarsArray(app.review.rating); track $index) {
+                  <fa-icon [icon]="faStar" class="ml-1"></fa-icon>
+                }
+                <span class="ml-2 text-gray-600 font-medium">({{ app.review.rating }})</span>
+              </div>
+            } @else if (app.status === 'COMPLETED' && !app.review) {
+              <button (click)="openReviewModal(app.id)" class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center">
+                <fa-icon [icon]="faCommentDots" class="mr-2"></fa-icon>
+                Avaliar este Serviço
+              </button>
+            } @else {
+              <div></div> }
+            <a class="text-sm text-gray-500 hover:text-gray-800">Ver Fatura</a>
+          </div>
+        </div>
+      } @empty {
+        <div class="text-center py-16 bg-white rounded-lg shadow-sm border">
+          <p class="text-gray-500">Você ainda não possui agendamentos no seu histórico.</p>
+        </div>
+      }
+    </div>
+
+    @if (pagination().totalElements > 0) {
+      <div class="mt-8 flex justify-center items-center">
+        <div class="space-x-1">
+          <button (click)="onPageChange(pagination().number - 1)" [disabled]="pagination().first" class="pagination-button">Anterior</button>
+          <button (click)="onPageChange(pagination().number + 1)" [disabled]="pagination().last" class="pagination-button">Próxima</button>
+        </div>
+      </div>
+    }
+  }
+</div>
+@if (reviewingAppointmentId(); as appId) {
+  <app-review-modal
+    [appointmentId]="appId"
+    (close)="closeReviewModal()"
+    (reviewSubmitted)="handleReviewSubmitted()">
+  </app-review-modal>
+}
+

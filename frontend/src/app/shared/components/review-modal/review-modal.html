@@ -1,0 +1,38 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-card max-w-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Avaliar Serviço</h3>
+    </div>
+    <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()">
+      <div class="modal-body">
+        <div class="mb-4">
+          <p class="form-label mb-2">Sua nota:</p>
+          <div class="flex items-center text-3xl text-yellow-400 cursor-pointer">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <fa-icon
+                [icon]="reviewForm.value.rating >= star || hoveredStars() >= star ? faSolidStar : faRegularStar"
+                (mouseenter)="hoveredStars.set(star)"
+                (mouseleave)="hoveredStars.set(0)"
+                (click)="setRating(star)">
+              </fa-icon>
+            }
+          </div>
+          @if (reviewForm.get('rating')?.value < 1 && reviewForm.get('rating')?.touched) {
+            <small class="text-red-500 text-xs mt-1">Por favor, selecione pelo menos uma estrela.</small>
+          }
+        </div>
+        <div>
+          <label for="comment" class="form-label">Seu comentário:</label>
+          <textarea id="comment" formControlName="comment" rows="4" class="form-input mt-1" placeholder="Conte-nos como foi a sua experiência..."></textarea>
+          @if (reviewForm.get('comment')?.invalid && reviewForm.get('comment')?.touched) {
+            <small class="text-red-500 text-xs mt-1">O comentário é obrigatório.</small>
+          }
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="close.emit()" class="button-cancel">Cancelar</button>
+        <button type="submit" [disabled]="reviewForm.invalid" class="button-save">Enviar Avaliação</button>
+      </div>
+    </form>
+  </div>
+</div>
