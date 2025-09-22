@@ -28,7 +28,7 @@ export const dateRangeValidator: ValidatorFn = (
 @Component({
   selector: 'app-customer-appointment-history',
   standalone: true,
-  imports: [CommonModule, FaIconComponent, ReactiveFormsModule, ReviewModalComponent],
+  imports: [CommonModule, FaIconComponent, ReactiveFormsModule, ReviewModalComponent, InvoiceDetailModalComponent],
   templateUrl: './customer-appointment-history-component.html',
   styleUrls: ['./customer-appointment-history-component.css'],
 })

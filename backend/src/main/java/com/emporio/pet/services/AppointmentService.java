@@ -63,7 +63,7 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AppointmentDTO> findMyAppointments(Pageable pageable) {
+    public Page<AppointmentDTO> findMyAppointments(Pageable pageable, LocalDate minDate, LocalDate maxDate) {
         User user = authService.authenticated();
 
         if (!(user instanceof Customer customer)) {
@@ -77,8 +77,10 @@ public class AppointmentService {
             return Page.empty();
         }
 
+        LocalDateTime start = (minDate != null) ? minDate.atStartOfDay() : null;
+        LocalDateTime end = (maxDate != null) ? maxDate.atTime(23, 59, 59) : null;
 
-        Page<Appointment> appointments = appointmentRepository.findByPetInOrderByStartDateTimeDesc(customerWithPets.getPets(), pageable);
+        Page<Appointment> appointments = appointmentRepository.findAppointmentsByPetsAndDateRange(customerWithPets.getPets(), start, end, pageable);
 
         return appointments.map(AppointmentDTO::new);
     }

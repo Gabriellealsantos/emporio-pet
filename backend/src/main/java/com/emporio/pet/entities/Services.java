@@ -30,6 +30,10 @@ public class Services {
     @OneToMany(mappedBy = "service")
     private List<Appointment> appointments = new ArrayList<>();
 
+    private String imageUrl;
+    private String priceDisplay;
+    private String durationDisplay;
+
     public Services() {
     }
 
@@ -100,6 +104,30 @@ public class Services {
     }
     public boolean isActive() {
         return active;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getPriceDisplay() {
+        return priceDisplay;
+    }
+
+    public void setPriceDisplay(String priceDisplay) {
+        this.priceDisplay = priceDisplay;
+    }
+
+    public String getDurationDisplay() {
+        return durationDisplay;
+    }
+
+    public void setDurationDisplay(String durationDisplay) {
+        this.durationDisplay = durationDisplay;
     }
 
     @Override

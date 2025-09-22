@@ -1,23 +1,23 @@
 <header class="nav-container">
   <nav class="nav-main">
-
     <div class="logo-title-group">
       <img src="assets/images/LogoEmporioPetFooterEDIT.png" alt="Logo emporio pet" />
       <h1 class="nav-title">Empório Pet</h1>
     </div>
 
     <div class="menu-account-group">
-      <div class="nav-bar">
-        <ul class="menu-items">
-          <li><a href="#">Serviços</a></li>
-          <li><a href="#">Sobre Nós</a></li>
-        </ul>
-      </div>
+      <div class="nav-bar"></div>
       <div class="container-account">
-        <a href="/login">Login</a>
-        <a href="/cadastrar">Registro</a>
+        @if (currentUser$ | async; as user) {
+        <a [routerLink]="['/customer/dashboard']" class="nav-link-logged"
+          >Olá, {{ user.name.split(' ')[0] }}</a
+        >
+        <a (click)="authService.logout()" class="nav-link-action">Sair</a>
+        } @else {
+        <a routerLink="/login" class="nav-link-action">Login</a>
+        <a routerLink="/cadastrar" class="nav-link-register">Registro</a>
+        }
       </div>
     </div>
-
   </nav>
 </header>

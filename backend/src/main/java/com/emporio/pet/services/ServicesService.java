@@ -11,6 +11,7 @@ import com.emporio.pet.services.exceptions.ForbiddenException;
 import com.emporio.pet.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +22,12 @@ public class ServicesService {
 
     private final ServiceRepository serviceRepository;
     private final AuthService authService;
+    private final FileStorageService fileStorageService;
 
-    public ServicesService(ServiceRepository serviceRepository, AuthService authService) {
+    public ServicesService(ServiceRepository serviceRepository, AuthService authService, FileStorageService fileStorageService) {
         this.serviceRepository = serviceRepository;
         this.authService = authService;
+        this.fileStorageService = fileStorageService;
     }
 
     /**
@@ -151,5 +154,21 @@ public class ServicesService {
         return service.getQualifiedEmployees().stream()
                 .map(EmployeeDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void saveImage(Long id, MultipartFile file) {
+        // Busca o serviço no banco de dados
+        Services serviceEntity = serviceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + id));
+
+        // Usa nosso novo serviço para salvar o arquivo no disco e obter o caminho público
+        String imageUrl = fileStorageService.store(file);
+
+        // Atualiza a entidade com o caminho da imagem
+        serviceEntity.setImageUrl(imageUrl);
+
+        // Salva a entidade atualizada no banco
+        serviceRepository.save(serviceEntity);
     }
 }

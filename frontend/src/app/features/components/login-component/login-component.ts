@@ -1,17 +1,19 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ButtonComponent } from '../../../shared/components/button-component/button-component';
 import { User } from '../../models/User';
+
 
 @Component({
   selector: 'app-login-component',
   standalone: true,
   imports: [
     ButtonComponent,
-    ReactiveFormsModule
-  ],
+    ReactiveFormsModule,
+    RouterLink
+],
   templateUrl: './login-component.html',
   styleUrls: [
     './login-component.css',

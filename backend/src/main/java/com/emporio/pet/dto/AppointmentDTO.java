@@ -15,6 +15,7 @@ public class AppointmentDTO {
     private ServicesDTO service;
     private EmployeeDTO employee;
     private ReviewDTO review;
+    private Long invoiceId;
 
     public AppointmentDTO(Appointment entity) {
         this.id = entity.getId();
@@ -28,8 +29,11 @@ public class AppointmentDTO {
         if (entity.getReview() != null) {
             this.review = new ReviewDTO(entity.getReview());
         }
-    }
 
+        if (entity.getInvoice() != null) {
+            this.invoiceId = entity.getInvoice().getId();
+        }
+    }
     public Long getId() {
         return id;
     }
@@ -58,8 +62,11 @@ public class AppointmentDTO {
         return employee;
     }
 
-    // 3. GETTER ADICIONADO
     public ReviewDTO getReview() {
         return review;
+    }
+
+    public Long getInvoiceId() {
+        return invoiceId;
     }
 }

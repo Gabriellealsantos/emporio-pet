@@ -3,4 +3,6 @@ export interface ServiceUpdate {
   description?: string;
   price?: number;
   estimatedDurationInMinutes?: number;
+  priceDisplay?: string;
+  durationDisplay?: string;
 }

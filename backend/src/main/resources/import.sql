@@ -23,7 +23,7 @@ INSERT INTO tb_employee (user_id, job_title) VALUES (1, 'Administrator'), (3, 'B
 
 -- ASSOCIAÇÃO DE PERFIS (ROLES)
 INSERT INTO tb_user_role (user_id, role_id) VALUES (1, 1), (2, 2), (3, 3), (4, 3), (5, 3), (6, 2);
-INSERT INTO tb_user_role (user_id, role_id) VALUES (1, 3); -- Admin também é funcionário
+INSERT INTO tb_user_role (user_id, role_id) VALUES (1); -- Admin também é funcionário
 
 -- HABILIDADES DOS FUNCIONÁRIOS
 INSERT INTO tb_employee_service (employee_id, service_id) VALUES (3, 1), (3, 4); -- João (Banhista) faz Banho e Tosa e Banho Simples

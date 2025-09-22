@@ -57,4 +57,11 @@ export class ServicesService {
     return this.http.put<Service>(`${this.apiUrl}/${id}`, serviceData);
   }
 
+   uploadImage(serviceId: number, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<void>(`${this.apiUrl}/${serviceId}/image`, formData);
+  }
+
 }

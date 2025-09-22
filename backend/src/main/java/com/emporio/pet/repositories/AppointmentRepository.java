@@ -63,6 +63,22 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             countQuery = "SELECT COUNT(a) FROM Appointment a WHERE a.pet IN :pets")
     Page<Appointment> findByPetInOrderByStartDateTimeDesc(@Param("pets") List<Pet> pets, Pageable pageable);
 
+    @Query(value = "SELECT a FROM Appointment a " +
+            "JOIN FETCH a.pet p " +
+            "JOIN FETCH a.service " +
+            "WHERE a.pet IN :pets " +
+            "AND (:minDate IS NULL OR a.startDateTime >= :minDate) " +
+            "AND (:maxDate IS NULL OR a.startDateTime <= :maxDate) " +
+            "ORDER BY a.startDateTime DESC",
+            countQuery = "SELECT COUNT(a) FROM Appointment a WHERE a.pet IN :pets " +
+                    "AND (:minDate IS NULL OR a.startDateTime >= :minDate) " +
+                    "AND (:maxDate IS NULL OR a.startDateTime <= :maxDate)")
+    Page<Appointment> findAppointmentsByPetsAndDateRange(
+            @Param("pets") List<Pet> pets,
+            @Param("minDate") LocalDateTime minDate,
+            @Param("maxDate") LocalDateTime maxDate,
+            Pageable pageable);
+
 
     List<Appointment> findTop5ByOrderByStartDateTimeDesc();
 }

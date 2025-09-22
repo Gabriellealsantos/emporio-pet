@@ -14,11 +14,27 @@
         <div>
           <textarea formControlName="description" rows="3" class="form-input" placeholder="Descrição (opcional)"></textarea>
         </div>
+
         <div>
-          <input type="number" formControlName="price" class="form-input" placeholder="Preço (ex: 80.00)">
+          <input type="text" formControlName="priceDisplay" class="form-input" placeholder="Texto de Preço (ex: R$ 80 a R$ 120)">
         </div>
         <div>
-          <input type="number" formControlName="estimatedDurationInMinutes" class="form-input" placeholder="Duração em Minutos (ex: 90)">
+          <input type="text" formControlName="durationDisplay" class="form-input" placeholder="Texto de Duração (ex: 60-90 min)">
+        </div>
+
+        <div>
+          <label for="imageUpload" class="form-label">Imagem do Serviço</label>
+          <input id="imageUpload" type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/webp" class="form-input-file">
+          @if (fileName) {
+            <span class="file-name">{{ fileName }}</span>
+          }
+        </div>
+
+        <div>
+          <input type="number" formControlName="price" class="form-input" placeholder="Preço Base (ex: 80.00)">
+        </div>
+        <div>
+          <input type="number" formControlName="estimatedDurationInMinutes" class="form-input" placeholder="Duração Base em Minutos (ex: 90)">
         </div>
       </div>
       <div class="modal-footer">

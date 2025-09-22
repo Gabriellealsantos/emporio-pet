@@ -1,8 +1,8 @@
 <div class="login-container">
   <div class="login-card">
     <div class="title">
-      <img src="assets/icons/dog.svg" class="title-icon" alt="Ícone de cachorro" />
-      <h2 class="title-text">Entrar</h2>
+      <img routerLink="/home" class="nav-link-action" src="assets/icons/dog.svg" class="title-icon" alt="Ícone de cachorro" />
+      <h2 routerLink="/home" class="title-text nav-link-action">Entrar</h2>
     </div>
 
     <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()">

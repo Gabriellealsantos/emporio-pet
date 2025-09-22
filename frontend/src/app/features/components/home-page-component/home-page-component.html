@@ -1,15 +1,16 @@
 <app-header></app-header>
 
-<main class="page-main">
+<main>
   <section>
     <div class="content-frases">
       <div class="first-title">
         <h2>Saúde e cuidado para o seu pet, com amor e profissionalismo!</h2>
       </div>
       <img src="assets/images/imgPrincipal.png" alt="imagem principal" />
-
       <div class="sub-title">
-        <p>Na Empório Pet você encontra produtos, serviços veterinarios, Banho, tosa e muito mais!</p>
+        <p>
+          Na Empório Pet você encontra produtos, serviços veterinarios, Banho, tosa e muito mais!
+        </p>
       </div>
     </div>
   </section>
@@ -17,14 +18,12 @@
   <section>
     <div class="card-container">
       <div class="card-sections">
-        <a href="#">
-          <img src="assets/images/CachorroBanho.png" alt="banho" />
+        <a routerLink="/customer/agendar"> <img src="assets/images/CachorroBanho.png" alt="banho" />
           Banho
         </a>
       </div>
       <div class="card-sections">
-        <a href="#">
-          <img src="assets/images/CachorroTosa.png" alt="Tosa" />
+        <a routerLink="/customer/agendar"> <img src="assets/images/CachorroTosa.png" alt="Tosa" />
           Tosa
         </a>
       </div>
@@ -38,32 +37,34 @@
 
     <div class="swiper">
       <div class="swiper-wrapper">
-        <div class="swiper-slide">
-          <div class="card-servico">
-            <img src="assets/images/carrossel-cachorro.png" alt="banho cachorro" />
-            <h3>Banho</h3>
-            <p>Higienização completa com shampoos especiais. Inclui secagem, escovação e perfume.</p>
-            <p><b>Média de tempo:</b> 40/60 minutos</p>
-            <p><b>Valor:</b> R$ 80,00 a R$ 200,00</p>
-            <button class="btn-agendar">Agende agora</button>
-          </div>
-        </div>
 
-        <div class="swiper-slide">
-          <div class="card-servico">
-            <img src="assets/images/carrossel-gato.png" alt="tosa felino" />
-            <h3>Tosa</h3>
-            <p>Serviço de tosa realizado por profissionais especializados. Inclui penteado final e verificação de pele e pelagem.</p>
-            <p><b>Média de tempo:</b> 60/90 minutos</p>
-            <p><b>Valor:</b> R$ 150,00 a R$ 350,00</p>
-            <button class="btn-agendar">Agende agora</button>
+        @for (service of services(); track service.id) {
+          <div class="swiper-slide">
+            <div class="card-servico">
+              <img [src]="service.imageUrl" [alt]="service.name" class="service-image" />
+
+              <h3>{{ service.name }}</h3>
+              <p>{{ service.description }}</p>
+
+              <p><b>Média de tempo:</b> {{ service.durationDisplay }}</p>
+              <p><b>Valor:</b> {{ service.priceDisplay }}</p>
+
+              <button class="btn-agendar" [routerLink]="['/customer/agendar']">Agende agora</button>
+            </div>
           </div>
-        </div>
+        } @empty {
+          <div class="swiper-slide">
+            <div class="card-servico">
+              <h3>Nenhum serviço disponível no momento.</h3>
+              <p>Por favor, volte mais tarde para novidades!</p>
+            </div>
+          </div>
+        }
+
       </div>
 
       <div class="swiper-button-next"></div>
       <div class="swiper-button-prev"></div>
-
       <div class="swiper-pagination"></div>
     </div>
   </section>

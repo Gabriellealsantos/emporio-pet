@@ -66,14 +66,11 @@ export class AppointmentService {
       .set('page', filters.page.toString())
       .set('size', (filters.size ?? 10).toString());
 
-    // Adiciona os filtros de data se eles existirem
     if (filters.minDate) {
-      params = params.set('minDate', new Date(filters.minDate).toISOString());
+      params = params.set('minDate', filters.minDate);
     }
     if (filters.maxDate) {
-      const endDate = new Date(filters.maxDate);
-      endDate.setHours(23, 59, 59, 999);
-      params = params.set('maxDate', endDate.toISOString());
+      params = params.set('maxDate', filters.maxDate);
     }
 
     return this.http.get<Page<Appointment>>(`${this.apiUrl}/my`, { params });

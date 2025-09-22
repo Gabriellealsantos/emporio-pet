@@ -11,6 +11,8 @@ import { DeleteConfirmationModalComponent } from "../../../shared/components/del
 import { Appointment } from '../../models/Appointment';
 import { AppointmentStatus } from '../../models/AppointmentStatus';
 import { User } from '../../models/User';
+import { ReviewService } from '../../../core/services/review.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-appointments-page',
@@ -24,6 +26,8 @@ export class AppointmentsPageComponent implements OnInit {
   private appointmentService = inject(AppointmentService);
   private employeeService = inject(EmployeeService);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
+  private reviewService = inject(ReviewService);
 
   // === ÍCONES ===
   faFilter = faFilter; faCalendarAlt = faCalendarAlt; faUserMd = faUserMd; faList = faList; faEdit = faEdit; faTrash = faTrash;
@@ -33,6 +37,8 @@ export class AppointmentsPageComponent implements OnInit {
   appointments = signal<Appointment[]>([]);
   employeesForFilter = signal<User[]>([]);
   isLoading = signal(true);
+  // CORREÇÃO 1: O usuário é um signal que precisa ser preenchido
+  currentUser = signal<User | null>(null);
 
   // === SIGNALS PARA FILTROS ===
   minDate = signal('');
@@ -40,17 +46,17 @@ export class AppointmentsPageComponent implements OnInit {
   selectedEmployeeId = signal<string>('all');
   selectedStatus = signal<string>('SCHEDULED');
 
-  // IGNALS PARA CONTROLAR O MODAL DE CONFIRMAÇÃO
+  // SIGNALS PARA CONTROLAR O MODAL DE CONFIRMAÇÃO
   isConfirmModalOpen = signal(false);
   appointmentToAction = signal<Appointment | null>(null);
-  actionToConfirm = signal<'updateStatus' | 'cancel' | null>(null);
+  // CORREÇÃO 2: Adicionamos a nova ação permitida ao tipo
+  actionToConfirm = signal<'updateStatus' | 'cancel' | 'deleteReview' | null>(null);
   newStatusToAction = signal<AppointmentStatus | null>(null);
 
   modalTitle = signal('');
   modalMessage = signal('');
   modalConfirmText = signal('');
   modalConfirmClass = signal('');
-
 
   // Lista de status para o dropdown do filtro
   statusList: AppointmentStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELED', 'NO_SHOW'];
@@ -61,6 +67,11 @@ export class AppointmentsPageComponent implements OnInit {
   totalElements = signal(0);
 
   ngOnInit(): void {
+    // CORREÇÃO 1 (continuação): Pegamos o usuário do serviço e atualizamos nosso signal
+    this.authService.getCurrentUser().subscribe(user => {
+      this.currentUser.set(user);
+    });
+
     // Define as datas padrão como o dia de hoje
     const today = new Date().toISOString().split('T')[0];
     this.minDate.set(today);
@@ -107,7 +118,6 @@ export class AppointmentsPageComponent implements OnInit {
     });
   }
 
-  // Este método é chamado sempre que um filtro é alterado no HTML
   onFilterChange(): void {
     if (this.maxDate() < this.minDate()) {
       this.minDate.set(this.maxDate());
@@ -115,40 +125,49 @@ export class AppointmentsPageComponent implements OnInit {
     this.loadAppointments();
   }
 
-  // === MÉTODOS DE PAGINAÇÃO ===
   goToPage(page: number): void {
     if (page >= 0 && page < this.totalPages()) {
       this.loadAppointments(page);
     }
   }
 
-  // === MÉTODOS DE AÇÃO (PLACEHOLDERS) ===
-  onUpdateStatus(appointment: Appointment, newStatus: AppointmentStatus): void {
-    this.appointmentToAction.set(appointment);
-    this.newStatusToAction.set(newStatus);
-    this.actionToConfirm.set('updateStatus');
-
-    this.modalTitle.set('Confirmar Alteração de Status');
-    this.modalMessage.set(`Deseja alterar o status do agendamento de "${appointment.pet.name}" para "${this.translateStatus(newStatus)}"?`);
-    this.modalConfirmText.set('Confirmar');
-    this.modalConfirmClass.set('button-activate');
-    this.isConfirmModalOpen.set(true);
-  }
-
-  onCancelAppointment(appointment: Appointment): void {
-    this.appointmentToAction.set(appointment);
-    this.actionToConfirm.set('cancel');
-
-    this.modalTitle.set('Confirmar Cancelamento');
-    this.modalMessage.set(`Deseja cancelar o agendamento de "${appointment.pet.name}"? Esta ação não pode ser desfeita.`);
-    this.modalConfirmText.set('Cancelar Agendamento');
-    this.modalConfirmClass.set('button-delete'); // Botão vermelho
-    this.isConfirmModalOpen.set(true);
-  }
-
   closeConfirmModal(): void {
     this.isConfirmModalOpen.set(false);
     this.loadAppointments(this.currentPage());
+  }
+
+  requestStatusChange(appointment: Appointment, newStatus: AppointmentStatus): void {
+    if (appointment.status === newStatus) return;
+
+    this.appointmentToAction.set(appointment);
+    this.newStatusToAction.set(newStatus);
+
+    if (newStatus === 'CANCELED') {
+      this.actionToConfirm.set('cancel');
+      this.modalTitle.set('Confirmar Cancelamento');
+      this.modalMessage.set(`Deseja realmente cancelar o agendamento de "${appointment.pet.name}"?`);
+      this.modalConfirmText.set('Sim, Cancelar');
+      this.modalConfirmClass.set('button-delete');
+    } else {
+      this.actionToConfirm.set('updateStatus');
+      this.modalTitle.set('Confirmar Alteração de Status');
+      this.modalMessage.set(`Deseja alterar o status para "${this.translateStatus(newStatus)}"?`);
+      this.modalConfirmText.set('Confirmar');
+      this.modalConfirmClass.set('button-activate');
+    }
+    this.isConfirmModalOpen.set(true);
+  }
+
+  onDeleteReview(appointment: Appointment): void {
+    if (!appointment.review) return;
+
+    this.appointmentToAction.set(appointment);
+    this.actionToConfirm.set('deleteReview');
+    this.modalTitle.set('Confirmar Moderação');
+    this.modalMessage.set(`Deseja realmente remover o comentário da avaliação para o pet "${appointment.pet.name}"? A nota em estrelas será mantida.`);
+    this.modalConfirmText.set('Sim, Remover Comentário');
+    this.modalConfirmClass.set('button-delete');
+    this.isConfirmModalOpen.set(true);
   }
 
   onConfirmAction(): void {
@@ -159,12 +178,16 @@ export class AppointmentsPageComponent implements OnInit {
     let action$: Observable<any>;
     let successMessage = '';
 
+    // Verifique se a lógica está exatamente assim
     if (action === 'updateStatus' && this.newStatusToAction()) {
       action$ = this.appointmentService.updateStatus(appointment.id, this.newStatusToAction()!);
       successMessage = 'Status do agendamento atualizado!';
     } else if (action === 'cancel') {
       action$ = this.appointmentService.cancel(appointment.id);
       successMessage = 'Agendamento cancelado com sucesso!';
+    } else if (action === 'deleteReview' && appointment.review) {
+      action$ = this.reviewService.delete(appointment.id);
+      successMessage = 'Comentário removido com sucesso!';
     } else {
       this.closeConfirmModal();
       return;
@@ -179,33 +202,13 @@ export class AppointmentsPageComponent implements OnInit {
     });
   }
 
-   // MÉTODO ÚNICO PARA PREPARAR A MUDANÇA DE STATUS
-  requestStatusChange(appointment: Appointment, newStatus: AppointmentStatus): void {
-    // Se o status selecionado for o mesmo que o atual, não faz nada
-    if (appointment.status === newStatus) return;
-
-    this.appointmentToAction.set(appointment);
-    this.newStatusToAction.set(newStatus);
-
-    // Lógica para decidir qual ação e qual mensagem mostrar
-    if (newStatus === 'CANCELED') {
-      this.actionToConfirm.set('cancel');
-      this.modalTitle.set('Confirmar Cancelamento');
-      this.modalMessage.set(`Deseja realmente cancelar o agendamento de "${appointment.pet.name}"?`);
-      this.modalConfirmText.set('Sim, Cancelar');
-      this.modalConfirmClass.set('button-delete');
-    } else {
-      this.actionToConfirm.set('updateStatus');
-      this.modalTitle.set('Confirmar Alteração de Status');
-      this.modalMessage.set(`Deseja alterar o status para "${this.translateStatus(newStatus)}"?`);
-      this.modalConfirmText.set('Confirmar');
-      this.modalConfirmClass.set('button-activate');
+  isAdmin(user: User | null): boolean {
+    if (!user || !user.roles) {
+      return false;
     }
-
-    this.isConfirmModalOpen.set(true);
+    return user.roles.some(r => r.authority === 'ROLE_ADMIN');
   }
 
-  // === MÉTODOS AUXILIARES ===
   translateStatus(status: string): string {
     const map: { [key: string]: string } = {
       'SCHEDULED': 'Agendado',

@@ -3,4 +3,6 @@ export interface ServiceInsert {
   description?: string;
   price: number;
   estimatedDurationInMinutes: number;
+  priceDisplay?: string;
+  durationDisplay?: string;
 }

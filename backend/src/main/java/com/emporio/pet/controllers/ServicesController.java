@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -99,5 +100,12 @@ public class ServicesController {
     public ResponseEntity<List<EmployeeDTO>> findQualifiedEmployees(@PathVariable Long id) {
         List<EmployeeDTO> qualifiedEmployees = servicesService.findQualifiedEmployees(id);
         return ResponseEntity.ok(qualifiedEmployees);
+    }
+
+    @PostMapping("/{id}/image")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Void> uploadServiceImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        servicesService.saveImage(id, file);
+        return ResponseEntity.noContent().build();
     }
 }

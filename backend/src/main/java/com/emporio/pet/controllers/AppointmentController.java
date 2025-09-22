@@ -50,8 +50,11 @@ public class AppointmentController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<Page<AppointmentDTO>> findMyAppointments(Pageable pageable) {
-        Page<AppointmentDTO> page = appointmentService.findMyAppointments(pageable);
+    public ResponseEntity<Page<AppointmentDTO>> findMyAppointments(
+            Pageable pageable,
+            @RequestParam(value = "minDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate minDate,
+            @RequestParam(value = "maxDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate maxDate) {
+        Page<AppointmentDTO> page = appointmentService.findMyAppointments(pageable, minDate, maxDate);
         return ResponseEntity.ok(page);
     }
 

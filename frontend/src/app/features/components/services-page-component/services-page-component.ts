@@ -2,8 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faEdit, faPlus, faSearch, faToggleOff, faToggleOn } from '@fortawesome/free-solid-svg-icons';
-import { Observable, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { Service } from '../../models/Service';
 import { ServicesService } from '../../../core/services/services.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -171,17 +171,32 @@ export class ServicesPageComponent implements OnInit {
     this.isFormModalOpen.set(false);
   }
 
-  onSaveService(formData: ServiceInsert | ServiceUpdate): void {
+  onSaveService(event: { serviceData: ServiceInsert | ServiceUpdate; imageFile: File | null }): void {
+    const { serviceData, imageFile } = event;
     const serviceSendoEditado = this.editingService();
+
     let save$: Observable<Service>;
 
+    // ETAPA 1: Criar ou Atualizar os dados de texto do serviço
     if (serviceSendoEditado) {
-      save$ = this.servicesService.update(serviceSendoEditado.id, formData);
+      save$ = this.servicesService.update(serviceSendoEditado.id, serviceData);
     } else {
-      save$ = this.servicesService.create(formData as ServiceInsert);
+      save$ = this.servicesService.create(serviceData as ServiceInsert);
     }
 
-    save$.subscribe({
+    save$.pipe(
+      // ETAPA 2: Se a etapa 1 deu certo, e se existe uma imagem, faz o upload
+      switchMap(savedService => {
+        if (imageFile) {
+          // Chamamos o upload e retornamos o observable, mas o valor final será o 'savedService'
+          return this.servicesService.uploadImage(savedService.id, imageFile).pipe(
+            map(() => savedService) // Garante que o 'savedService' continue para o subscribe
+          );
+        }
+        // Se não houver imagem, apenas continuamos com o serviço salvo
+        return of(savedService);
+      })
+    ).subscribe({
       next: () => {
         this.notificationService.showSuccess(`Serviço ${serviceSendoEditado ? 'atualizado' : 'criado'} com sucesso!`);
         this.closeFormModal();

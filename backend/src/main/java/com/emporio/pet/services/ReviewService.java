@@ -73,4 +73,14 @@ public class ReviewService {
         List<Review> reviews = reviewRepository.findByAppointmentServiceId(serviceId);
         return reviews.stream().map(ReviewDTO::new).collect(Collectors.toList());
     }
+
+    @Transactional
+    public void adminDeleteComment(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Avaliação não encontrada com o ID: " + reviewId));
+
+        review.setComment("Comentário removido por um administrador.");
+
+        reviewRepository.save(review);
+    }
 }

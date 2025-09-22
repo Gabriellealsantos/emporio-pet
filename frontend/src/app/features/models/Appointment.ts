@@ -13,4 +13,5 @@ export interface Appointment {
   service: Service;
   employee: User;
   review?: Review;
+  invoiceId?: number;
 }

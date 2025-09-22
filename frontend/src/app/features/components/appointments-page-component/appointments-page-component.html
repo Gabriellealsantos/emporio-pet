@@ -8,27 +8,49 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div>
         <label for="minDate" class="form-label">De:</label>
-        <input type="date" id="minDate" [(ngModel)]="minDate" (change)="onFilterChange()" class="form-input">
+        <input
+          type="date"
+          id="minDate"
+          [(ngModel)]="minDate"
+          (change)="onFilterChange()"
+          class="form-input"
+        />
       </div>
       <div>
         <label for="maxDate" class="form-label">Até:</label>
-        <input type="date" id="maxDate" [(ngModel)]="maxDate" (change)="onFilterChange()" class="form-input">
+        <input
+          type="date"
+          id="maxDate"
+          [(ngModel)]="maxDate"
+          (change)="onFilterChange()"
+          class="form-input"
+        />
       </div>
       <div>
         <label for="employeeFilter" class="form-label">Funcionário:</label>
-        <select id="employeeFilter" [(ngModel)]="selectedEmployeeId" (change)="onFilterChange()" class="form-input">
+        <select
+          id="employeeFilter"
+          [(ngModel)]="selectedEmployeeId"
+          (change)="onFilterChange()"
+          class="form-input"
+        >
           <option value="all">Todos</option>
           @for (employee of employeesForFilter(); track employee.id) {
-            <option [value]="employee.id">{{ employee.name }}</option>
+          <option [value]="employee.id">{{ employee.name }}</option>
           }
         </select>
       </div>
       <div>
         <label for="statusFilter" class="form-label">Status:</label>
-        <select id="statusFilter" [(ngModel)]="selectedStatus" (change)="onFilterChange()" class="form-input">
+        <select
+          id="statusFilter"
+          [(ngModel)]="selectedStatus"
+          (change)="onFilterChange()"
+          class="form-input"
+        >
           <option value="all">Todos</option>
           @for (status of statusList; track status) {
-            <option [value]="status">{{ translateStatus(status) }}</option>
+          <option [value]="status">{{ translateStatus(status) }}</option>
           }
         </select>
       </div>
@@ -46,70 +68,120 @@
             <th class="table-header">Serviço</th>
             <th class="table-header">Funcionário</th>
             <th class="table-header">Status</th>
+            <th class="table-header">Avaliação</th>
             <th class="table-header text-right">Ações</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          @if (!isLoading()) {
-            @for (appointment of appointments(); track appointment.id) {
-            <tr class="hover:bg-gray-50">
-              <td class="table-cell font-medium">{{ appointment.startDateTime | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td class="table-cell text-gray-500">{{ appointment.pet.owner.name }}</td>
-              <td class="table-cell text-gray-500">{{ appointment.pet.name }}</td>
-              <td class="table-cell text-gray-500">{{ appointment.service.name }}</td>
-              <td class="table-cell text-gray-500">{{ appointment.employee.name }}</td>
-              <td class="table-cell">
-                @switch (appointment.status) {
-                  @case ('SCHEDULED') { <span class="badge-info">Agendado</span> }
-                  @case ('IN_PROGRESS') { <span class="badge-warning">Em Andamento</span> }
-                  @case ('COMPLETED') { <span class="badge-success">Concluído</span> }
-                  @case ('CANCELED') { <span class="badge-danger">Cancelado</span> }
-                  @case ('NO_SHOW') { <span class="badge-neutral">Não Compareceu</span> }
+          @if (!isLoading()) { @for (appointment of appointments(); track appointment.id) {
+          <tr class="hover:bg-gray-50">
+            <td class="table-cell font-medium">
+              {{ appointment.startDateTime | date : 'dd/MM/yyyy HH:mm' }}
+            </td>
+            <td class="table-cell text-gray-500">{{ appointment.pet.owner.name }}</td>
+            <td class="table-cell text-gray-500">{{ appointment.pet.name }}</td>
+            <td class="table-cell text-gray-500">{{ appointment.service.name }}</td>
+            <td class="table-cell text-gray-500">{{ appointment.employee.name }}</td>
+            <td class="table-cell">
+              @switch (appointment.status) { @case ('SCHEDULED') {
+              <span class="badge-info">Agendado</span> } @case ('IN_PROGRESS') {
+              <span class="badge-warning">Em Andamento</span> } @case ('COMPLETED') {
+              <span class="badge-success">Concluído</span> } @case ('CANCELED') {
+              <span class="badge-danger">Cancelado</span> } @case ('NO_SHOW') {
+              <span class="badge-neutral">Não Compareceu</span> } }
+            </td>
+
+            <td class="table-cell text-xs text-gray-600 max-w-xs">
+              @if (appointment.review; as review) {
+              <div class="flex items-start gap-2">
+                <div class="flex-grow">
+                  <div class="flex items-center" [title]="review.comment">
+                    <span class="text-yellow-500 font-bold">&#9733; {{ review.rating }}</span>
+                  </div>
+                  <p class="truncate whitespace-normal" [title]="review.comment">
+                    {{ review.comment }}
+                  </p>
+                </div>
+                @if (isAdmin(currentUser())) {
+                <button
+                  (click)="onDeleteReview(appointment)"
+                  class="text-red-500 hover:text-red-700 flex-shrink-0"
+                  title="Remover comentário"
+                >
+                  <fa-icon [icon]="faTrash"></fa-icon>
+                </button>
                 }
-              </td>
-              <td class="table-cell text-right">
-                <select [ngModel]="appointment.status"
-                        (ngModelChange)="requestStatusChange(appointment, $event)"
-                        class="form-input py-1 text-xs"
-                        [disabled]="appointment.status === 'COMPLETED' || appointment.status === 'CANCELED'">
-                  <option [value]="appointment.status" disabled>{{ translateStatus(appointment.status) }}</option>
-                  @for (status of statusList; track status) {
-                    @if (status !== appointment.status) {
-                      <option [value]="status">{{ translateStatus(status) }}</option>
-                    }
-                  }
-                </select>
-              </td>
-            </tr>
-            } @empty {
-              <tr><td colspan="7" class="text-center text-gray-500 py-6">Nenhum agendamento encontrado para os filtros selecionados.</td></tr>
-            }
-          } @else {
-            <tr><td colspan="7" class="text-center text-gray-500 py-6">Carregando agendamentos...</td></tr>
+              </div>
+              } @else {
+              <span>-</span>
+              }
+            </td>
+
+            <td class="table-cell text-right">
+              <select
+                [ngModel]="appointment.status"
+                (ngModelChange)="requestStatusChange(appointment, $event)"
+                class="form-input py-1 text-xs"
+                [disabled]="appointment.status === 'COMPLETED' || appointment.status === 'CANCELED'"
+              >
+                <option [value]="appointment.status" disabled>
+                  {{ translateStatus(appointment.status) }}
+                </option>
+                @for (status of statusList; track status) { @if (status !== appointment.status) {
+                <option [value]="status">{{ translateStatus(status) }}</option>
+                } }
+              </select>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="8" class="text-center text-gray-500 py-6">
+              Nenhum agendamento encontrado para os filtros selecionados.
+            </td>
+          </tr>
+          } } @else {
+          <tr>
+            <td colspan="8" class="text-center text-gray-500 py-6">Carregando agendamentos...</td>
+          </tr>
           }
         </tbody>
       </table>
     </div>
 
     @if (totalPages() > 1) {
-      <div class="px-6 py-3 bg-gray-50 flex items-center justify-between border-t">
-        <div class="text-sm text-gray-700">Página {{ currentPage() + 1 }} de {{ totalPages() }} (Total: {{ totalElements() }} agendamentos)</div>
-        <div class="flex items-center gap-2">
-          <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0" class="pagination-button">Anterior</button>
-          <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages() - 1" class="pagination-button">Próximo</button>
-        </div>
+    <div class="px-6 py-3 bg-gray-50 flex items-center justify-between border-t">
+      <div class="text-sm text-gray-700">
+        Página {{ currentPage() + 1 }} de {{ totalPages() }} (Total:
+        {{ totalElements() }} agendamentos)
       </div>
+      <div class="flex items-center gap-2">
+        <button
+          (click)="goToPage(currentPage() - 1)"
+          [disabled]="currentPage() === 0"
+          class="pagination-button"
+        >
+          Anterior
+        </button>
+        <button
+          (click)="goToPage(currentPage() + 1)"
+          [disabled]="currentPage() === totalPages() - 1"
+          class="pagination-button"
+        >
+          Próximo
+        </button>
+      </div>
+    </div>
     }
   </div>
 </div>
 
 @if (isConfirmModalOpen()) {
-  <app-delete-confirmation-modal
-    [title]="modalTitle()"
-    [message]="modalMessage()"
-    [confirmButtonText]="modalConfirmText()"
-    [confirmButtonClass]="modalConfirmClass()"
-    (confirm)="onConfirmAction()"
-    (close)="closeConfirmModal()"
-  ></app-delete-confirmation-modal>
+<app-delete-confirmation-modal
+  [title]="modalTitle()"
+  [message]="modalMessage()"
+  [confirmButtonText]="modalConfirmText()"
+  [confirmButtonClass]="modalConfirmClass()"
+  (confirm)="onConfirmAction()"
+  (close)="closeConfirmModal()"
+></app-delete-confirmation-modal>
 }

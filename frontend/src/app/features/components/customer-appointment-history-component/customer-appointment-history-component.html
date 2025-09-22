@@ -36,13 +36,23 @@
           <p class="text-sm text-gray-600 mb-4">Profissional: {{ app.employee.name }}</p>
 
           <div class="border-t pt-3 flex items-center justify-between">
-            @if (app.status === 'COMPLETED' && app.review) {
-              <div class="flex items-center text-yellow-400 text-sm" title="{{ app.review.comment }}">
-                <span>Sua Avaliação:</span>
-                @for (star of getStarsArray(app.review.rating); track $index) {
-                  <fa-icon [icon]="faStar" class="ml-1"></fa-icon>
-                }
-                <span class="ml-2 text-gray-600 font-medium">({{ app.review.rating }})</span>
+            @if (app.status === 'COMPLETED' && app.review; as review) {
+              <div>
+                <div class="flex items-center text-yellow-400 text-sm">
+                  <span>Sua Avaliação:</span>
+                  @for (star of getStarsArray(review.rating); track $index) {
+                    <fa-icon [icon]="faStar" class="ml-1"></fa-icon>
+                  }
+                  <span class="ml-2 text-gray-600 font-medium">({{ review.rating }})</span>
+                </div>
+
+                <p class="text-sm mt-1" [ngClass]="{
+                  'text-gray-800 italic': review.comment !== 'Comentário removido por um administrador.',
+                  'text-gray-500 italic': review.comment === 'Comentário removido por um administrador.'
+                }">
+                  "{{ review.comment }}"
+                </p>
+
               </div>
             } @else if (app.status === 'COMPLETED' && !app.review) {
               <button (click)="openReviewModal(app.id)" class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center">
@@ -51,7 +61,12 @@
               </button>
             } @else {
               <div></div> }
-            <a class="text-sm text-gray-500 hover:text-gray-800">Ver Fatura</a>
+
+            @if (app.invoiceId) {
+              <button (click)="openInvoiceModal(app.invoiceId)" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                Ver Fatura
+              </button>
+            }
           </div>
         </div>
       } @empty {
@@ -61,7 +76,7 @@
       }
     </div>
 
-    @if (pagination().totalElements > 0) {
+    @if (pagination().totalElements > 0 && pagination().totalPages > 1) {
       <div class="mt-8 flex justify-center items-center">
         <div class="space-x-1">
           <button (click)="onPageChange(pagination().number - 1)" [disabled]="pagination().first" class="pagination-button">Anterior</button>
@@ -71,6 +86,7 @@
     }
   }
 </div>
+
 @if (reviewingAppointmentId(); as appId) {
   <app-review-modal
     [appointmentId]="appId"
@@ -79,3 +95,9 @@
   </app-review-modal>
 }
 
+@if (viewingInvoiceId(); as invId) {
+  <app-invoice-detail-modal
+    [invoiceId]="invId"
+    (close)="closeInvoiceModal()">
+  </app-invoice-detail-modal>
+}

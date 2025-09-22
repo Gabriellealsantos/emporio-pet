@@ -1,11 +1,13 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, AfterViewInit, Inject, PLATFORM_ID, inject, signal, OnInit } from '@angular/core';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import Swiper from 'swiper';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { ServicesService } from '../../../core/services/services.service';
+import { Service } from '../../models/Service';
+import { RouterLink } from '@angular/router';
 import { Header } from "../../../shared/components/header/header";
 import { Footer } from "../../../shared/components/footer/footer";
 
-// Configuração global do Swiper
 Swiper.use([Navigation, Pagination, Autoplay]);
 
 @Component({
@@ -13,15 +15,37 @@ Swiper.use([Navigation, Pagination, Autoplay]);
   standalone: true,
   templateUrl: './home-page-component.html',
   styleUrls: ['./home-page-component.css'],
-  imports: [Header, Footer],
+  imports: [CommonModule, RouterLink, Header, Footer],
 })
-export class HomePageComponent implements AfterViewInit {
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+export class HomePageComponent implements OnInit, AfterViewInit {
+  private servicesService = inject(ServicesService);
+  private platformId = inject(PLATFORM_ID);
 
-  ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      // Só executa no navegador (evita erro de "document is not defined")
-      new Swiper('.swiper', {
+  // Signal para armazenar os serviços que vêm da API
+  services = signal<Service[]>([]);
+  private swiperInstance: Swiper | null = null;
+
+  ngOnInit(): void {
+    this.loadServices();
+  }
+
+  ngAfterViewInit(): void {
+    // A inicialização do Swiper foi movida para depois do carregamento dos dados
+  }
+
+  loadServices(): void {
+    this.servicesService.findAll({ active: true }).subscribe(data => {
+      this.services.set(data);
+
+      setTimeout(() => {
+        this.initSwiper();
+      }, 0);
+    });
+  }
+
+  initSwiper(): void {
+    if (isPlatformBrowser(this.platformId) && !this.swiperInstance) {
+      this.swiperInstance = new Swiper('.swiper', {
         modules: [Navigation, Pagination, Autoplay],
         loop: true,
         autoplay: {
