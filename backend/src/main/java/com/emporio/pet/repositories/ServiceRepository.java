@@ -25,4 +25,6 @@ public interface ServiceRepository extends JpaRepository<Services, Long>, JpaSpe
     Optional<Services> findByIdWithQualifiedEmployees(@Param("id") Long id);
 
     Optional<Services> findByNameIgnoreCase(String name);
+
+    List<Services> findAllByIsFeaturedTrue();
 }

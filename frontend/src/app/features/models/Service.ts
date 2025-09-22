@@ -8,4 +8,5 @@ export interface Service {
   imageUrl: string | null;
   priceDisplay: string | null;
   durationDisplay: string | null;
+  isFeatured: boolean;
 }

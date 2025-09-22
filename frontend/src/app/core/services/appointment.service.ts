@@ -61,6 +61,7 @@ export class AppointmentService {
     size?: number;
     minDate?: string | null;
     maxDate?: string | null;
+    status?: string | null;
   }): Observable<Page<Appointment>> {
     let params = new HttpParams()
       .set('page', filters.page.toString())
@@ -72,6 +73,7 @@ export class AppointmentService {
     if (filters.maxDate) {
       params = params.set('maxDate', filters.maxDate);
     }
+    if (filters.status) params = params.set('status', filters.status);
 
     return this.http.get<Page<Appointment>>(`${this.apiUrl}/my`, { params });
   }
@@ -92,5 +94,9 @@ export class AppointmentService {
 
   create(dto: AppointmentInsertDTO): Observable<Appointment> {
     return this.http.post<Appointment>(this.apiUrl, dto);
+  }
+
+  findMyUpcomingAppointments(): Observable<Appointment[]> {
+    return this.http.get<Appointment[]>(`${this.apiUrl}/my/upcoming`);
   }
 }

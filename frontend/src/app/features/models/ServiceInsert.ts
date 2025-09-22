@@ -5,4 +5,5 @@ export interface ServiceInsert {
   estimatedDurationInMinutes: number;
   priceDisplay?: string;
   durationDisplay?: string;
+  isFeatured?: boolean;
 }

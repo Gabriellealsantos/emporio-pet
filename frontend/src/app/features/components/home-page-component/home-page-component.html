@@ -15,15 +15,17 @@
     </div>
   </section>
 
-  <section>
+   <section>
     <div class="card-container">
       <div class="card-sections">
-        <a routerLink="/customer/agendar"> <img src="assets/images/CachorroBanho.png" alt="banho" />
+        <a routerLink="/customer/agendar">
+          <img src="assets/images/CachorroBanho.png" alt="banho" />
           Banho
         </a>
       </div>
       <div class="card-sections">
-        <a routerLink="/customer/agendar"> <img src="assets/images/CachorroTosa.png" alt="Tosa" />
+        <a routerLink="/customer/agendar">
+          <img src="assets/images/CachorroTosa.png" alt="Tosa" />
           Tosa
         </a>
       </div>
@@ -37,30 +39,28 @@
 
     <div class="swiper">
       <div class="swiper-wrapper">
-
         @for (service of services(); track service.id) {
-          <div class="swiper-slide">
-            <div class="card-servico">
-              <img [src]="service.imageUrl" [alt]="service.name" class="service-image" />
-
-              <h3>{{ service.name }}</h3>
-              <p>{{ service.description }}</p>
-
-              <p><b>Média de tempo:</b> {{ service.durationDisplay }}</p>
-              <p><b>Valor:</b> {{ service.priceDisplay }}</p>
-
-              <button class="btn-agendar" [routerLink]="['/customer/agendar']">Agende agora</button>
+        <div class="swiper-slide">
+          <div class="card-servico">
+            <div class="service-image-container">
+              <img [src]="environment.BASE_URL + service.imageUrl" [alt]="service.name" />
             </div>
+
+            <h3>{{ service.name }}</h3>
+            <p class="service-description">{{ service.description }}</p>
+            <p><b>Média de tempo:</b> {{ service.durationDisplay }}</p>
+            <p><b>Valor:</b> {{ service.priceDisplay }}</p>
+            <button class="btn-agendar" [routerLink]="['/customer/agendar']">Agende agora</button>
           </div>
+        </div>
         } @empty {
-          <div class="swiper-slide">
-            <div class="card-servico">
-              <h3>Nenhum serviço disponível no momento.</h3>
-              <p>Por favor, volte mais tarde para novidades!</p>
-            </div>
+        <div class="swiper-slide">
+          <div class="card-servico">
+            <h3>Nenhum serviço disponível no momento.</h3>
+            <p>Por favor, volte mais tarde para novidades!</p>
           </div>
+        </div>
         }
-
       </div>
 
       <div class="swiper-button-next"></div>

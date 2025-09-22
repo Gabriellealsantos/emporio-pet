@@ -3,10 +3,12 @@ INSERT INTO tb_role (authority) VALUES ('ROLE_ADMIN'), ('ROLE_CLIENT'), ('ROLE_E
 
 INSERT INTO tb_breed (name, species) VALUES ('Labrador', 'CACHORRO'), ('SRD', 'CACHORRO'), ('Siamês', 'GATO'), ('Persa', 'GATO');
 
-INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active) VALUES ('Banho e Tosa Completo', 'Banho, tosa higiênica e tosa de pelagem', 95.00, 90, true);
-INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active) VALUES ('Consulta Veterinária', 'Consulta geral com avaliação de saúde', 150.00, 30, true);
-INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active) VALUES ('Vacinação V10', 'Aplicação da vacina polivalente V10', 80.00, 20, true);
-INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active) VALUES ('Banho Simples', 'Apenas um banho rápido e secagem', 60.00, 60, true);
+-- Adicionei as novas colunas: is_featured, image_url, price_display, duration_display
+
+INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active, is_featured, image_url, price_display, duration_display) VALUES ('Banho e Tosa Completo', 'Banho, tosa higiênica e tosa completa da pelagem.', 95.00, 90, true, true, '/images/banho-completo.jpg', ' R$ 95,00', '90 min');
+INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active, is_featured, image_url, price_display, duration_display) VALUES ('Consulta Veterinária', 'Consulta geral com avaliação completa da saúde do seu pet.', 150.00, 30, true, false, '/images/consulta.jpg', 'R$ 150,00', '30 min');
+INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active, is_featured, image_url, price_display, duration_display) VALUES ('Vacinação V10', 'Aplicação da vacina polivalente V10 para cães.', 80.00, 20, true, false, '/images/vacinacao.jpg', 'R$ 80,00', '20 min');
+INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes, active, is_featured, image_url, price_display, duration_display) VALUES ('Banho Simples', 'Higienização completa com shampoos especiais, secagem e perfume.', 60.00, 60, true, true, '/images/banho-simples.jpg', ' R$ 60,00', '40 min');
 
 -- USUÁRIOS (Admin, Clientes, Funcionários)
 -- Senha para todos: '12345678'
@@ -23,7 +25,6 @@ INSERT INTO tb_employee (user_id, job_title) VALUES (1, 'Administrator'), (3, 'B
 
 -- ASSOCIAÇÃO DE PERFIS (ROLES)
 INSERT INTO tb_user_role (user_id, role_id) VALUES (1, 1), (2, 2), (3, 3), (4, 3), (5, 3), (6, 2);
-INSERT INTO tb_user_role (user_id, role_id) VALUES (1); -- Admin também é funcionário
 
 -- HABILIDADES DOS FUNCIONÁRIOS
 INSERT INTO tb_employee_service (employee_id, service_id) VALUES (3, 1), (3, 4); -- João (Banhista) faz Banho e Tosa e Banho Simples

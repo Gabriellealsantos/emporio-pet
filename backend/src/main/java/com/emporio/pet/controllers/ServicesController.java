@@ -108,4 +108,10 @@ public class ServicesController {
         servicesService.saveImage(id, file);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/featured")
+    public ResponseEntity<List<ServicesDTO>> findFeatured() {
+        List<ServicesDTO> featuredServices = servicesService.findAllFeatured();
+        return ResponseEntity.ok(featuredServices);
+    }
 }

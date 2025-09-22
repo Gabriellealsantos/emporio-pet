@@ -61,6 +61,8 @@ public class SecurityConfig {
                 // NOVO: Ativa a configuração de CORS que definimos no bean abaixo
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/services/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/customers").permitAll()
                         .requestMatchers(HttpMethod.POST, "/employees").permitAll()

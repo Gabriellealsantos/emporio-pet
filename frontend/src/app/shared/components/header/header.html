@@ -9,9 +9,9 @@
       <div class="nav-bar"></div>
       <div class="container-account">
         @if (currentUser$ | async; as user) {
-        <a [routerLink]="['/customer/dashboard']" class="nav-link-logged"
-          >Olá, {{ user.name.split(' ')[0] }}</a
-        >
+        <a [routerLink]="getDashboardLink(user)" class="nav-link-logged">
+          Olá, {{ user.name.split(' ')[0] }}
+        </a>
         <a (click)="authService.logout()" class="nav-link-action">Sair</a>
         } @else {
         <a routerLink="/login" class="nav-link-action">Login</a>

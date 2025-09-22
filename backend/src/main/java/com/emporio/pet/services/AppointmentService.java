@@ -63,7 +63,7 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AppointmentDTO> findMyAppointments(Pageable pageable, LocalDate minDate, LocalDate maxDate) {
+    public Page<AppointmentDTO> findMyAppointments(Pageable pageable, LocalDate minDate, LocalDate maxDate, AppointmentStatus status) {
         User user = authService.authenticated();
 
         if (!(user instanceof Customer customer)) {
@@ -80,7 +80,7 @@ public class AppointmentService {
         LocalDateTime start = (minDate != null) ? minDate.atStartOfDay() : null;
         LocalDateTime end = (maxDate != null) ? maxDate.atTime(23, 59, 59) : null;
 
-        Page<Appointment> appointments = appointmentRepository.findAppointmentsByPetsAndDateRange(customerWithPets.getPets(), start, end, pageable);
+        Page<Appointment> appointments = appointmentRepository.findAppointmentsByPetsAndDateRange(customerWithPets.getPets(), start, end, status, pageable);
 
         return appointments.map(AppointmentDTO::new);
     }
@@ -245,8 +245,8 @@ public class AppointmentService {
             if (!appointment.getPet().getOwner().getId().equals(customer.getId())) {
                 throw new ForbiddenException("Acesso negado. Você só pode cancelar seus próprios agendamentos.");
             }
-            if (LocalDateTime.now().plusHours(24).isAfter(appointment.getStartDateTime())) {
-                throw new ConflictException("Cancelamento não permitido. O agendamento deve ser cancelado com mais de 24 horas de antecedência.");
+            if (LocalDateTime.now().plusHours(12).isAfter(appointment.getStartDateTime())) {
+                throw new ConflictException("Cancelamento não permitido. O agendamento deve ser cancelado com mais de 12 horas de antecedência.");
             }
             if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELED) {
                 throw new ConflictException("Este agendamento não pode mais ser cancelado.");
@@ -290,5 +290,24 @@ public class AppointmentService {
             // Avança o ponteiro em incrementos de 15 minutos para testar o próximo slot
             potentialSlot = potentialSlot.plusMinutes(15);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentDTO> findUpcomingByCustomer() {
+        User user = authService.authenticated();
+        if (!(user instanceof Customer customer)) {
+            return Collections.emptyList();
+        }
+        Customer customerWithPets = customerRepository.findByIdWithPets(customer.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+
+        if (customerWithPets.getPets().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Appointment> appointments = appointmentRepository
+                .findByPetInAndStartDateTimeAfterOrderByStartDateTimeAsc(customerWithPets.getPets(), LocalDateTime.now());
+
+        return appointments.stream().map(AppointmentDTO::new).collect(Collectors.toList());
     }
 }

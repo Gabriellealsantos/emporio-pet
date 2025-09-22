@@ -69,16 +69,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "WHERE a.pet IN :pets " +
             "AND (:minDate IS NULL OR a.startDateTime >= :minDate) " +
             "AND (:maxDate IS NULL OR a.startDateTime <= :maxDate) " +
+            "AND (:status IS NULL OR a.status = :status) " +
             "ORDER BY a.startDateTime DESC",
             countQuery = "SELECT COUNT(a) FROM Appointment a WHERE a.pet IN :pets " +
                     "AND (:minDate IS NULL OR a.startDateTime >= :minDate) " +
-                    "AND (:maxDate IS NULL OR a.startDateTime <= :maxDate)")
+                    "AND (:maxDate IS NULL OR a.startDateTime <= :maxDate) " +
+                    "AND (:status IS NULL OR a.status = :status)")
     Page<Appointment> findAppointmentsByPetsAndDateRange(
             @Param("pets") List<Pet> pets,
             @Param("minDate") LocalDateTime minDate,
             @Param("maxDate") LocalDateTime maxDate,
+            @Param("status") AppointmentStatus status, // <-- PARÂMETRO ADICIONADO
             Pageable pageable);
 
-
     List<Appointment> findTop5ByOrderByStartDateTimeDesc();
+
+    List<Appointment> findByPetInAndStartDateTimeAfterOrderByStartDateTimeAsc(List<Pet> pets, LocalDateTime now);
 }

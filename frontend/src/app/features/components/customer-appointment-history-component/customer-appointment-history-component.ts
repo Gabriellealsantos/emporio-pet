@@ -16,6 +16,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { Page } from '../../models/PageModel';
 import { ReviewModalComponent } from "../../../shared/components/review-modal/review-modal";
 import { InvoiceDetailModalComponent } from "../../../shared/components/invoice-detail-modal/invoice-detail-modal";
+import { AppointmentStatus } from '../../models/AppointmentStatus';
 
 export const dateRangeValidator: ValidatorFn = (
   control: AbstractControl
@@ -45,11 +46,14 @@ export class CustomerAppointmentHistoryComponent implements OnInit {
   faStar = faStar;
   faCommentDots = faCommentDots;
 
+  statusList: AppointmentStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELED', 'NO_SHOW'];
+
   constructor() {
     this.filterForm = this.fb.group(
       {
         minDate: [''],
         maxDate: [''],
+        status: ['']
       },
       { validators: dateRangeValidator }
     );
@@ -72,6 +76,7 @@ export class CustomerAppointmentHistoryComponent implements OnInit {
       page,
       minDate: formValues.minDate || null,
       maxDate: formValues.maxDate || null,
+      status: formValues.status || null
     };
 
     this.appointmentService.findMyAppointments(filters).subscribe({
@@ -125,6 +130,17 @@ export class CustomerAppointmentHistoryComponent implements OnInit {
 
   closeInvoiceModal(): void {
     this.viewingInvoiceId.set(null);
+  }
+
+  translateStatus(status: string): string {
+    const map: { [key: string]: string } = {
+      'SCHEDULED': 'Agendado',
+      'IN_PROGRESS': 'Em Andamento',
+      'COMPLETED': 'Concluído',
+      'CANCELED': 'Cancelado',
+      'NO_SHOW': 'Não Compareceu'
+    };
+    return map[status] || status;
   }
 
 }

@@ -1,35 +1,29 @@
-/* MAIN - Estilo principal da página */
+/* =============================================== */
+/* Estilos Gerais da Página */
+/* =============================================== */
 .page-main {
   min-height: calc(100vh - 425px);
 }
 
-/* Section 1: Conteúdo com a imagem principal */
 .content-frases {
   background-color: var(--emp-color-background-page);
+  text-align: center;
 }
 
 .first-title h2,
 .sub-title p {
   color: var(--emp-color-text-primary);
-  text-align: center;
   font-weight: bold;
   padding: 10px;
 }
 
-.first-title h2 {
-  font-size: 1.5rem;
-}
+.first-title h2 { font-size: 1.5rem; }
+.sub-title p { font-size: 1.2rem; }
 
-.sub-title p {
-  font-size: 1.2rem;
-}
-
-/* Imagem principal corrigida e sem duplicatas */
 .content-frases img {
   display: block;
   width: 100%;
   max-width: 900px;
-  max-height: 500px;
   height: auto;
   object-fit: cover;
   margin: 30px auto;
@@ -37,7 +31,9 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Section 2: Cards de Banho e Tosa */
+/* =============================================== */
+/* Seção de Cards de Destaque (Banho/Tosa) */
+/* =============================================== */
 .card-container {
   padding: 20px;
   background-color: var(--emp-color-background-page);
@@ -68,15 +64,13 @@
   width: 80px;
 }
 
-/* Section 3 (Carrossel) */
+/* =============================================== */
+/* Seção do Carrossel de Serviços */
+/* =============================================== */
 .carrossel {
-  background-color: #dff6f4; /* Cor de destaque */
+  background-color: #dff6f4;
   border-radius: 8px 8px 0 0;
-}
-
-.carrossel-title {
-  height: 50px;
-  padding: 15px;
+  padding: 20px 0;
 }
 
 .carrossel-title h2 {
@@ -85,25 +79,47 @@
   text-align: center;
   text-transform: uppercase;
   color: var(--emp-color-text-primary);
+  margin-bottom: 20px;
+}
+
+.swiper {
+  width: 100%;
+  max-width: 800px;
+  padding-bottom: 40px; /* Espaço para a paginação */
+}
+
+.swiper-slide {
+  height: auto;
+  display: flex;
+  align-items: stretch; /* Faz os slides terem a mesma altura */
 }
 
 .card-servico {
-  background-color: #dff6f4; /* Cor de destaque */
+  background-color: #ffffff; /* Fundo branco para o card */
   border-radius: 15px;
-  padding: 15px;
+  padding: 1.5rem;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  height: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-.card-servico img {
+/* Regra para o contêiner da imagem */
+.service-image-container {
   width: 100%;
-  height: 200px;
+  height: 280px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Regra para a imagem dentro do contêiner */
+.service-image-container img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 12px;
+  object-position: center;
 }
 
 .card-servico h3 {
@@ -118,8 +134,13 @@
   margin: 5px 0;
 }
 
+.service-description {
+  flex-grow: 1; /* Faz a descrição ocupar o espaço extra */
+  margin-bottom: 1rem;
+}
+
 .btn-agendar {
-  margin-top: 10px;
+  margin-top: auto; /* Empurra o botão para a base do card */
   padding: 10px;
   background: var(--emp-color-interactive-primary);
   color: var(--emp-color-text-inverse);
@@ -135,73 +156,28 @@
   background: #004182;
 }
 
-.swiper {
-  width: 100%;
-  max-width: 800px;
-  height: auto;
-  padding-bottom: 30px;
-}
-
-.swiper-slide {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: auto;
-}
 
 /* =============================================== */
-/* Responsividade do conteúdo da Home */
+/* Responsividade */
 /* =============================================== */
 
 @media (min-width: 576px) {
-  .card-sections {
-    width: 170px;
-    height: 170px;
-    margin: 20px;
-  }
-  .card-sections a {
-    font-size: 1.5rem;
-  }
-  .card-sections img {
-    width: 130px;
-  }
+  .card-sections { width: 170px; height: 170px; margin: 20px; }
+  .card-sections a { font-size: 1.5rem; }
+  .card-sections img { width: 130px; }
 }
 
 @media (min-width: 768px) {
-  .page-main {
-    min-height: calc(100vh - 475px);
-  }
-  .first-title h2 {
-    font-size: 2.5rem;
-  }
-  .sub-title p {
-    font-size: 2rem;
-  }
-  .card-sections {
-    width: 200px;
-    height: 200px;
-    margin: 0 40px 20px 40px;
-  }
-  .card-sections a {
-    font-size: 1.8rem;
-  }
-  .card-sections img {
-    width: 150px;
-  }
-  .carrossel-title {
-    height: 100px;
-  }
-  .carrossel-title h2 {
-    font-size: 2.8rem;
-  }
+  .page-main { min-height: calc(100vh - 475px); }
+  .first-title h2 { font-size: 2.5rem; }
+  .sub-title p { font-size: 2rem; }
+  .card-sections { width: 200px; height: 200px; margin: 0 40px 20px 40px; }
+  .card-sections a { font-size: 1.8rem; }
+  .card-sections img { width: 150px; }
+  .carrossel-title h2 { font-size: 2.8rem; }
 }
 
 @media (min-width: 992px) {
-  .card-sections {
-    width: 250px;
-    height: 250px;
-  }
-  .card-sections img {
-    width: 190px;
-  }
+  .card-sections { width: 250px; height: 250px; }
+  .card-sections img { width: 190px; }
 }

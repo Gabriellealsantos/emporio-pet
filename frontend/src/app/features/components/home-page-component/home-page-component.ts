@@ -7,6 +7,7 @@ import { Service } from '../../models/Service';
 import { RouterLink } from '@angular/router';
 import { Header } from "../../../shared/components/header/header";
 import { Footer } from "../../../shared/components/footer/footer";
+import { environment } from '../../../../environments/environment';
 
 Swiper.use([Navigation, Pagination, Autoplay]);
 
@@ -24,6 +25,8 @@ export class HomePageComponent implements OnInit, AfterViewInit {
   // Signal para armazenar os serviços que vêm da API
   services = signal<Service[]>([]);
   private swiperInstance: Swiper | null = null;
+
+  environment = environment;
 
   ngOnInit(): void {
     this.loadServices();

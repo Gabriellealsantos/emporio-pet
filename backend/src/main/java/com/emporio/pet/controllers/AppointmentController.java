@@ -50,11 +50,13 @@ public class AppointmentController {
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ADMIN')")
     public ResponseEntity<Page<AppointmentDTO>> findMyAppointments(
             Pageable pageable,
             @RequestParam(value = "minDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate minDate,
-            @RequestParam(value = "maxDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate maxDate) {
-        Page<AppointmentDTO> page = appointmentService.findMyAppointments(pageable, minDate, maxDate);
+            @RequestParam(value = "maxDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate maxDate,
+            @RequestParam(value = "status", required = false) AppointmentStatus status) {
+        Page<AppointmentDTO> page = appointmentService.findMyAppointments(pageable, minDate, maxDate, status);
         return ResponseEntity.ok(page);
     }
 
@@ -90,5 +92,12 @@ public class AppointmentController {
     public ResponseEntity<Void> cancel(@PathVariable Long id) {
         appointmentService.cancel(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/my/upcoming")
+    @PreAuthorize("hasAnyRole('CLIENT')")
+    public ResponseEntity<List<AppointmentDTO>> findMyUpcomingAppointments() {
+        List<AppointmentDTO> list = appointmentService.findUpcomingByCustomer();
+        return ResponseEntity.ok(list);
     }
 }

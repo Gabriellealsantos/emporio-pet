@@ -25,18 +25,23 @@ export class ServicesFormComponent implements OnChanges {
 
   constructor() {
     this.serviceForm = this.fb.group({
-      // Campos existentes
+      // Validação existente, está correta
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      price: [null, [Validators.required, Validators.min(0.01)]],
-      estimatedDurationInMinutes: [null, [Validators.required, Validators.min(1)]],
 
-      // 👇 CAMPOS ADICIONADOS
-      priceDisplay: [''],
-      durationDisplay: [''],
-      imageFile: [null] // Campo para controlar o arquivo da imagem
+      // 👇 VALIDAÇÃO REMOVIDA DAQUI
+      price: [null],
+      estimatedDurationInMinutes: [null],
+
+      // 👇 VALIDAÇÃO ADICIONADA AQUI
+      priceDisplay: ['', [Validators.required]],
+      durationDisplay: ['', [Validators.required]],
+
+      imageFile: [null]
     });
   }
+
+  get f() { return this.serviceForm.controls; }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['serviceToEdit'] && this.serviceToEdit) {
@@ -54,18 +59,32 @@ export class ServicesFormComponent implements OnChanges {
     }
   }
 
+
   onSave(): void {
     if (this.serviceForm.valid) {
-      // 👇 LÓGICA DE SALVAR ATUALIZADA
-      // Separamos os dados de texto do arquivo da imagem
+      // 👇 LÓGICA ADICIONADA AQUI 👇
+      const priceText = this.serviceForm.get('priceDisplay')?.value || '';
+      const durationText = this.serviceForm.get('durationDisplay')?.value || '';
+
+      // Extrai o primeiro número do texto
+      const extractedPrice = priceText.match(/\d+/)?.[0] || 0;
+      const extractedDuration = durationText.match(/\d+/)?.[0] || 0;
+
+      // Atualiza os campos escondidos com os valores numéricos
+      this.serviceForm.patchValue({
+        price: Number(extractedPrice),
+        estimatedDurationInMinutes: Number(extractedDuration)
+      });
+
+      // Lógica de emissão que já tínhamos
       const serviceData = { ...this.serviceForm.value };
       const imageFile = serviceData.imageFile;
-      delete serviceData.imageFile; // Removemos a referência do arquivo do objeto principal
+      delete serviceData.imageFile;
 
-      // Emitimos um objeto contendo ambas as partes
       this.save.emit({ serviceData, imageFile });
     }
   }
+
 
   onClose(): void {
     this.close.emit();

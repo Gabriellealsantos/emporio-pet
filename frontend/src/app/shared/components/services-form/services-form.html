@@ -10,16 +10,31 @@
       <div class="modal-body">
         <div>
           <input type="text" formControlName="name" class="form-input" placeholder="Nome do Serviço">
+          @if (f['name'].invalid && f['name'].touched) {
+            <div class="error-message">
+              @if (f['name'].errors?.['required']) { Nome é obrigatório. }
+              @if (f['name'].errors?.['minlength']) { Deve ter no mínimo 3 caracteres. }
+            </div>
+          }
         </div>
         <div>
           <textarea formControlName="description" rows="3" class="form-input" placeholder="Descrição (opcional)"></textarea>
         </div>
-
         <div>
           <input type="text" formControlName="priceDisplay" class="form-input" placeholder="Texto de Preço (ex: R$ 80 a R$ 120)">
+          @if (f['priceDisplay'].invalid && f['priceDisplay'].touched) {
+            <div class="error-message">
+              @if (f['priceDisplay'].errors?.['required']) { O texto de preço é obrigatório. }
+            </div>
+          }
         </div>
         <div>
           <input type="text" formControlName="durationDisplay" class="form-input" placeholder="Texto de Duração (ex: 60-90 min)">
+          @if (f['durationDisplay'].invalid && f['durationDisplay'].touched) {
+            <div class="error-message">
+              @if (f['durationDisplay'].errors?.['required']) { O texto de duração é obrigatório. }
+            </div>
+          }
         </div>
 
         <div>
@@ -30,12 +45,8 @@
           }
         </div>
 
-        <div>
-          <input type="number" formControlName="price" class="form-input" placeholder="Preço Base (ex: 80.00)">
-        </div>
-        <div>
-          <input type="number" formControlName="estimatedDurationInMinutes" class="form-input" placeholder="Duração Base em Minutos (ex: 90)">
-        </div>
+        <input type="hidden" formControlName="price">
+        <input type="hidden" formControlName="estimatedDurationInMinutes">
       </div>
       <div class="modal-footer">
         <button type="button" (click)="onClose()" class="button-cancel">Cancelar</button>

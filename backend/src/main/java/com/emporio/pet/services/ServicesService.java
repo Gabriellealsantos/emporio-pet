@@ -46,6 +46,9 @@ public class ServicesService {
         service.setPrice(dto.getPrice());
         service.setEstimatedDurationInMinutes(dto.getEstimatedDurationInMinutes());
         service.setActive(true);
+        service.setPriceDisplay(dto.getPriceDisplay());
+        service.setDurationDisplay(dto.getDurationDisplay());
+        service.setFeatured(dto.isFeatured());
 
         service = serviceRepository.save(service);
         return new ServicesDTO(service);
@@ -103,6 +106,9 @@ public class ServicesService {
         if (dto.getPrice() != null) {
             service.setPrice(dto.getPrice());
         }
+        if (dto.getPriceDisplay() != null) service.setPriceDisplay(dto.getPriceDisplay());
+        if (dto.getDurationDisplay() != null) service.setDurationDisplay(dto.getDurationDisplay());
+        if (dto.getFeatured() != null) service.setFeatured(dto.getFeatured());
 
         service = serviceRepository.save(service);
         return new ServicesDTO(service);
@@ -170,5 +176,11 @@ public class ServicesService {
 
         // Salva a entidade atualizada no banco
         serviceRepository.save(serviceEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ServicesDTO> findAllFeatured() {
+        List<Services> services = serviceRepository.findAllByIsFeaturedTrue();
+        return services.stream().map(ServicesDTO::new).collect(Collectors.toList());
     }
 }

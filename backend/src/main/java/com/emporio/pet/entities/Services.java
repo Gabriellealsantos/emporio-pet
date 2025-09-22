@@ -30,6 +30,7 @@ public class Services {
     @OneToMany(mappedBy = "service")
     private List<Appointment> appointments = new ArrayList<>();
 
+    private boolean isFeatured = false;
     private String imageUrl;
     private String priceDisplay;
     private String durationDisplay;
@@ -128,6 +129,14 @@ public class Services {
 
     public void setDurationDisplay(String durationDisplay) {
         this.durationDisplay = durationDisplay;
+    }
+
+    public boolean isFeatured() {
+        return isFeatured;
+    }
+
+    public void setFeatured(boolean featured) {
+        isFeatured = featured;
     }
 
     @Override
