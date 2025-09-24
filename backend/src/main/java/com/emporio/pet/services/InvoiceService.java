@@ -41,6 +41,9 @@ public class InvoiceService {
         this.authService = authService;
     }
 
+    /**
+     * Retorna a fatura pelo ID após validar permissão de acesso.
+     */
     @Transactional(readOnly = true)
     public InvoiceDTO findById(Long invoiceId) {
         if (!authService.canAccessInvoice(invoiceId)) {
@@ -53,6 +56,9 @@ public class InvoiceService {
         return new InvoiceDTO(invoice);
     }
 
+    /**
+     * Lista faturas com filtros; se o usuário autenticado for cliente, limita ao próprio cliente.
+     */
     @Transactional(readOnly = true)
     public Page<InvoiceDTO> find(Pageable pageable, Long customerId, Instant minDate, Instant maxDate, InvoiceStatus status) {
 
@@ -66,40 +72,27 @@ public class InvoiceService {
         return page.map(InvoiceDTO::new);
     }
 
-    @Transactional
-    public InvoiceDTO markAsPaid(Long invoiceId) {
-        // 1. Busca a fatura no banco de dados. Lança exceção se não encontrar.
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Fatura não encontrada com o ID: " + invoiceId));
+    /**
+     * Lista faturas filtrando por nome do cliente e demais filtros.
+     */
+    @Transactional(readOnly = true)
+    public Page<InvoiceDTO> find(Pageable pageable, String customerName, Instant minDate, Instant maxDate, InvoiceStatus status) {
 
-        // 2. Validação da regra de negócio: só se pode pagar uma fatura que está aguardando pagamento.
-        if (invoice.getStatus() == InvoiceStatus.PAID) {
-            throw new ConflictException("Esta fatura já foi paga.");
-        }
-        if (invoice.getStatus() == InvoiceStatus.CANCELED) {
-            throw new ConflictException("Não é possível pagar uma fatura cancelada.");
-        }
+        Page<Invoice> page = invoiceRepository.findFiltered(pageable, customerName, minDate, maxDate, status);
 
-        // 3. Altera o status para PAGO
-        invoice.setStatus(InvoiceStatus.PAID);
-
-        // 4. Salva a alteração no banco
-        invoice = invoiceRepository.save(invoice);
-
-        // 5. Retorna o DTO com os dados atualizados
-        return new InvoiceDTO(invoice);
+        return page.map(InvoiceDTO::new);
     }
 
-
+    /**
+     * Cria uma nova fatura a partir de agendamentos: valida permissões, consistência e persiste a fatura.
+     */
     @Transactional
     public InvoiceDTO create(InvoiceCreateDTO dto) {
-        // 1. Autorização: Verifica se o usuário logado é um funcionário ou admin
         User authenticatedUser = authService.authenticated();
         if (!authenticatedUser.hasRole("ROLE_EMPLOYEE") && !authenticatedUser.hasRole("ROLE_ADMIN")) {
             throw new ForbiddenException("Acesso negado. Apenas funcionários ou administradores podem criar faturas.");
         }
 
-        // 2. Busca e Validação de Entidades
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com o ID: " + dto.getCustomerId()));
 
@@ -109,32 +102,26 @@ public class InvoiceService {
             throw new ResourceNotFoundException("Um ou mais agendamentos não foram encontrados.");
         }
 
-        // 3. Validação das Regras de Negócio
         for (Appointment app : appointmentsToInvoice) {
-            // Regra 1: Garante que todos os agendamentos pertencem ao cliente da fatura
             if (!app.getPet().getOwner().getId().equals(customer.getId())) {
                 throw new ConflictException("O agendamento " + app.getId() + " não pertence ao cliente informado.");
             }
-            // Regra 2: Garante que o agendamento está com status 'COMPLETED'
             if (app.getStatus() != AppointmentStatus.COMPLETED) {
                 throw new ConflictException("O agendamento " + app.getId() + " não está com o status 'COMPLETED'.");
             }
-            // Regra 3: Garante que o agendamento já não foi faturado
             if (app.getInvoice() != null) {
                 throw new ConflictException("O agendamento " + app.getId() + " já pertence à fatura " + app.getInvoice().getId() + ".");
             }
         }
 
-        // 4. Cálculo do Valor Total
         BigDecimal totalAmount = appointmentsToInvoice.stream()
                 .map(Appointment::getChargedAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 5. Criação e Persistência da Fatura
         Invoice invoice = new Invoice();
         invoice.setCustomer(customer);
         invoice.setTotalAmount(totalAmount);
-        invoice.setStatus(InvoiceStatus.AWAITING_PAYMENT); // Status inicial
+        invoice.setStatus(InvoiceStatus.AWAITING_PAYMENT);
         invoice.setTimestamp(Instant.now());
 
         for (Appointment app : appointmentsToInvoice) {
@@ -150,12 +137,27 @@ public class InvoiceService {
         return new InvoiceDTO(completeInvoice);
     }
 
-    @Transactional(readOnly = true)
-    public Page<InvoiceDTO> find(Pageable pageable, String customerName, Instant minDate, Instant maxDate, InvoiceStatus status) {
 
-        Page<Invoice> page = invoiceRepository.findFiltered(pageable, customerName, minDate, maxDate, status);
+    /**
+     * Marca uma fatura como paga, verificando estados inválidos antes da alteração.
+     */
+    @Transactional
+    public InvoiceDTO markAsPaid(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Fatura não encontrada com o ID: " + invoiceId));
 
-        return page.map(InvoiceDTO::new);
+        if (invoice.getStatus() == InvoiceStatus.PAID) {
+            throw new ConflictException("Esta fatura já foi paga.");
+        }
+        if (invoice.getStatus() == InvoiceStatus.CANCELED) {
+            throw new ConflictException("Não é possível pagar uma fatura cancelada.");
+        }
+
+        invoice.setStatus(InvoiceStatus.PAID);
+
+        invoice = invoiceRepository.save(invoice);
+
+        return new InvoiceDTO(invoice);
     }
 
 }

@@ -37,14 +37,6 @@ public class ServicesController {
         return ResponseEntity.ok(servicesService.findById(id));
     }
 
-    /**
-     * JUSTIFICATIVA DE DESIGN:
-     * Este endpoint atende ao requisito funcional de GERENCIAR serviços.
-     * 1. SEGURANÇA: A anotação @PreAuthorize("hasRole('ADMIN')") garante que apenas
-     * usuários com perfil de Administrador possam acessar este endpoint.
-     * 2. PADRÃO REST: Utiliza o verbo POST e retorna o status 201 Created com a
-     * localização do novo recurso, seguindo as melhores práticas.
-     */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ServicesDTO> create(@Valid @RequestBody ServicesInsertDTO dto) {
@@ -54,26 +46,13 @@ public class ServicesController {
         return ResponseEntity.created(uri).body(serviceDTO);
     }
 
-    /**
-     * JUSTIFICATIVA DE DESIGN:
-     * Este endpoint atende ao requisito funcional de ATUALIZAR serviços.
-     * 1. SEGURANÇA: Apenas administradores podem acessar este endpoint.
-     * 2. PADRÃO REST: Utiliza o verbo PUT, semanticamente correto para a
-     * atualização de recursos.
-     */
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<ServicesDTO> update(@PathVariable Long id, @Valid @RequestBody ServicesUpdateDTO dto) {
         return ResponseEntity.ok(servicesService.update(id, dto));
     }
 
-    /**
-     * JUSTIFICATIVA DE DESIGN:
-     * Este endpoint atende ao requisito funcional de DESATIVAR serviços.
-     * 1. SEGURANÇA: Apenas administradores podem acessar este endpoint.
-     * 2. PADRÃO REST: Utiliza o verbo DELETE e retorna o status 204 No Content,
-     * semanticamente correto para operações de exclusão.
-     */
+
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deactivate(@PathVariable Long id) {
@@ -81,14 +60,6 @@ public class ServicesController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * JUSTIFICATIVA DE DESIGN:
-     * Este endpoint atende ao requisito funcional de ATIVAR serviços previamente
-     * desativados.
-     * 1. SEGURANÇA: Apenas administradores podem acessar este endpoint.
-     * 2. PADRÃO REST: Utiliza o verbo PUT, semanticamente correto para a reativação
-     * de recursos.
-     */
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{id}/activate")
     public ResponseEntity<Void> activate(@PathVariable Long id) {

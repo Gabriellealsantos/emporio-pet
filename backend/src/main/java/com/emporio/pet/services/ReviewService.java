@@ -3,7 +3,6 @@ package com.emporio.pet.services;
 import com.emporio.pet.dto.ReviewDTO;
 import com.emporio.pet.dto.ReviewInsertDTO;
 import com.emporio.pet.entities.Appointment;
-import com.emporio.pet.entities.Customer;
 import com.emporio.pet.entities.Review;
 import com.emporio.pet.entities.User;
 import com.emporio.pet.entities.enums.AppointmentStatus;
@@ -32,6 +31,22 @@ public class ReviewService {
         this.authService = authService;
     }
 
+
+    /**
+     * Busca todas as avaliações associadas a um serviço específico.
+     */
+    @Transactional(readOnly = true)
+    public List<ReviewDTO> findByService(Long serviceId) {
+        List<Review> reviews = reviewRepository.findByAppointmentServiceId(serviceId);
+        return reviews.stream().map(ReviewDTO::new).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Cria uma avaliação para um agendamento concluído,
+     * garantindo que o usuário só possa avaliar seus próprios agendamentos
+     * e que ainda não exista uma avaliação para o mesmo agendamento.
+     */
     @Transactional
     public ReviewDTO create(ReviewInsertDTO dto, Long appointmentId) {
         User user = authService.authenticated();
@@ -39,27 +54,20 @@ public class ReviewService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado."));
 
-        // 3. REGRA DE NEGÓCIO: Segurança
-        // Garante que o usuário logado é o dono do pet daquele agendamento.
         if (!user.getId().equals(appointment.getPet().getOwner().getId())) {
             throw new ForbiddenException("Acesso negado. Você só pode avaliar seus próprios agendamentos.");
         }
 
-        // 4. REGRA DE NEGÓCIO: Status do Agendamento
-        // Garante que o agendamento foi de fato concluído.
         if (appointment.getStatus() != AppointmentStatus.COMPLETED) {
             throw new ConflictException("Só é possível avaliar agendamentos que já foram concluídos.");
         }
 
-        // 5. REGRA DE NEGÓCIO: Avaliação Única
-        // Garante que este agendamento ainda não foi avaliado.
         if (reviewRepository.existsById(appointmentId)) {
             throw new ConflictException("Este agendamento já foi avaliado.");
         }
 
-        // 6. Se todas as regras passaram, cria e salva a nova avaliação.
         Review review = new Review();
-        review.setAppointment(appointment); // Associa a avaliação ao agendamento
+        review.setAppointment(appointment);
         review.setRating(dto.getRating());
         review.setComment(dto.getComment());
         review.setReviewDate(Instant.now());
@@ -68,19 +76,17 @@ public class ReviewService {
         return new ReviewDTO(review);
     }
 
-    @Transactional(readOnly = true)
-    public List<ReviewDTO> findByService(Long serviceId) {
-        List<Review> reviews = reviewRepository.findByAppointmentServiceId(serviceId);
-        return reviews.stream().map(ReviewDTO::new).collect(Collectors.toList());
-    }
 
+    /**
+     * Permite que um administrador remova o conteúdo de um comentário de avaliação,
+     * substituindo-o por uma mensagem padrão.
+     */
     @Transactional
     public void adminDeleteComment(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResourceNotFoundException("Avaliação não encontrada com o ID: " + reviewId));
 
         review.setComment("Comentário removido por um administrador.");
-
         reviewRepository.save(review);
     }
 }

@@ -21,8 +21,6 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    // URL final: POST /reviews/for-appointment/{appointmentId}
-    // É mais claro sobre a intenção
     @PostMapping("/for-appointment/{appointmentId}")
     @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<ReviewDTO> create(
@@ -33,18 +31,15 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdDto);
     }
 
-    // URL final: GET /reviews/by-service/{serviceId}
-    // Também mais claro e sem ambiguidade
     @GetMapping("/by-service/{serviceId}")
     public ResponseEntity<List<ReviewDTO>> findByService(@PathVariable Long serviceId) {
         List<ReviewDTO> reviewList = reviewService.findByService(serviceId);
         return ResponseEntity.ok(reviewList);
     }
 
-    // URL final: DELETE /reviews/{id}
-    // Perfeita, limpa e direta
+
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Mantendo a correção anterior com hasAuthority
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> adminDeleteReview(@PathVariable Long id) {
         reviewService.adminDeleteComment(id);
         return ResponseEntity.noContent().build();

@@ -22,12 +22,18 @@ public class BreedService {
         this.breedRepository = breedRepository;
     }
 
+    /**
+     * Retorna a entidade Breed pelo ID ou lança ResourceNotFoundException.
+     */
     @Transactional(readOnly = true)
     public Breed findEntityById(Long id) {
         return breedRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Raça não encontrada com o ID: " + id));
     }
 
+    /**
+     * Retorna todas as raças filtradas por nome e espécie.
+     */
     @Transactional(readOnly = true)
     public List<BreedDTO> findAll(String name, Species species) {
         String nameFilter = (name != null && name.trim().isEmpty()) ? null : name;
@@ -36,6 +42,9 @@ public class BreedService {
         return list.stream().map(BreedDTO::new).collect(Collectors.toList());
     }
 
+    /**
+     * Retorna a raça pelo ID encapsulada em BreedDTO ou lança ResourceNotFoundException.
+     */
     @Transactional(readOnly = true)
     public BreedDTO findById(Long id) {
         Breed breed = breedRepository.findById(id).orElseThrow(
@@ -43,6 +52,9 @@ public class BreedService {
         return new BreedDTO(breed);
     }
 
+    /**
+     * Cria uma nova raça a partir do DTO e retorna o DTO persistido.
+     */
     @Transactional
     public BreedDTO create(BreedDTO dto) {
         Breed entity = new Breed();
@@ -52,6 +64,9 @@ public class BreedService {
         return new BreedDTO(entity);
     }
 
+    /**
+     * Atualiza os dados de uma raça existente e retorna o DTO atualizado.
+     */
     @Transactional
     public BreedDTO update(Long id, BreedDTO dto) {
         Breed entity = breedRepository.findById(id).orElseThrow(
@@ -62,6 +77,10 @@ public class BreedService {
         return new BreedDTO(entity);
     }
 
+    /**
+     * Deleta a raça pelo ID, lançando ResourceNotFoundException se não existir
+     * ou DatabaseException se houver violação de integridade.
+     */
     public void delete(Long id) {
         if (!breedRepository.existsById(id)) {
             throw new ResourceNotFoundException("Raça não encontrada com o ID: " + id);

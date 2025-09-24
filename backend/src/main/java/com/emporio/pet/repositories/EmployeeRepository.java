@@ -6,10 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-
+    /**
+     * Busca um funcionário com seus serviços associados já carregados.
+     */
     @Query("SELECT e FROM Employee e LEFT JOIN FETCH e.skilledServices WHERE e.id = :id")
     Optional<Employee> findByIdWithServices(Long id);
 }

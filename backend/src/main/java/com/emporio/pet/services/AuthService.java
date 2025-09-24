@@ -54,13 +54,10 @@ public class AuthService {
         this.invoiceRepository = invoiceRepository;
     }
 
-
-    public String login(LoginRequestDTO dto) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
-        Authentication auth = this.authenticationManager.authenticate(usernamePassword);
-        return jwtService.generateToken(auth);
-    }
-
+    /**
+     * Verifica se o usuário autenticado pode acessar a fatura informada.
+     * Admins e funcionários têm acesso irrestrito; clientes somente às suas faturas.
+     */
     @Transactional(readOnly = true)
     public boolean canAccessInvoice(Long invoiceId) {
         User authenticatedUser = authenticated();
@@ -75,6 +72,10 @@ public class AuthService {
                 .orElse(false);
     }
 
+    /**
+     * Retorna o usuário atualmente autenticado (busca pelo SecurityContext).
+     * Lança UsernameNotFoundException se não houver usuário válido no contexto.
+     */
     public User authenticated() {
         try {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -85,11 +86,27 @@ public class AuthService {
         }
     }
 
+    /**
+     * Verifica se o usuário autenticado é o próprio usuário informado ou é ADMIN.
+     */
     public boolean isSelfOrAdmin(Long userId) {
         User authenticatedUser = authenticated();
         return authenticatedUser.hasRole("ROLE_ADMIN") || authenticatedUser.getId().equals(userId);
     }
 
+    /**
+     * Autentica credenciais (email + senha) e retorna um JWT se bem-sucedido.
+     */
+    public String login(LoginRequestDTO dto) {
+        var usernamePassword = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
+        Authentication auth = this.authenticationManager.authenticate(usernamePassword);
+        return jwtService.generateToken(auth);
+    }
+
+    /**
+     * Gera um token de recuperação, salva e envia e-mail com link de recuperação (se o e-mail existir).
+     * Retorna uma mensagem genérica para evitar vazamento de existência de conta.
+     */
     @Transactional
     public MessageDTO createRecoverToken(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
@@ -111,6 +128,10 @@ public class AuthService {
         return new MessageDTO(message);
     }
 
+    /**
+     * Valida token de recuperação, altera a senha do usuário e remove o token usado.
+     * Lança IllegalArgumentException se o token for inválido/expirado.
+     */
     @Transactional
     public MessageDTO saveNewPassword(String token, String newPassword) {
         PasswordRecover recoverEntity = passwordRecoverRepository.searchValidToken(token, Instant.now());
@@ -126,11 +147,14 @@ public class AuthService {
 
         passwordRecoverRepository.delete(recoverEntity);
 
-
         String message = "Senha alterada com sucesso!";
         return new MessageDTO(message);
     }
 
+    /**
+     * Altera a senha do usuário autenticado após validar a senha atual.
+     * Lança BadCredentialsException se a senha atual estiver incorreta.
+     */
     @Transactional
     public void changePassword(PasswordChangeDTO dto) {
         User user = authenticated();
@@ -138,7 +162,6 @@ public class AuthService {
         if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
             throw new BadCredentialsException("Senha atual incorreta.");
         }
-
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);

@@ -11,6 +11,10 @@ import java.util.List;
 @Repository
 public interface BreedRepository extends JpaRepository<Breed, Long> {
 
+    /**
+     * Busca raças filtrando por nome e espécie.
+     * Ambos os parâmetros são opcionais.
+     */
     @Query("SELECT b FROM Breed b WHERE " +
             "(:name IS NULL OR UPPER(b.name) LIKE UPPER(CONCAT('%', :name, '%'))) AND " +
             "(:species IS NULL OR b.species = :species)")

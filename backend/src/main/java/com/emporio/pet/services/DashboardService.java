@@ -61,12 +61,11 @@ public class DashboardService {
         dto.setNovosClientesMes(novosClientesMes);
         dto.setNovosClientesMesVsPassado(calculatePercentageChange(novosClientesMesPassado, novosClientesMes));
 
-        // --- 3. Lógica de Faturamento (COM CORREÇÃO) ---
+        // --- 3. Lógica de Faturamento ---
         YearMonth currentMonth = YearMonth.now();
         YearMonth lastMonth = currentMonth.minusMonths(1);
 
         Instant startOfCurrentMonth = currentMonth.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        // 👇 CORREÇÃO: Usar 'currentMonth' para o fim do mês atual, não 'lastMonthInvoice'
         Instant endOfCurrentMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
 
         Instant startOfLastMonth = lastMonth.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -78,7 +77,7 @@ public class DashboardService {
         dto.setFaturamentoMes(faturamentoMes == null ? BigDecimal.ZERO : faturamentoMes);
         dto.setFaturamentoMesVsPassado(calculatePercentageChange(faturamentoMesPassado, faturamentoMes));
 
-        // --- 4. Lógica de Atividades Recentes (MELHORADA) ---
+        // --- 4. Lógica de Atividades Recentes ---
         List<RecentActivityDTO> recentActivities = new ArrayList<>();
 
         // Atividade 1: Novos clientes
@@ -117,8 +116,6 @@ public class DashboardService {
             activity.setType("NEW_PET");
             activity.setTitle("Novo pet cadastrado");
             activity.setDescription(pet.getName() + " (Dono(a): " + pet.getOwner().getName() + ")");
-            // Pet não tem timestamp, então usamos o do dono como uma aproximação para ordenação.
-            // Em um sistema real, o ideal seria que Pet também tivesse um 'creationTimestamp'.
             activity.setTimestamp(pet.getOwner().getCreationTimestamp());
             recentActivities.add(activity);
         });

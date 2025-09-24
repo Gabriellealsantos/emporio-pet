@@ -12,22 +12,39 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
+
+    /**
+     * Busca agendamentos de uma lista de funcionários dentro de um intervalo de tempo,
+     * excluindo certos status.
+     */
     @Query("SELECT obj FROM Appointment obj JOIN FETCH obj.service WHERE " +
             "obj.employee IN :employees " +
             "AND obj.startDateTime < :endOfDay " +
             "AND obj.endDateTime > :startOfDay " +
             "AND obj.status NOT IN :statusesToExclude")
     List<Appointment> findAppointmentsForEmployeesInInterval(
-            List<Employee> employees, LocalDateTime startOfDay, LocalDateTime endOfDay, List<AppointmentStatus> statusesToExclude);
+            List<Employee> employees,
+            LocalDateTime startOfDay,
+            LocalDateTime endOfDay,
+            List<AppointmentStatus> statusesToExclude
+    );
+
+    /**
+     * Conta o número de agendamentos dentro de um intervalo de tempo.
+     */
+    Integer countByStartDateTimeBetween(LocalDateTime start, LocalDateTime end);
 
 
+    /**
+     * Busca agendamentos com base em filtros (funcionário, status, intervalo de datas),
+     * incluindo dados de pet, dono, serviço e review.
+     */
     @Query(value = "SELECT a FROM Appointment a " +
             "JOIN FETCH a.pet p " +
             "JOIN FETCH p.owner " +
@@ -48,21 +65,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("maxDate") LocalDateTime maxDate,
             @Param("employeeId") Long employeeId,
             @Param("status") AppointmentStatus status,
-            Pageable pageable);
+            Pageable pageable
+    );
 
-    Integer countByStartDateTimeBetween(LocalDateTime start, LocalDateTime end);
-
-    @Query("SELECT a FROM Appointment a WHERE a.pet.owner.id = :customerId AND a.status = 'COMPLETED' AND a.invoice IS NULL ORDER BY a.startDateTime ASC")
-    List<Appointment> findFaturableAppointmentsByCustomer(@Param("customerId") Long customerId);
-
-    @Query(value = "SELECT a FROM Appointment a " +
-            "JOIN FETCH a.pet p " +
-            "JOIN FETCH a.service " +
-            "WHERE a.pet IN :pets " +
-            "ORDER BY a.startDateTime DESC",
-            countQuery = "SELECT COUNT(a) FROM Appointment a WHERE a.pet IN :pets")
-    Page<Appointment> findByPetInOrderByStartDateTimeDesc(@Param("pets") List<Pet> pets, Pageable pageable);
-
+    /**
+     * Busca agendamentos por uma lista de pets e intervalo de datas.
+     */
     @Query(value = "SELECT a FROM Appointment a " +
             "JOIN FETCH a.pet p " +
             "JOIN FETCH a.service " +
@@ -79,10 +87,31 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("pets") List<Pet> pets,
             @Param("minDate") LocalDateTime minDate,
             @Param("maxDate") LocalDateTime maxDate,
-            @Param("status") AppointmentStatus status, // <-- PARÂMETRO ADICIONADO
-            Pageable pageable);
+            @Param("status") AppointmentStatus status,
+            Pageable pageable
+    );
 
+
+    /**
+     * Busca agendamentos concluídos de um cliente que ainda não possuem fatura.
+     */
+    @Query("SELECT a FROM Appointment a WHERE a.pet.owner.id = :customerId " +
+            "AND a.status = 'COMPLETED' " +
+            "AND a.invoice IS NULL " +
+            "ORDER BY a.startDateTime ASC")
+    List<Appointment> findFaturableAppointmentsByCustomer(@Param("customerId") Long customerId);
+
+
+    /**
+     * Retorna os 5 agendamentos mais recentes.
+     */
     List<Appointment> findTop5ByOrderByStartDateTimeDesc();
 
-    List<Appointment> findByPetInAndStartDateTimeAfterOrderByStartDateTimeAsc(List<Pet> pets, LocalDateTime now);
+    /**
+     * Retorna próximos agendamentos de uma lista de pets, ordenados pela data mais próxima.
+     */
+    List<Appointment> findByPetInAndStartDateTimeAfterOrderByStartDateTimeAsc(
+            List<Pet> pets,
+            LocalDateTime now
+    );
 }

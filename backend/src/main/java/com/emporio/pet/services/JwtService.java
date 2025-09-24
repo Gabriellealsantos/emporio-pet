@@ -27,6 +27,10 @@ public class JwtService {
         this.encoder = encoder;
     }
 
+    /**
+     * Gera um token JWT assinado (HS256) com claims básicos: issuer, subject, expiry,
+     * scope (autoridades) e userId.
+     */
     public String generateToken(Authentication authentication) {
 
         User principal = (User) authentication.getPrincipal();
@@ -49,5 +53,5 @@ public class JwtService {
         var jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
 
         return this.encoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
-}
+    }
 }

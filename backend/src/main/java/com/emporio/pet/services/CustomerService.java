@@ -23,7 +23,7 @@ public class CustomerService {
     private final UserRepository userRepository;
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository; // Adicionado para atribuir o papel
+    private final RoleRepository roleRepository;
 
     public CustomerService(CustomerRepository customerRepository, UserRepository userRepository,
                            AuthService authService, PasswordEncoder passwordEncoder,
@@ -35,6 +35,9 @@ public class CustomerService {
         this.roleRepository = roleRepository;
     }
 
+    /**
+     * Registra um novo cliente: valida duplicidade de email/CPF, configura papel e salva.
+     */
     @Transactional
     public CustomerDTO register(CustomerInsertDTO dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -62,9 +65,11 @@ public class CustomerService {
         return new CustomerDTO(savedCustomer);
     }
 
+    /**
+     * Atualiza dados de um cliente existente. Verifica permissão (self ou admin) antes de atualizar.
+     */
     @Transactional
     public CustomerDTO update(Long id, CustomerUpdateDTO dto) {
-        // A verificação de segurança (isSelfOrAdmin) já está aqui, perfeito.
         if (!authService.isSelfOrAdmin(id)) {
             throw new ForbiddenException("Acesso negado");
         }
@@ -79,8 +84,8 @@ public class CustomerService {
         if (dto.getCpf() != null) customerEntity.setCpf(dto.getCpf());
         if (dto.getBirthDate() != null) customerEntity.setBirthDate(dto.getBirthDate());
 
-
         customerEntity = customerRepository.save(customerEntity);
         return new CustomerDTO(customerEntity);
     }
+
 }

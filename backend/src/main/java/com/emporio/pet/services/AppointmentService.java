@@ -49,6 +49,10 @@ public class AppointmentService {
         this.customerRepository = customerRepository;
     }
 
+
+    /**
+     * Retorna lista de agendamentos faturáveis de um cliente. Valida existência do cliente.
+     */
     @Transactional(readOnly = true)
     public List<AppointmentDTO> findFaturableByCustomer(Long customerId) {
         if (!customerRepository.existsById(customerId)) {
@@ -62,6 +66,9 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retorna página de agendamentos do cliente autenticado, filtrando por data e status.
+     */
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findMyAppointments(Pageable pageable, LocalDate minDate, LocalDate maxDate, AppointmentStatus status) {
         User user = authService.authenticated();
@@ -85,6 +92,10 @@ public class AppointmentService {
         return appointments.map(AppointmentDTO::new);
     }
 
+    /**
+     * Calcula e retorna horários disponíveis para um serviço em uma data específica,
+     * opcionalmente filtrando por funcionário.
+     */
     @Transactional(readOnly = true)
     public List<LocalDateTime> findAvailableTimes(Long serviceId, LocalDate date, Long employeeId) {
         // 1. Busca de Dados Essenciais
@@ -144,7 +155,45 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retorna página de agendamentos filtrados por data, funcionário e status.
+     */
+    @Transactional(readOnly = true)
+    public Page<AppointmentDTO> findAppointmentsByDate(LocalDate min, LocalDate max, Long employeeId, AppointmentStatus status, Pageable pageable) {
+        LocalDateTime minDate = (min != null) ? min.atStartOfDay() : null;
+        LocalDateTime maxDate = (max != null) ? max.atTime(23, 59, 59) : null;
 
+        Page<Appointment> appointmentsPage = appointmentRepository.findAppointmentsByFilter(minDate, maxDate, employeeId, status, pageable);
+
+        return appointmentsPage.map(AppointmentDTO::new);
+    }
+
+    /**
+     * Retorna a lista de próximos agendamentos do cliente autenticado.
+     */
+    @Transactional(readOnly = true)
+    public List<AppointmentDTO> findUpcomingByCustomer() {
+        User user = authService.authenticated();
+        if (!(user instanceof Customer customer)) {
+            return Collections.emptyList();
+        }
+        Customer customerWithPets = customerRepository.findByIdWithPets(customer.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+
+        if (customerWithPets.getPets().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Appointment> appointments = appointmentRepository
+                .findByPetInAndStartDateTimeAfterOrderByStartDateTimeAsc(customerWithPets.getPets(), LocalDateTime.now());
+
+        return appointments.stream().map(AppointmentDTO::new).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Cria um novo agendamento para o cliente autenticado: validações, designação de funcionário e persistência.
+     */
     @Transactional
     public AppointmentDTO create(AppointmentInsertDTO dto) {
         // 1. Validações Iniciais (Cliente, Pet, Serviço)
@@ -199,17 +248,9 @@ public class AppointmentService {
         return new AppointmentDTO(entity);
     }
 
-
-    @Transactional(readOnly = true)
-    public Page<AppointmentDTO> findAppointmentsByDate(LocalDate min, LocalDate max, Long employeeId, AppointmentStatus status, Pageable pageable) {
-        LocalDateTime minDate = (min != null) ? min.atStartOfDay() : null;
-        LocalDateTime maxDate = (max != null) ? max.atTime(23, 59, 59) : null;
-
-        Page<Appointment> appointmentsPage = appointmentRepository.findAppointmentsByFilter(minDate, maxDate, employeeId, status, pageable);
-
-        return appointmentsPage.map(AppointmentDTO::new);
-    }
-
+    /**
+     * Atualiza o status de um agendamento existente e retorna o DTO atualizado.
+     */
     @Transactional
     public AppointmentDTO updateStatus(Long id, AppointmentStatus newStatus) {
         // 1. Busca o agendamento ou lança exceção se não existir
@@ -226,13 +267,16 @@ public class AppointmentService {
         return new AppointmentDTO(appointment);
     }
 
+    /**
+     * Cancela um agendamento: regras diferentes para ADMIN e para o cliente proprietário.
+     */
     @Transactional
     public void cancel(Long id) {
         User user = authService.authenticated();
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado com o ID: " + id));
 
-        if (user.hasRole("ADMIN")) {
+        if (user.hasRole("ROLE_ADMIN")) {
             if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
                 throw new ConflictException("Agendamentos concluídos não podem ser cancelados.");
             }
@@ -253,12 +297,16 @@ public class AppointmentService {
             }
             appointment.setStatus(AppointmentStatus.CANCELED);
             appointmentRepository.save(appointment);
-        } else {
-            throw new ForbiddenException("Acesso negado.");
+            return;
         }
+
+        // 3. Se não for nem Admin, nem o Cliente dono do agendamento, o acesso é negado.
+        throw new ForbiddenException("Acesso negado.");
     }
 
-
+    /**
+     * Encontra um funcionário qualificado disponível para o período especificado ou lança conflito.
+     */
     private Employee findAvailableEmployeeForSlot(Services service, LocalDateTime potentialStart) {
         long duration = service.getEstimatedDurationInMinutes();
         LocalDateTime potentialEnd = potentialStart.plusMinutes(duration);
@@ -278,6 +326,10 @@ public class AppointmentService {
                 .orElseThrow(() -> new ConflictException("O horário selecionado não está mais disponível. Por favor, escolha outro."));
     }
 
+    /**
+     * Varre um intervalo procurando "gaps" onde um serviço com a duração fornecida encaixa,
+     * respeitando o horário de almoço. Adiciona slots válidos em increments de 15 minutos.
+     */
     private void findGaps(LocalDateTime startGap, LocalDateTime endGap, long serviceDuration,
                           LocalDateTime lunchStart, LocalDateTime lunchEnd, List<LocalDateTime> availableSlots) {
         LocalDateTime potentialSlot = startGap;
@@ -290,24 +342,5 @@ public class AppointmentService {
             // Avança o ponteiro em incrementos de 15 minutos para testar o próximo slot
             potentialSlot = potentialSlot.plusMinutes(15);
         }
-    }
-
-    @Transactional(readOnly = true)
-    public List<AppointmentDTO> findUpcomingByCustomer() {
-        User user = authService.authenticated();
-        if (!(user instanceof Customer customer)) {
-            return Collections.emptyList();
-        }
-        Customer customerWithPets = customerRepository.findByIdWithPets(customer.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
-
-        if (customerWithPets.getPets().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<Appointment> appointments = appointmentRepository
-                .findByPetInAndStartDateTimeAfterOrderByStartDateTimeAsc(customerWithPets.getPets(), LocalDateTime.now());
-
-        return appointments.stream().map(AppointmentDTO::new).collect(Collectors.toList());
     }
 }

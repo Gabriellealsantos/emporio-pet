@@ -34,12 +34,36 @@ public class PetService {
     }
 
     /**
-     * CORREÇÕES APLICADAS:
-     * 1. LÓGICA DE NEGÓCIO: A versão original não associava um dono (Customer) nem uma raça (Breed),
-     * o que causaria um erro de integridade no banco de dados. Agora, o dono é obtido
-     * pelo usuário autenticado e a raça é buscada via BreedService.
-     * 2. SEGURANÇA: Foi adicionada uma regra que garante que apenas usuários do tipo 'Customer'
-     * possam cadastrar novos pets, protegendo a lógica do negócio.
+     * Retorna a lista de pets do cliente autenticado.
+     */
+    @Transactional(readOnly = true)
+    public List<PetDTO> findMyPets() {
+        User user = authService.authenticated();
+
+        if (!(user instanceof Customer customer)) {
+            return List.of();
+        }
+
+        List<Pet> pets = petRepository.findByOwnerId(customer.getId());
+        return pets.stream().map(PetDTO::new).collect(Collectors.toList());
+    }
+
+    /**
+     * Retorna um Pet por ID, validando permissão (self ou admin).
+     */
+    @Transactional(readOnly = true)
+    public PetDTO findById(Long id) {
+        Pet pet = petRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pet não encontrado com o ID: " + id));
+
+        if (!authService.isSelfOrAdmin(pet.getOwner().getId())) {
+            throw new ForbiddenException("Acesso negado.");
+        }
+        return new PetDTO(pet);
+    }
+
+    /**
+     * Cria um pet associado ao cliente autenticado (fluxo cliente).
      */
     @Transactional
     public PetDTO createPet(PetInsertDTO dto) {
@@ -62,6 +86,9 @@ public class PetService {
         return new PetDTO(pet);
     }
 
+    /**
+     * Cria um pet no contexto administrativo (especificando o owner).
+     */
     @Transactional
     public PetDTO adminCreatePet(PetAdminInsertDTO dto) {
         Customer owner = customerRepository.findById(dto.getOwnerId())
@@ -81,49 +108,7 @@ public class PetService {
     }
 
     /**
-     * CORREÇÕES APLICADAS:
-     * 1. FALHA DE SEGURANÇA: A versão original recebia um 'customerId' como parâmetro,
-     * permitindo que qualquer usuário visse os pets de outro cliente apenas ao adivinhar o ID.
-     * 2. LÓGICA CORRIGIDA: O método agora não recebe parâmetros. Ele busca automaticamente
-     * o usuário logado e retorna apenas os pets daquele usuário, fechando a brecha de segurança.
-     */
-    @Transactional(readOnly = true)
-    public List<PetDTO> findMyPets() {
-        User user = authService.authenticated();
-
-        if (!(user instanceof Customer customer)) {
-            return List.of();
-        }
-
-        List<Pet> pets = petRepository.findByOwnerId(customer.getId());
-        return pets.stream().map(PetDTO::new).collect(Collectors.toList());
-    }
-
-    /**
-     * CORREÇÕES APLICADAS:
-     * 1. FALHA DE SEGURANÇA: O método original não possuía verificação de permissão.
-     * Qualquer usuário autenticado poderia buscar qualquer pet pelo ID.
-     * 2. LÓGICA CORRIGIDA: Adicionada uma verificação que garante que o usuário logado
-     * seja o dono do pet ou um administrador (ROLE_ADMIN).
-     */
-    @Transactional(readOnly = true)
-    public PetDTO findById(Long id) {
-        Pet pet = petRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Pet não encontrado com o ID: " + id));
-
-        if (!authService.isSelfOrAdmin(pet.getOwner().getId())) {
-            throw new ForbiddenException("Acesso negado.");
-        }
-        return new PetDTO(pet);
-    }
-
-    /**
-     * CORREÇÕES APLICADAS:
-     * 1. BUG DE ATUALIZAÇÃO: A lógica original sobrescrevia campos não enviados com 'null'.
-     * Se o usuário enviasse apenas as 'notes', o 'name' e a 'birthDate' se tornariam nulos.
-     * 2. LÓGICA CORRIGIDA: O método agora verifica se cada campo do DTO é diferente de nulo
-     * antes de atualizar a entidade, permitindo atualizações parciais de forma segura.
-     * 3. SEGURANÇA: Adicionada a mesma verificação de permissão do 'findById'.
+     * Atualiza um pet existente (campos fornecidos no DTO). Valida permissão (self ou admin).
      */
     @Transactional
     public PetDTO update(Long id, PetUpdateDTO dto) {
@@ -153,12 +138,7 @@ public class PetService {
     }
 
     /**
-     * CORREÇÕES APLICADAS:
-     * 1. MUDANÇA DE ESTRATÉGIA: O método original realizava um 'hard delete', apagando
-     * permanentemente o registro do banco, o que poderia levar à perda de histórico.
-     * 2. LÓGICA CORRIGIDA: Implementado o 'Soft Delete'. Em vez de deletar, o método agora
-     * apenas marca o pet como inativo (`ativo = false`), preservando a integridade
-     * e o histórico dos dados. A verificação de segurança também foi mantida.
+     * "Remove" um pet logicamente (marca como inativo). Valida permissão (self ou admin).
      */
     @Transactional
     public void delete(Long id) {

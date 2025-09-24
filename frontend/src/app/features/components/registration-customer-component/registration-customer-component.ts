@@ -8,7 +8,8 @@ import { ButtonComponent } from '../../../shared/components/button-component/but
 import { RegistrationService } from '../../../core/services/registration.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CustomerInsert } from '../../models/CustomerInsert';
-
+import { AuthService } from '../../../core/services/auth.service';
+import { switchMap } from 'rxjs/operators';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password')?.value;
@@ -56,6 +57,7 @@ export class RegistrationCustomerComponent {
   private registrationService = inject(RegistrationService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
 
   protected form: FormGroup<RegistrationForm> = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
@@ -69,22 +71,26 @@ export class RegistrationCustomerComponent {
     validators: passwordMatchValidator
   });
 
-   onSubmit(): void {
+  onSubmit(): void {
     if (this.form.invalid) {
-      this.notificationService.showSuccess('Cadastro realizado com sucesso!');
       this.form.markAllAsTouched();
       return;
     }
 
-    this.registrationService.register(this.form.getRawValue() as CustomerInsert).subscribe({
+    const registrationData = this.form.getRawValue() as CustomerInsert;
+
+    this.registrationService.register(registrationData).pipe(
+      switchMap(() => {
+        const credentials = { email: registrationData.email, password: registrationData.password };
+        return this.authService.login(credentials);
+      })
+    ).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Cadastro realizado com sucesso!');
-        this.router.navigate(['/login']);
+        this.notificationService.showSuccess('Cadastro realizado com sucesso! Bem-vindo(a)!');
+        this.router.navigate(['/customer/pets/cadastrar']);
       },
       error: (err: HttpErrorResponse) => {
         console.error('Erro no registro:', err);
-
-        // Trata erros de validação de campo (status 422)
         if (err.status === 422) {
           const backendErrors = err.error.errors;
           backendErrors.forEach((error: any) => {
@@ -94,7 +100,6 @@ export class RegistrationCustomerComponent {
             }
           });
         }
-        // Trata erros de negócio (status 400)
         else if (err.status === 400) {
           const errorMessage = err.error.message;
           let fieldToSetError: keyof RegistrationForm | null = null;
@@ -105,7 +110,6 @@ export class RegistrationCustomerComponent {
           else if (errorMessage.toLowerCase().includes("cpf")) {
             fieldToSetError = 'cpf';
           }
-          // 👇 ADICIONE ESTA VERIFICAÇÃO PARA O TELEFONE 👇
           else if (errorMessage.toLowerCase().includes("telefone")) {
             fieldToSetError = 'phone';
           }
@@ -115,7 +119,11 @@ export class RegistrationCustomerComponent {
             if (formControl) {
               formControl.setErrors({ backendError: errorMessage });
             }
+          } else {
+            this.notificationService.showError(errorMessage || 'Ocorreu um erro no cadastro.');
           }
+        } else {
+           this.notificationService.showError('Ocorreu um erro inesperado. Tente novamente.');
         }
       }
     });

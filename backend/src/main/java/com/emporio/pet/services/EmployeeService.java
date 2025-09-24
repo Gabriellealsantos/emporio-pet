@@ -26,7 +26,7 @@ public class EmployeeService {
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-    ServiceRepository serviceRepository;
+    private final ServiceRepository serviceRepository;
 
     public EmployeeService(EmployeeRepository employeeRepository, UserRepository userRepository,
                            AuthService authService, PasswordEncoder passwordEncoder,
@@ -39,6 +39,10 @@ public class EmployeeService {
         this.serviceRepository = serviceRepository;
     }
 
+
+    /**
+     * Cria um novo funcionário: valida duplicidade de email, configura papel e salva.
+     */
     @Transactional
     public EmployeeDTO create(EmployeeInsertDTO dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -55,7 +59,6 @@ public class EmployeeService {
         employee.setUserStatus(UserStatus.NON_BLOCKED);
         employee.setJobTitle(dto.getJobTitle());
 
-
         Role employeeRole = roleRepository.findByAuthority("ROLE_EMPLOYEE");
         employee.getRoles().add(employeeRole);
 
@@ -63,6 +66,9 @@ public class EmployeeService {
         return new EmployeeDTO(savedEmployee);
     }
 
+    /**
+     * Atualiza dados de um funcionário existente. Verifica permissão (self ou admin) antes de atualizar.
+     */
     @Transactional
     public EmployeeDTO update(Long id, EmployeeUpdateDTO dto) {
         if (!authService.isSelfOrAdmin(id)) {
@@ -82,6 +88,10 @@ public class EmployeeService {
         return new EmployeeDTO(employeeEntity);
     }
 
+
+    /**
+     * Adiciona um serviço à lista de habilidades do funcionário e retorna o DTO atualizado.
+     */
     @Transactional
     public EmployeeDTO addServiceToEmployee(Long employeeId, Long serviceId) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -95,11 +105,13 @@ public class EmployeeService {
         return new EmployeeDTO(employee);
     }
 
+    /**
+     * Remove a associação de um serviço do funcionário. Lança ResourceNotFoundException se não existir.
+     */
     @Transactional
     public void removeServiceFromEmployee(Long employeeId, Long serviceId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado com o ID: " + employeeId));
-
 
         Services serviceToRemove = employee.getSkilledServices().stream()
                 .filter(service -> service.getId().equals(serviceId))

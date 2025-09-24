@@ -44,6 +44,14 @@ export const routes: Routes = [
   },
 
   // --- ÁREA DO CLIENTE (LOGADO) ---
+
+  {
+    path: 'customer/pets/cadastrar',
+    loadComponent: () => import('./features/components/pet-registration-component/pet-registration-component').then(m => m.PetRegistrationComponent),
+    canActivate: [authGuard, customerGuard],
+    data: { title: 'Cadastrar Pet' }
+  },
+
   {
     path: 'customer', // Caminho base para o cliente
     component: CustomerLayoutComponent,
@@ -54,11 +62,9 @@ export const routes: Routes = [
       { path: 'dashboard', component: CustomerDashboardComponent, data: { title: 'Minha Área' } },
       { path: 'agendar', loadComponent: () => import('./features/components/schedule-appointment-page-component/schedule-appointment-page-component').then(m => m.ScheduleAppointmentPageComponent), data: { title: 'Agendar Serviço' } },
       { path: 'onboarding', loadComponent: () => import('./features/components/onboarding-component/onboarding-component').then(m => m.OnboardingComponent), data: { title: 'Primeiros Passos' } },
-      { path: 'pets/cadastrar', loadComponent: () => import('./features/components/pet-registration-component/pet-registration-component').then(m => m.PetRegistrationComponent), data: { title: 'Cadastrar Pet' } },
       { path: 'perfil', loadComponent: () => import('./features/components/profile-page-component/profile-page-component').then(m => m.ProfileComponent), data: { title: 'Meu Perfil' } },
       { path: 'meus-pets', component: CustomerPetListComponent, data: { title: 'Meus Pets' } },
       { path: 'historico', component: CustomerAppointmentHistoryComponent, data: { title: 'Histórico de Agendamentos' } },
-
       { path: 'perfil', loadComponent: () => import('./features/components/profile-page-component/profile-page-component').then(m => m.ProfileComponent), data: { title: 'Meu Perfil' } }
     ]
   },

@@ -14,11 +14,8 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    // 1. Define o caminho para a nossa pasta raiz de uploads.
     private final Path rootLocation = Paths.get("uploaded-images");
 
-    // 2. Este método é executado assim que a aplicação inicia.
-    // Ele garante que a pasta de uploads exista.
     @PostConstruct
     public void init() {
         try {
@@ -28,25 +25,23 @@ public class FileStorageService {
         }
     }
 
-    // 3. Este é o método principal que salva o arquivo.
+    /**
+     * Armazena o arquivo enviado no diretório configurado e retorna o caminho público relativo.
+     */
     public String store(MultipartFile file) {
         if (file.isEmpty()) {
             throw new RuntimeException("Falha ao armazenar arquivo vazio.");
         }
 
         try {
-            // 4. Gera um nome de arquivo único para evitar colisões.
             String originalFilename = file.getOriginalFilename();
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String uniqueFilename = UUID.randomUUID().toString() + extension;
 
-            // 5. Salva o arquivo no nosso diretório (ex: uploaded-images/arquivo-unico.jpg).
             Path destinationFile = this.rootLocation.resolve(Paths.get(uniqueFilename)).normalize().toAbsolutePath();
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
-
-            // 6. Retorna o caminho PÚBLICO que será salvo no banco de dados.
             return "/images/" + uniqueFilename;
 
         } catch (IOException e) {

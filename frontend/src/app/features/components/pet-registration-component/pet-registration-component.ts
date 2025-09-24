@@ -10,6 +10,7 @@ import { PetService } from '../../../core/services/PetService';
 import { ButtonComponent } from '../../../shared/components/button-component/button-component';
 import { Breed } from '../../models/Breed';
 import { PetInsertDTO } from '../../models/PetInsertDTO';
+import { AuthService } from '../../../core/services/auth.service';
 
 export const pastOrPresentDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   if (!control.value) { return null; }
@@ -41,6 +42,7 @@ export class PetRegistrationComponent {
   private breedService = inject(BreedService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
 
 
   protected breeds$!: Observable<Breed[]>;
@@ -68,12 +70,12 @@ export class PetRegistrationComponent {
     this.petService.registerPet(this.form.getRawValue() as PetInsertDTO).subscribe({
       next: () => {
         this.notificationService.showSuccess('Pet cadastrado com sucesso!');
-        // Após cadastrar o pet, o usuário finalmente vai para a tela principal
-        this.router.navigate(['/dashboard']);
+        this.authService.getMe().subscribe(() => {
+          this.router.navigate(['/customer/dashboard']);
+        });
       },
       error: (err: HttpErrorResponse) => {
         console.error('Erro no cadastro do pet:', err);
-        // Podemos adicionar um tratamento de erro mais específico do backend aqui se necessário
         this.notificationService.showError('Falha ao cadastrar o pet. Tente novamente.');
       }
     });

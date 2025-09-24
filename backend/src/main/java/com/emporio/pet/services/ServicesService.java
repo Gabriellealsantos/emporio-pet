@@ -31,6 +31,56 @@ public class ServicesService {
     }
 
     /**
+     * Retorna todos os serviços aplicando filtros opcionais de nome e status (ativo/inativo).
+     */
+    @Transactional(readOnly = true)
+    public List<ServicesDTO> findAll(String name, Boolean active) {
+        List<Services> services = serviceRepository.findAllFiltered(name, active);
+        return services.stream().map(ServicesDTO::new).collect(Collectors.toList());
+    }
+
+    /**
+     * Retorna apenas os serviços ativos.
+     */
+    @Transactional(readOnly = true)
+    public List<ServicesDTO> findAllActiveServices() {
+        return findAll(null, true);
+    }
+
+    /**
+     * Busca um serviço pelo ID.
+     */
+    @Transactional(readOnly = true)
+    public ServicesDTO findById(Long id) {
+        Services service = serviceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + id));
+        return new ServicesDTO(service);
+    }
+
+    /**
+     * Retorna os funcionários qualificados para executar determinado serviço.
+     */
+    @Transactional(readOnly = true)
+    public List<EmployeeDTO> findQualifiedEmployees(Long serviceId) {
+        Services service = serviceRepository.findByIdWithQualifiedEmployees(serviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + serviceId));
+
+        return service.getQualifiedEmployees().stream()
+                .map(EmployeeDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca todos os serviços marcados como destaque.
+     */
+    @Transactional(readOnly = true)
+    public List<ServicesDTO> findAllFeatured() {
+        List<Services> services = serviceRepository.findAllByIsFeaturedTrue();
+        return services.stream().map(ServicesDTO::new).collect(Collectors.toList());
+    }
+
+
+    /**
      * Cria um novo serviço prestado pelo petshop.
      * Apenas administradores podem realizar esta operação.
      */
@@ -40,6 +90,7 @@ public class ServicesService {
         if (existingService.isPresent()) {
             throw new ConflictException("Já existe um serviço com este nome.");
         }
+
         Services service = new Services();
         service.setName(dto.getName());
         service.setDescription(dto.getDescription());
@@ -54,27 +105,19 @@ public class ServicesService {
         return new ServicesDTO(service);
     }
 
-    @Transactional(readOnly = true)
-    public List<ServicesDTO> findAll(String name, Boolean active) {
-        List<Services> services = serviceRepository.findAllFiltered(name, active);
-        return services.stream().map(ServicesDTO::new).collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<ServicesDTO> findAllActiveServices() {
-        return findAll(null, true);
-    }
-
     /**
-     * Busca um serviço pelo ID.
-     * Apenas serviços ativos podem ser acessados.
+     * Salva a imagem de um serviço.
      */
-    @Transactional(readOnly = true)
-    public ServicesDTO findById(Long id) {
-        Services service = serviceRepository.findById(id)
+    @Transactional
+    public void saveImage(Long id, MultipartFile file) {
+        Services serviceEntity = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + id));
-        return new ServicesDTO(service);
+
+        String imageUrl = fileStorageService.store(file);
+        serviceEntity.setImageUrl(imageUrl);
+        serviceRepository.save(serviceEntity);
     }
+
 
     /**
      * Atualiza os dados de um serviço.
@@ -91,21 +134,14 @@ public class ServicesService {
             if (existingService.isPresent() && !existingService.get().getId().equals(id)) {
                 throw new ConflictException("Já existe outro serviço com este nome.");
             }
-            dto.setName(dto.getName());
         }
 
         Services service = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + id));
 
-        if (dto.getName() != null) {
-            service.setName(dto.getName());
-        }
-        if (dto.getDescription() != null) {
-            service.setDescription(dto.getDescription());
-        }
-        if (dto.getPrice() != null) {
-            service.setPrice(dto.getPrice());
-        }
+        if (dto.getName() != null) service.setName(dto.getName());
+        if (dto.getDescription() != null) service.setDescription(dto.getDescription());
+        if (dto.getPrice() != null) service.setPrice(dto.getPrice());
         if (dto.getPriceDisplay() != null) service.setPriceDisplay(dto.getPriceDisplay());
         if (dto.getDurationDisplay() != null) service.setDurationDisplay(dto.getDurationDisplay());
         if (dto.getFeatured() != null) service.setFeatured(dto.getFeatured());
@@ -113,6 +149,7 @@ public class ServicesService {
         service = serviceRepository.save(service);
         return new ServicesDTO(service);
     }
+
 
     /**
      * Desativa um serviço (Soft Delete).
@@ -150,37 +187,5 @@ public class ServicesService {
 
         service.setActive(true);
         serviceRepository.save(service);
-    }
-
-    @Transactional(readOnly = true)
-    public List<EmployeeDTO> findQualifiedEmployees(Long serviceId) {
-        Services service = serviceRepository.findByIdWithQualifiedEmployees(serviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + serviceId));
-
-        return service.getQualifiedEmployees().stream()
-                .map(EmployeeDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void saveImage(Long id, MultipartFile file) {
-        // Busca o serviço no banco de dados
-        Services serviceEntity = serviceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + id));
-
-        // Usa nosso novo serviço para salvar o arquivo no disco e obter o caminho público
-        String imageUrl = fileStorageService.store(file);
-
-        // Atualiza a entidade com o caminho da imagem
-        serviceEntity.setImageUrl(imageUrl);
-
-        // Salva a entidade atualizada no banco
-        serviceRepository.save(serviceEntity);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ServicesDTO> findAllFeatured() {
-        List<Services> services = serviceRepository.findAllByIsFeaturedTrue();
-        return services.stream().map(ServicesDTO::new).collect(Collectors.toList());
     }
 }

@@ -17,9 +17,16 @@ import java.util.Optional;
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
+    /**
+     * Soma o valor total de faturas pagas dentro de um intervalo de datas.
+     */
     @Query("SELECT SUM(i.totalAmount) FROM Invoice i WHERE i.status = :status AND i.timestamp BETWEEN :start AND :end")
     BigDecimal sumPaidInvoicesByDate(InvoiceStatus status, Instant start, Instant end);
 
+
+    /**
+     * Busca faturas filtrando por cliente, intervalo de datas e status.
+     */
     @Query(value = "SELECT i FROM Invoice i WHERE " +
             "(:customerId IS NULL OR i.customer.id = :customerId) AND " +
             "(:minDate IS NULL OR i.timestamp >= :minDate) AND " +
@@ -36,16 +43,12 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             @Param("customerId") Long customerId,
             @Param("minDate") Instant minDate,
             @Param("maxDate") Instant maxDate,
-            @Param("status") InvoiceStatus status);
+            @Param("status") InvoiceStatus status
+    );
 
-    @Query("SELECT i FROM Invoice i " +
-            "JOIN FETCH i.customer c " +
-            "JOIN FETCH i.appointments a " +
-            "JOIN FETCH a.pet p " +
-            "JOIN FETCH a.service s " +
-            "WHERE i.id = :id")
-    Optional<Invoice> findByIdWithDetails(@Param("id") Long id);
-
+    /**
+     * Busca faturas filtrando pelo nome do cliente, intervalo de datas e status.
+     */
     @Query(value = "SELECT i FROM Invoice i JOIN i.customer c WHERE " +
             "(:customerName IS NULL OR UPPER(c.name) LIKE UPPER(CONCAT('%', :customerName, '%'))) AND " +
             "(:minDate IS NULL OR i.timestamp >= :minDate) AND " +
@@ -65,5 +68,20 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             @Param("status") InvoiceStatus status
     );
 
+
+    /**
+     * Busca fatura com cliente, pets, serviços e agendamentos já carregados.
+     */
+    @Query("SELECT i FROM Invoice i " +
+            "JOIN FETCH i.customer c " +
+            "JOIN FETCH i.appointments a " +
+            "JOIN FETCH a.pet p " +
+            "JOIN FETCH a.service s " +
+            "WHERE i.id = :id")
+    Optional<Invoice> findByIdWithDetails(@Param("id") Long id);
+
+    /**
+     * Retorna as últimas 5 faturas de um determinado status.
+     */
     List<Invoice> findTop5ByStatusOrderByTimestampDesc(InvoiceStatus status);
 }
