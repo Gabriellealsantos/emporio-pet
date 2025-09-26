@@ -203,6 +203,9 @@ public class AppointmentService {
         }
         Services service = serviceRepository.findByIdWithQualifiedEmployees(dto.getServiceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
+        if (!service.isActive()) {
+            throw new ConflictException("Não é possível agendar um serviço que está inativo.");
+        }
         Pet pet = petRepository.findById(dto.getPetId())
                 .orElseThrow(() -> new ResourceNotFoundException("Pet não encontrado"));
         if (!pet.getOwner().getId().equals(owner.getId())) {

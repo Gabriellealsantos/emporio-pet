@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
 import { DeleteConfirmationModalComponent } from '../../../shared/components/delete-confirmation-modal-component/delete-confirmation-modal-component';
 import { NotificationService } from '../../../core/services/notification.service';
 
+/** Componente que exibe o painel principal (dashboard) para o cliente logado. */
 @Component({
   selector: 'app-customer-dashboard',
   standalone: true,
@@ -18,23 +19,40 @@ import { NotificationService } from '../../../core/services/notification.service
   styleUrls: ['./customer-dashboard-component.css']
 })
 export class CustomerDashboardComponent implements OnInit {
+  // ===================================================================
+  // INJEÇÕES DE DEPENDÊNCIA
+  // ===================================================================
   private authService = inject(AuthService);
   private appointmentService = inject(AppointmentService);
   private notificationService = inject(NotificationService);
 
-  // Signals
+  // ===================================================================
+  // ESTADO DO COMPONENTE (SIGNALS)
+  // ===================================================================
+  /** Armazena os dados do usuário autenticado. */
   currentUser = signal<User | null>(null);
+  /** Armazena a lista dos próximos agendamentos a serem exibidos. */
   upcomingAppointments = signal<Appointment[]>([]);
+  /** Controla o estado de carregamento dos dados. */
   isLoading = signal(true);
+  /** Controla a visibilidade do modal de confirmação de cancelamento. */
   isConfirmModalOpen = signal(false);
+  /** Armazena o agendamento a ser cancelado. */
   appointmentToCancel = signal<Appointment | null>(null);
 
-  // Ícones
+  // ===================================================================
+  // ÍCONES
+  // ===================================================================
   faCalendarPlus = faCalendarPlus;
   faPaw = faPaw;
   faChevronRight = faChevronRight;
   faTimes = faTimes;
 
+  // ===================================================================
+  // MÉTODOS DO CICLO DE VIDA
+  // ===================================================================
+
+  /** Inicializa o componente, buscando o usuário atual e seus próximos agendamentos. */
   ngOnInit(): void {
     this.authService.getCurrentUser().subscribe(user => {
       this.currentUser.set(user);
@@ -46,6 +64,11 @@ export class CustomerDashboardComponent implements OnInit {
     });
   }
 
+  // ===================================================================
+  // MÉTODOS DE CARREGAMENTO DE DADOS
+  // ===================================================================
+
+  /** Carrega os próximos agendamentos do cliente a partir da API. */
   loadUpcomingAppointments(): void {
     this.isLoading.set(true);
     this.appointmentService.findMyUpcomingAppointments().subscribe({
@@ -60,15 +83,22 @@ export class CustomerDashboardComponent implements OnInit {
     });
   }
 
+  // ===================================================================
+  // MÉTODOS DE CONTROLE DO MODAL
+  // ===================================================================
+
+  /** Abre o modal de confirmação para cancelar um agendamento. */
   openCancelModal(appointment: Appointment): void {
     this.appointmentToCancel.set(appointment);
     this.isConfirmModalOpen.set(true);
   }
 
+  /** Fecha o modal de confirmação. */
   closeConfirmModal(): void {
     this.isConfirmModalOpen.set(false);
   }
 
+  /** Confirma e executa o cancelamento de um agendamento. */
   onConfirmCancel(): void {
     const appointment = this.appointmentToCancel();
     if (!appointment) return;
@@ -76,28 +106,35 @@ export class CustomerDashboardComponent implements OnInit {
     this.appointmentService.cancel(appointment.id).subscribe({
       next: () => {
         this.notificationService.showSuccess('Agendamento cancelado com sucesso!');
-        this.loadUpcomingAppointments(); // Recarrega a lista
+        this.loadUpcomingAppointments();
         this.closeConfirmModal();
       },
       error: (err) => this.notificationService.showError(err.error?.message || 'Erro ao cancelar agendamento.')
     });
   }
 
-   handleCancelClick(appointment: Appointment): void {
+  // ===================================================================
+  // MÉTODOS DE EVENTOS E AUXILIARES
+  // ===================================================================
+
+  /** Lida com o clique no botão de cancelar, verificando se a ação é permitida. */
+  handleCancelClick(appointment: Appointment): void {
     if (this.isCancellable(appointment)) {
       this.openCancelModal(appointment);
     } else {
-      this.notificationService.showError('Não é possível cancelar com menos de 12h de antecedência. Por favor, entre em contato com a loja.');
+      this.notificationService.showError('Não é possível cancelar com menos de 12h de antecedência. Por favor, entre em contato.');
     }
   }
 
-  // Método auxiliar para verificar no template se o botão deve aparecer
+  /** Verifica se um agendamento pode ser cancelado com base na antecedência mínima. */
   isCancellable(appointment: Appointment): boolean {
     const appointmentDate = new Date(appointment.startDateTime);
     const now = new Date();
+    // Verifica se a data do agendamento é maior que a data atual mais 12 horas.
     return appointmentDate.getTime() > now.getTime() + (12 * 60 * 60 * 1000);
   }
 
+  /** Traduz uma chave de status para um texto legível em português. */
   translateStatus(status: string): string {
     const map: { [key: string]: string } = {
       'SCHEDULED': 'Agendado',

@@ -3,18 +3,23 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { map, switchMap, take, of, catchError } from 'rxjs';
 
+/**
+ * Guarda de rota que verifica se o usuário autenticado tem a permissão de 'EMPLOYEE' ou 'ADMIN'.
+ */
 export const employeeGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
   return authService.getCurrentUser().pipe(
     take(1),
+    // Passo 1: Garante que temos os dados do usuário, buscando na API se não estiverem em cache.
     switchMap(user => {
       if (user) {
         return of(user);
       }
       return authService.getMe();
     }),
+    // Passo 2: Verifica se o usuário possui a permissão de 'ROLE_EMPLOYEE' ou 'ROLE_ADMIN'.
     map(user => {
       if (!user) {
         router.navigate(['/login']);
@@ -26,12 +31,13 @@ export const employeeGuard: CanActivateFn = (route, state) => {
       );
 
       if (isAuthorized) {
-        return true; // É funcionário ou admin, acesso permitido.
+        return true;
       }
 
-      router.navigate(['/home']); // Não é funcionário, vai para a home.
+      router.navigate(['/home']);
       return false;
     }),
+    // Tratamento de erro: Em caso de falha, desloga o usuário e nega o acesso.
     catchError(() => {
       authService.logout();
       return of(false);

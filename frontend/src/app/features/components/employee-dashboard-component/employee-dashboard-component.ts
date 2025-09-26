@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faCheckCircle, faClock, faPlayCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faClock, faPlayCircle } from '@fortawesome/free-solid-svg-icons';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -10,6 +10,7 @@ import { Appointment } from '../../models/Appointment';
 import { AppointmentStatus } from '../../models/AppointmentStatus';
 import { Page } from '../../models/PageModel';
 
+/** Componente que exibe o painel principal (dashboard) para o funcionário logado. */
 @Component({
   selector: 'app-employee-dashboard',
   standalone: true,
@@ -18,51 +19,65 @@ import { Page } from '../../models/PageModel';
   styleUrls: ['./employee-dashboard-component.css']
 })
 export class EmployeeDashboardComponent implements OnInit {
+  // ===================================================================
+  // INJEÇÕES DE DEPENDÊNCIA
+  // ===================================================================
   private appointmentService = inject(AppointmentService);
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
 
-  // Signals de estado
+  // ===================================================================
+  // ESTADO DO COMPONENTE (SIGNALS)
+  // ===================================================================
+  /** Armazena a lista de agendamentos do dia para o funcionário. */
   todaysAppointments = signal<Appointment[]>([]);
+  /** Controla o estado de carregamento dos dados. */
   isLoading = signal(true);
+  /** Armazena os dados do usuário autenticado. */
   currentUser = signal<User | null>(null);
-  today = new Date(); // Para exibir a data no template
 
-  // Ícones
+  // ===================================================================
+  // ÍCONES E PROPRIEDADES ESTÁTICAS
+  // ===================================================================
+  /** Armazena a data atual para exibição no template. */
+  today = new Date();
+  /** Definições dos ícones do FontAwesome para uso no template. */
   faPlayCircle = faPlayCircle;
   faCheckCircle = faCheckCircle;
   faClock = faClock;
 
+  // ===================================================================
+  // MÉTODOS DO CICLO DE VIDA
+  // ===================================================================
+
+  /** Inicializa o componente, buscando o usuário atual e seus agendamentos para o dia. */
   ngOnInit(): void {
-    // Primeiro, pegamos o usuário logado do AuthService
     this.authService.getCurrentUser().subscribe(user => {
       if (user) {
         this.currentUser.set(user);
-        // Assim que temos o usuário, buscamos seus agendamentos
         this.loadTodaysAppointments();
       } else {
-        // Lida com o caso em que o usuário não é encontrado
         this.isLoading.set(false);
       }
     });
   }
 
+  // ===================================================================
+  // MÉTODOS DE CARREGAMENTO E AÇÕES
+  // ===================================================================
+
+  /** Carrega os agendamentos do dia para o funcionário logado a partir da API. */
   loadTodaysAppointments(): void {
     const employeeId = this.currentUser()?.id;
     if (!employeeId) return;
 
     this.isLoading.set(true);
-
-    // Define o intervalo de hoje (do início ao fim do dia)
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    const todayStr = new Date().toISOString().split('T')[0];
 
     const filters = {
       employeeId: employeeId,
-      minDate: startOfDay.toISOString().split('T')[0], // Formato YYYY-MM-DD
-      maxDate: endOfDay.toISOString().split('T')[0],   // Formato YYYY-MM-DD
+      minDate: todayStr,
+      maxDate: todayStr,
     };
 
     this.appointmentService.findAll(filters).subscribe({
@@ -72,21 +87,20 @@ export class EmployeeDashboardComponent implements OnInit {
       },
       error: (err) => {
         this.notificationService.showError('Erro ao carregar seus agendamentos.');
-        console.error(err);
         this.isLoading.set(false);
       }
     });
   }
 
+  /** Atualiza o status de um agendamento (ex: para Em Andamento ou Concluído). */
   updateAppointmentStatus(id: number, status: AppointmentStatus): void {
     this.appointmentService.updateStatus(id, status).subscribe({
       next: () => {
         this.notificationService.showSuccess('Status do agendamento atualizado!');
-        this.loadTodaysAppointments(); // Recarrega a lista para refletir a mudança
+        this.loadTodaysAppointments();
       },
       error: (err) => {
         this.notificationService.showError('Erro ao atualizar o status.');
-        console.error(err);
       }
     });
   }

@@ -1,5 +1,5 @@
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import {
   faArrowDown,
@@ -17,6 +17,7 @@ import {
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { DashboardData } from '../../models/DashboardData';
 
+/** Componente que exibe o painel principal (dashboard) para administradores. */
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -24,9 +25,26 @@ import { DashboardData } from '../../models/DashboardData';
   templateUrl: './dashboard-component.html',
   styleUrls: ['./dashboard-component.css'],
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
+  // ===================================================================
+  // INJEÇÕES DE DEPENDÊNCIA
+  // ===================================================================
   private dashboardService = inject(DashboardService);
+
+  // ===================================================================
+  // ESTADO DO COMPONENTE (SIGNALS)
+  // ===================================================================
+  /** Armazena os dados consolidados do dashboard. */
+  dashboardData = signal<DashboardData | null>(null);
+  /** Controla o estado de carregamento dos dados. */
+  isLoading = signal(true);
+
+  // ===================================================================
+  // ÍCONES E PROPRIEDADES ESTÁTICAS
+  // ===================================================================
+  /** Expõe o objeto Math global para uso no template (ex: arredondamento). */
   Math = Math;
+  /** Definições dos ícones do FontAwesome para uso no template. */
   faArrowUp = faArrowUp;
   faCalendarDay = faCalendarDay;
   faUserPlus = faUserPlus;
@@ -39,13 +57,20 @@ export class DashboardComponent {
   faPaw = faPaw;
   faFileInvoiceDollar = faFileInvoiceDollar;
 
-  dashboardData = signal<DashboardData | null>(null);
-  isLoading = signal(true);
+  // ===================================================================
+  // MÉTODOS DO CICLO DE VIDA
+  // ===================================================================
 
+  /** Inicializa o componente, disparando o carregamento dos dados do dashboard. */
   ngOnInit(): void {
     this.loadDashboardData();
   }
 
+  // ===================================================================
+  // MÉTODOS DE CARREGAMENTO E AUXILIARES
+  // ===================================================================
+
+  /** Busca os dados consolidados do dashboard a partir da API. */
   loadDashboardData(): void {
     this.isLoading.set(true);
     this.dashboardService.getDashboardData().subscribe({
@@ -60,6 +85,7 @@ export class DashboardComponent {
     });
   }
 
+  /** Retorna o ícone e a classe CSS apropriados para um tipo de atividade recente. */
   getActivityStyle(type: string): { icon: any; class: string } {
     switch (type) {
       case 'NEW_CUSTOMER':

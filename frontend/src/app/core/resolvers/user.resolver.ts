@@ -4,40 +4,41 @@ import { catchError, map, of, switchMap, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { User } from '../../features/models/User';
 
+/**
+ * Resolver que fornece os dados do usuário logado para uma rota.
+ * Garante que os dados do usuário estejam disponíveis antes da ativação da rota,
+ * redirecionando para a página de login caso a autenticação falhe.
+ */
 export const userResolver = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // A lógica é quase idêntica à do nosso authGuard
   return authService.getCurrentUser().pipe(
     take(1),
+    // Garante que os dados do usuário sejam obtidos, priorizando o cache local.
     switchMap((user: User | null) => {
-      // Se o usuário já está no serviço, apenas o retornamos.
       if (user) {
         return of(user);
       }
 
-      // Se não, verificamos o token
+      // Se não houver usuário em cache, verifica a existência de um token.
       const token = authService.getToken();
       if (!token) {
-        // Se não há token, redireciona e falha o resolver
         router.navigate(['/login']);
         return of(null);
       }
 
-      // Se há token, tentamos buscar o usuário
+      // Com o token, tenta buscar os dados do usuário na API.
       return authService.getMe().pipe(
         map(fetchedUser => {
-          // Se o backend retornou um usuário, o token é válido.
           if (fetchedUser) {
             return fetchedUser;
           }
-          // Se não veio usuário, redireciona e falha.
           router.navigate(['/login']);
           return null;
         }),
+        // Se a busca na API falhar, o token é inválido; desloga e redireciona.
         catchError(() => {
-          // Se a chamada getMe() deu erro, o token é inválido.
           authService.logout();
           return of(null);
         })

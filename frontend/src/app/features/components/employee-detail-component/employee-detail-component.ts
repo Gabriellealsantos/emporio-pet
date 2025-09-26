@@ -12,6 +12,7 @@ import { ServicesService } from '../../../core/services/services.service';
 import { Service } from '../../models/Service';
 import { DeleteConfirmationModalComponent } from '../../../shared/components/delete-confirmation-modal-component/delete-confirmation-modal-component';
 
+/** Componente de página para visualizar e editar os detalhes de um funcionário. */
 @Component({
   selector: 'app-employee-detail-component',
   standalone: true,
@@ -20,6 +21,9 @@ import { DeleteConfirmationModalComponent } from '../../../shared/components/del
   styleUrls: ['./employee-detail-component.css']
 })
 export class EmployeeDetailComponent implements OnInit {
+  // ===================================================================
+  // INJEÇÕES DE DEPENDÊNCIA
+  // ===================================================================
   private route = inject(ActivatedRoute);
   private employeeService = inject(EmployeeService);
   private servicesService = inject(ServicesService);
@@ -27,26 +31,50 @@ export class EmployeeDetailComponent implements OnInit {
   private fb = inject(FormBuilder);
   private location = inject(Location);
 
+  // ===================================================================
+  // ESTADO DO COMPONENTE (SIGNALS)
+  // ===================================================================
+  /** Armazena os dados do funcionário sendo visualizado/editado. */
   employee = signal<User | null>(null);
+  /** Controla o estado de carregamento da página. */
   isLoading = signal(true);
+  /** Armazena a lista de todos os serviços ativos disponíveis. */
   allServices = signal<Service[]>([]);
+  /** Armazena o ID do serviço selecionado no dropdown para ser adicionado. */
   serviceToAdd = signal<string | null>(null);
+  /** Controla a visibilidade do modal de confirmação para remover serviço. */
   isDeleteServiceModalOpen = signal(false);
+  /** Armazena o serviço a ser removido. */
   serviceToRemove = signal<Service | null>(null);
 
-  faUser = faUser; faEnvelope = faEnvelope; faPhone = faPhone;
-  faCalendar = faCalendar; faCog = faCog; faBriefcase = faBriefcase; faArrowLeft = faArrowLeft; faPlus = faPlus;
-
-  employeeForm: FormGroup;
-  statusList = ['NON_BLOCKED', 'BLOCKED', 'INACTIVE', 'SUSPENDED'];
-
-
-
+  // ===================================================================
+  // SIGNALS COMPUTADOS
+  // ===================================================================
+  /** Signal computado que filtra os serviços que o funcionário ainda não possui. */
   availableServices = computed(() => {
     const employeeServicesIds = this.employee()?.skilledServices?.map(s => s.id) || [];
     return this.allServices().filter(s => !employeeServicesIds.includes(s.id));
   });
 
+  // ===================================================================
+  // ÍCONES, FORMULÁRIO E PROPRIEDADES ESTÁTICAS
+  // ===================================================================
+  faUser = faUser;
+  faEnvelope = faEnvelope;
+  faPhone = faPhone;
+  faCalendar = faCalendar;
+  faCog = faCog;
+  faBriefcase = faBriefcase;
+  faArrowLeft = faArrowLeft;
+  faPlus = faPlus;
+  /** Formulário reativo para a edição dos dados do funcionário. */
+  employeeForm: FormGroup;
+  /** Lista de status para o dropdown de status do funcionário. */
+  statusList = ['NON_BLOCKED', 'BLOCKED', 'INACTIVE', 'SUSPENDED'];
+
+  // ===================================================================
+  // CONSTRUTOR E CICLO DE VIDA
+  // ===================================================================
   constructor() {
     this.employeeForm = this.fb.group({
       name: ['', Validators.required],
@@ -58,36 +86,7 @@ export class EmployeeDetailComponent implements OnInit {
     });
   }
 
-   openDeleteServiceModal(service: Service): void {
-    this.serviceToRemove.set(service);
-    this.isDeleteServiceModalOpen.set(true);
-  }
-
-
-  closeDeleteServiceModal(): void {
-    this.isDeleteServiceModalOpen.set(false);
-    this.serviceToRemove.set(null);
-  }
-
-  onConfirmRemoveService(): void {
-    const employeeId = this.employee()?.id;
-    const service = this.serviceToRemove();
-
-    if (employeeId && service) {
-      this.employeeService.removeService(employeeId, service.id).subscribe({
-        next: () => {
-          this.loadEmployeeData(employeeId);
-          this.notificationService.showSuccess(`Serviço "${service.name}" removido com sucesso!`);
-          this.closeDeleteServiceModal();
-        },
-        error: () => {
-          this.notificationService.showError('Erro ao remover serviço.');
-          this.closeDeleteServiceModal();
-        }
-      });
-    }
-  }
-
+  /** Inicializa o componente, buscando dados do funcionário e a lista de serviços. */
   ngOnInit(): void {
     const employeeId = this.route.snapshot.params['id'];
     if (employeeId) {
@@ -96,6 +95,11 @@ export class EmployeeDetailComponent implements OnInit {
     }
   }
 
+  // ===================================================================
+  // MÉTODOS DE CARREGAMENTO DE DADOS
+  // ===================================================================
+
+  /** Carrega os dados do funcionário da API com base no ID e preenche o formulário. */
   loadEmployeeData(id: number): void {
     this.isLoading.set(true);
     this.employeeService.findById(id).subscribe({
@@ -118,6 +122,7 @@ export class EmployeeDetailComponent implements OnInit {
     });
   }
 
+  /** Carrega a lista completa de serviços ativos para o dropdown. */
   loadAllServices(): void {
     this.servicesService.findAllActiveServices().subscribe({
       next: (data) => this.allServices.set(data),
@@ -125,6 +130,11 @@ export class EmployeeDetailComponent implements OnInit {
     });
   }
 
+  // ===================================================================
+  // MÉTODOS DE EVENTOS E SUBMISSÃO
+  // ===================================================================
+
+  /** Lida com a submissão do formulário para atualizar os dados do funcionário. */
   onSubmit(): void {
     if (this.employeeForm.invalid) {
       this.notificationService.showError('Por favor, verifique os campos do formulário.');
@@ -143,6 +153,7 @@ export class EmployeeDetailComponent implements OnInit {
     }
   }
 
+  /** Captura a mudança de status no dropdown e envia a atualização para a API. */
   onStatusChange(event: Event): void {
     const newStatus = (event.target as HTMLSelectElement).value;
     const employeeId = this.employee()?.id;
@@ -157,6 +168,7 @@ export class EmployeeDetailComponent implements OnInit {
     }
   }
 
+  /** Associa o serviço selecionado no dropdown ao funcionário. */
   onAddService(): void {
     const employeeId = this.employee()?.id;
     const serviceId = Number(this.serviceToAdd());
@@ -172,33 +184,62 @@ export class EmployeeDetailComponent implements OnInit {
     }
   }
 
-  onRemoveService(serviceId: number): void {
+  /** Captura a seleção de um serviço no dropdown. */
+  onServiceSelected(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    this.serviceToAdd.set(selectElement.value);
+  }
+
+  // ===================================================================
+  // MÉTODOS DE CONTROLE DO MODAL DE EXCLUSÃO
+  // ===================================================================
+
+  /** Abre o modal de confirmação para remover um serviço do funcionário. */
+  openDeleteServiceModal(service: Service): void {
+    this.serviceToRemove.set(service);
+    this.isDeleteServiceModalOpen.set(true);
+  }
+
+  /** Fecha o modal de confirmação de remoção de serviço. */
+  closeDeleteServiceModal(): void {
+    this.isDeleteServiceModalOpen.set(false);
+    this.serviceToRemove.set(null);
+  }
+
+  /** Confirma e executa a remoção de um serviço associado ao funcionário. */
+  onConfirmRemoveService(): void {
     const employeeId = this.employee()?.id;
-    if (employeeId) {
-      this.employeeService.removeService(employeeId, serviceId).subscribe({
+    const service = this.serviceToRemove();
+    if (employeeId && service) {
+      this.employeeService.removeService(employeeId, service.id).subscribe({
         next: () => {
           this.loadEmployeeData(employeeId);
-          this.notificationService.showSuccess('Serviço removido com sucesso!');
+          this.notificationService.showSuccess(`Serviço "${service.name}" removido com sucesso!`);
+          this.closeDeleteServiceModal();
         },
-        error: () => this.notificationService.showError('Erro ao remover serviço.')
+        error: () => {
+          this.notificationService.showError('Erro ao remover serviço.');
+          this.closeDeleteServiceModal();
+        }
       });
     }
   }
 
+  // ===================================================================
+  // MÉTODOS DE NAVEGAÇÃO E AUXILIARES
+  // ===================================================================
+
+  /** Navega para a página anterior no histórico do navegador. */
   goBack(): void {
     this.location.back();
   }
 
+  /** Traduz uma chave de status para um texto legível em português. */
   translateStatus(status: string): string {
     const map: { [key: string]: string } = {
       'NON_BLOCKED': 'Ativo', 'BLOCKED': 'Bloqueado',
       'INACTIVE': 'Inativo', 'SUSPENDED': 'Suspenso'
     };
     return map[status] || status;
-  }
-
-  onServiceSelected(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    this.serviceToAdd.set(selectElement.value);
   }
 }

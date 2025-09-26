@@ -11,12 +11,14 @@ import { CustomerInsert } from '../../models/CustomerInsert';
 import { AuthService } from '../../../core/services/auth.service';
 import { switchMap } from 'rxjs/operators';
 
+/** Validador customizado para garantir que os campos de senha e confirmação coincidem. */
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password')?.value;
   const confirmPassword = control.get('confirmPassword')?.value;
   return password && confirmPassword && password !== confirmPassword ? { passwordsMismatch: true } : null;
 };
 
+/** Validador customizado para garantir que a data de nascimento não seja no futuro. */
 export const pastOrPresentDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   if (!control.value) { return null; }
   const selectedDate = new Date(control.value);
@@ -26,6 +28,7 @@ export const pastOrPresentDateValidator: ValidatorFn = (control: AbstractControl
   return selectedDate > today ? { futureDate: true } : null;
 };
 
+/** Define a estrutura tipada para o formulário de registro de cliente. */
 interface RegistrationForm {
   name: FormControl<string>;
   email: FormControl<string>;
@@ -36,6 +39,7 @@ interface RegistrationForm {
   birthDate: FormControl<string>;
 }
 
+/** Componente da página de cadastro para novos clientes. */
 @Component({
   selector: 'app-registration-customer-component',
   standalone: true,
@@ -52,13 +56,19 @@ interface RegistrationForm {
   ],
 })
 export class RegistrationCustomerComponent {
-
+  // ===================================================================
+  // INJEÇÕES DE DEPENDÊNCIA
+  // ===================================================================
   private fb = inject(FormBuilder);
   private registrationService = inject(RegistrationService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
 
+  // ===================================================================
+  // FORMULÁRIO
+  // ===================================================================
+  /** Formulário reativo para os dados de cadastro do cliente. */
   protected form: FormGroup<RegistrationForm> = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
@@ -71,6 +81,11 @@ export class RegistrationCustomerComponent {
     validators: passwordMatchValidator
   });
 
+  // ===================================================================
+  // MÉTODOS DE AÇÃO
+  // ===================================================================
+
+  /** Lida com a submissão do formulário, registrando o cliente e realizando o login automático. */
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -80,6 +95,7 @@ export class RegistrationCustomerComponent {
     const registrationData = this.form.getRawValue() as CustomerInsert;
 
     this.registrationService.register(registrationData).pipe(
+      // Após o registro, realiza o login automaticamente com as credenciais fornecidas.
       switchMap(() => {
         const credentials = { email: registrationData.email, password: registrationData.password };
         return this.authService.login(credentials);
@@ -87,43 +103,40 @@ export class RegistrationCustomerComponent {
     ).subscribe({
       next: () => {
         this.notificationService.showSuccess('Cadastro realizado com sucesso! Bem-vindo(a)!');
-        this.router.navigate(['/customer/pets/cadastrar']);
+        this.router.navigate(['/onboarding']); // Redireciona para o onboarding para cadastrar o pet.
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Erro no registro:', err);
-        if (err.status === 422) {
-          const backendErrors = err.error.errors;
-          backendErrors.forEach((error: any) => {
+        // Trata erros de validação (422) retornados pelo backend.
+        if (err.status === 422 && err.error?.errors) {
+          err.error.errors.forEach((error: { fieldName: string; message: string; }) => {
             const formControl = this.form.get(error.fieldName as keyof RegistrationForm);
             if (formControl) {
               formControl.setErrors({ backendError: error.message });
             }
           });
         }
-        else if (err.status === 400) {
+        // Trata erros de duplicidade (400) retornados pelo backend.
+        else if (err.status === 400 && err.error?.message) {
           const errorMessage = err.error.message;
           let fieldToSetError: keyof RegistrationForm | null = null;
 
           if (errorMessage.toLowerCase().includes("email")) {
             fieldToSetError = 'email';
-          }
-          else if (errorMessage.toLowerCase().includes("cpf")) {
+          } else if (errorMessage.toLowerCase().includes("cpf")) {
             fieldToSetError = 'cpf';
-          }
-          else if (errorMessage.toLowerCase().includes("telefone")) {
+          } else if (errorMessage.toLowerCase().includes("telefone")) {
             fieldToSetError = 'phone';
           }
 
           if (fieldToSetError) {
-            const formControl = this.form.get(fieldToSetError);
-            if (formControl) {
-              formControl.setErrors({ backendError: errorMessage });
-            }
+            this.form.get(fieldToSetError)?.setErrors({ backendError: errorMessage });
           } else {
-            this.notificationService.showError(errorMessage || 'Ocorreu um erro no cadastro.');
+            this.notificationService.showError(errorMessage);
           }
-        } else {
-           this.notificationService.showError('Ocorreu um erro inesperado. Tente novamente.');
+        }
+        // Trata erros genéricos.
+        else {
+          this.notificationService.showError('Ocorreu um erro inesperado. Tente novamente.');
         }
       }
     });

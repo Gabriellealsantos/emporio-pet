@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonComponent } from '../../../shared/components/button-component/button-component';
 import { AuthService } from '../../../core/services/auth.service';
 
-
+/** Componente de página para o fluxo de "Esqueci minha senha". */
 @Component({
   selector: 'app-forgot-password-component',
   standalone: true,
@@ -12,16 +12,27 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrls: ['../../../shared/styles/form-card.css']
 })
 export class ForgotPasswordComponent {
+  // ===================================================================
+  // INJEÇÕES DE DEPENDÊNCIA
+  // ===================================================================
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
 
-  // Variável para guardar a mensagem de sucesso
+  // ===================================================================
+  // ESTADO DO COMPONENTE E FORMULÁRIO
+  // ===================================================================
+  /** Armazena a mensagem de sucesso a ser exibida na tela após a submissão. */
   protected successMessage: string | null = null;
-
+  /** Formulário reativo para a inserção do e-mail de recuperação. */
   protected form = this.fb.group({
     email: ['', [Validators.required, Validators.email]]
   });
 
+  // ===================================================================
+  // MÉTODOS DE AÇÃO
+  // ===================================================================
+
+  /** Lida com a submissão do formulário de recuperação de senha. */
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -31,13 +42,12 @@ export class ForgotPasswordComponent {
     const email = this.form.value.email ?? '';
     this.authService.forgotPassword(email).subscribe({
       next: (response) => {
-        // Guarda a mensagem do backend para exibir no HTML
         this.successMessage = response.message;
-        this.form.reset(); // Limpa o formulário
+        this.form.reset();
       },
       error: (err) => {
-        // Mesmo em caso de erro, a política é mostrar a mesma mensagem
-        // para não revelar quais emails existem ou não na base.
+        // Por segurança, exibe a mesma mensagem de sucesso em caso de erro
+        // para não revelar se um e-mail está ou não cadastrado no sistema.
         this.successMessage = "Caso o e-mail exista em nossa base de dados, um link de recuperação foi enviado.";
         console.error("Erro ao solicitar recuperação:", err);
       }

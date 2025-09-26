@@ -5,11 +5,7 @@ import { environment } from '../../../environments/environment';
 import { User } from '../../features/models/User';
 import { Page } from '../../features/models/PageModel';
 
-
-/**
- * DTO para a atualização de dados do próprio usuário.
- * Corresponde ao UserUpdateDTO do backend.
- */
+/** DTO para a atualização de dados do próprio usuário. */
 export interface UserUpdateDTO {
   name?: string;
   phone?: string;
@@ -17,16 +13,12 @@ export interface UserUpdateDTO {
   cpf?: string;
 }
 
-/**
- * DTO para a atualização de status por um admin.
- */
+/** DTO para a atualização de status de um usuário por um admin. */
 export interface UserStatusUpdateDTO {
   newStatus: 'BLOCKED' | 'NON_BLOCKED' | 'INACTIVE' | 'SUSPENDED';
 }
 
-/**
- * Interface para os filtros da busca de usuários (tela de admin).
- */
+/** Define a estrutura de filtros para a busca paginada de usuários. */
 export interface UserFilters {
   page?: number;
   size?: number;
@@ -35,6 +27,7 @@ export interface UserFilters {
   role?: string;
 }
 
+/** Serviço para gerenciar as operações de API relacionadas a usuários. */
 @Injectable({
   providedIn: 'root'
 })
@@ -42,18 +35,12 @@ export class UserService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.BASE_URL}/users`;
 
-  /**
-   * Atualiza os dados do perfil do usuário logado.
-   * Usado na tela "Meu Perfil".
-   */
+  /** Atualiza os dados do perfil do usuário logado. */
   updateMe(dto: UserUpdateDTO): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/me`, dto);
   }
 
-  /**
-   * Busca uma lista paginada de todos os usuários.
-   * Usado nas telas de admin para listar Clientes e Funcionários.
-   */
+  /** Busca uma lista paginada de todos os usuários com filtros. */
   findAll(filters: UserFilters): Observable<Page<User>> {
     let params = new HttpParams()
       .set('page', filters.page?.toString() ?? '0')
@@ -66,18 +53,12 @@ export class UserService {
     return this.http.get<Page<User>>(this.apiUrl, { params });
   }
 
-  /**
-   * Busca um usuário específico pelo ID.
-   * Usado nas telas de detalhe de Cliente/Funcionário (admin).
-   */
+  /** Busca um usuário específico pelo seu ID. */
   findById(id: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Atualiza o status de um usuário.
-   * Usado na tela de admin.
-   */
+  /** Atualiza o status de um usuário (ex: BLOCKED, INACTIVE). */
   updateStatus(id: number, dto: UserStatusUpdateDTO): Observable<User> {
     return this.http.patch<User>(`${this.apiUrl}/${id}/status`, dto);
   }

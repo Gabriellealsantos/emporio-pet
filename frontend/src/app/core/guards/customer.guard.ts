@@ -3,40 +3,40 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { map, switchMap, take, of, catchError } from 'rxjs';
 
+/**
+ * Guarda de rota que verifica se o usuário autenticado tem a permissão de 'CLIENT'.
+ */
 export const customerGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Lógica robusta que espera o usuário ser carregado antes de decidir
   return authService.getCurrentUser().pipe(
     take(1),
+    // Passo 1: Garante que temos os dados do usuário, buscando na API se não estiverem em cache.
     switchMap(user => {
-      // Se o usuário já está na memória, usamos ele.
       if (user) {
         return of(user);
       }
-      // Se não, é um refresh (F5), então buscamos no backend.
       return authService.getMe();
     }),
+    // Passo 2: Verifica se o usuário obtido possui a permissão de 'ROLE_CLIENT'.
     map(user => {
       if (!user) {
         router.navigate(['/login']);
         return false;
       }
 
-      // Verifica se o usuário tem a permissão de CLIENT
       const isClient = user.roles?.some(r => r.authority === 'ROLE_CLIENT');
 
       if (isClient) {
-        return true; // É cliente, acesso permitido.
+        return true;
       }
 
-      // Se não for cliente, redireciona para um local seguro (home).
       router.navigate(['/home']);
       return false;
     }),
+    // Tratamento de erro: Em caso de falha, desloga o usuário e nega o acesso.
     catchError(() => {
-      // Se getMe() falhar, o token é inválido.
       authService.logout();
       return of(false);
     })

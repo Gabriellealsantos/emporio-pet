@@ -3,13 +3,16 @@ import { Router } from '@angular/router';
 import { catchError, finalize, map, of, switchMap, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LoadingService } from '../services/loading.service';
-import { NotificationService } from '../services/notification.service'; // ADICIONE ESTA IMPORTAÇÃO
+import { NotificationService } from '../services/notification.service';
 
+/**
+ * Guarda de rota que verifica a autenticação e o status do usuário antes de permitir o acesso.
+ */
 export const authGuard = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const loadingService = inject(LoadingService);
-  const notificationService = inject(NotificationService); // ADICIONE ESTA INJEÇÃO
+  const notificationService = inject(NotificationService);
 
   const token = authService.getToken();
   if (!token) {
@@ -21,25 +24,24 @@ export const authGuard = () => {
 
   return authService.getCurrentUser().pipe(
     take(1),
+    // Passo 1: Busca o usuário, priorizando o cache local antes de chamar a API.
     switchMap(userInCache => {
-      // Se já temos o usuário no cache do BehaviorSubject, usamos ele.
       if (userInCache) {
         return of(userInCache);
       }
-      // Se não, é o primeiro carregamento, buscamos na API.
       return authService.getMe();
     }),
+    // Passo 2: Valida o status do usuário obtido.
     map(user => {
-      // Se, por algum motivo, não conseguimos obter o usuário, bloqueamos.
       if (!user) {
         authService.logout();
         return false;
       }
 
-      // 👇 ESTA É A NOVA LÓGICA DE VERIFICAÇÃO DE STATUS
       if (user.userStatus !== 'NON_BLOCKED') {
         let message = 'Sua conta não tem permissão para acessar o sistema.';
-        if(user.userStatus === 'BLOCKED') {
+
+        if (user.userStatus === 'BLOCKED') {
           message = 'Sua conta foi bloqueada. Entre em contato com o suporte.';
         } else if (user.userStatus === 'INACTIVE') {
           message = 'Sua conta está inativa.';
@@ -47,19 +49,20 @@ export const authGuard = () => {
           message = 'Sua conta está suspensa.';
         }
 
-        notificationService.showError(message); // Mostra uma mensagem clara
-        authService.logout(); // Desloga o usuário
-        return false; // Impede a navegação
+        notificationService.showError(message);
+        authService.logout();
+        return false;
       }
 
-      // Se o status for NON_BLOCKED, permite o acesso.
       return true;
     }),
+    // Tratamento de erro: Se qualquer passo anterior falhar, desloga o usuário.
     catchError(() => {
       notificationService.showError('Sua sessão é inválida. Por favor, faça login novamente.');
       authService.logout();
       return of(false);
     }),
+    // Finalização: Garante que o indicador de loading seja escondido, com sucesso ou erro.
     finalize(() => loadingService.hide())
   );
 };

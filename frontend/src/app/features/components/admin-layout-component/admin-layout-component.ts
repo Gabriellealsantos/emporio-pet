@@ -27,6 +27,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../models/User';
 
+/** Componente que define a estrutura principal do layout da área administrativa. */
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
@@ -35,11 +36,16 @@ import { User } from '../../models/User';
   styleUrls: ['./admin-layout-component.css'],
 })
 export class AdminLayoutComponent implements OnInit {
+  /** Controla a visibilidade da barra lateral (sidebar). */
   isSidebarOpen = signal(false);
-  private authService = inject(AuthService);
+  /** Armazena os dados do usuário autenticado. */
   currentUser = signal<User | null>(null);
+  /** Controla a visibilidade do menu suspenso (dropdown) do usuário. */
   isDropdownOpen = signal(false);
+  /** Armazena o título da página atual, atualizado dinamicamente. */
+  pageTitle = signal('Carregando...');
 
+  /** Definições dos ícones do FontAwesome para uso no template. */
   faBars = faBars;
   faPaw = faPaw;
   faChartPie = faChartPie;
@@ -54,31 +60,35 @@ export class AdminLayoutComponent implements OnInit {
   faCashRegister = faCashRegister;
   faFileInvoiceDollar = faFileInvoiceDollar;
 
-  pageTitle = signal('Carregando...');
+  private authService = inject(AuthService);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
+  /** Inicializa o componente, subscrevendo ao usuário e configurando a atualização do título da página. */
   ngOnInit(): void {
-    // Função para extrair o título da rota ativa
+    this.authService.getCurrentUser().subscribe((user) => {
+      this.currentUser.set(user);
+    });
+
+    // Função auxiliar para extrair o título da rota mais profunda.
     const getTitleFromRoute = () => {
       let child = this.activatedRoute.firstChild;
       while (child?.firstChild) {
         child = child.firstChild;
       }
-      this.authService.getCurrentUser().subscribe((user) => {
-        this.currentUser.set(user);
-      });
       return child?.snapshot.data['title'] || '';
     };
 
-    // 1. Define o título inicial assim que o componente carrega
+    // Define o título inicial no carregamento do componente.
     const initialTitle = getTitleFromRoute();
     if (initialTitle) {
       this.pageTitle.set(initialTitle);
     }
 
-    // 2. Continua ouvindo por mudanças de rota para o futuro
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+    // Ouve por eventos de navegação para atualizar o título dinamicamente.
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd)
+    ).subscribe(() => {
       const title = getTitleFromRoute();
       if (title) {
         this.pageTitle.set(title);
@@ -86,24 +96,29 @@ export class AdminLayoutComponent implements OnInit {
     });
   }
 
+  /** Verifica se o usuário atual possui a permissão de Administrador. */
   isAdmin(): boolean {
     return this.currentUser()?.roles?.some(r => r.authority === 'ROLE_ADMIN') ?? false;
   }
 
+  /** Verifica se o usuário atual é um Caixa (e não um Administrador). */
   isCashier(): boolean {
     const isEmployee = this.currentUser()?.roles?.some(r => r.authority === 'ROLE_EMPLOYEE') ?? false;
     const jobTitle = this.currentUser()?.jobTitle?.toLowerCase() ?? '';
     return isEmployee && jobTitle === 'caixa' && !this.isAdmin();
   }
 
+  /** Alterna o estado de visibilidade da barra lateral. */
   toggleSidebar(): void {
     this.isSidebarOpen.set(!this.isSidebarOpen());
   }
 
+  /** Alterna o estado de visibilidade do menu do usuário. */
   toggleDropdown(): void {
     this.isDropdownOpen.set(!this.isDropdownOpen());
   }
 
+  /** Executa o processo de logout do usuário. */
   logout(): void {
     this.authService.logout();
   }

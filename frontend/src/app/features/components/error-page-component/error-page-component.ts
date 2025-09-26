@@ -1,8 +1,9 @@
-import { Component, ElementRef, OnInit, ViewChild, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, Inject, PLATFORM_ID, AfterViewInit, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { Rive, Fit, Alignment, Layout } from '@rive-app/canvas';
+import { Rive } from '@rive-app/canvas';
 
+/** Componente para a página de erro genérica (ex: Erro 500), exibindo uma animação. */
 @Component({
   selector: 'app-error-page',
   standalone: true,
@@ -10,14 +11,25 @@ import { Rive, Fit, Alignment, Layout } from '@rive-app/canvas';
   styleUrls: ['./error-page-component.css']
 })
 export class ErrorPageComponent implements AfterViewInit {
+  // ===================================================================
+  // INJEÇÕES DE DEPENDÊNCIA
+  // ===================================================================
+  private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
+
+  // ===================================================================
+  // REFERÊNCIAS DE TEMPLATE
+  // ===================================================================
+  /** Referência ao elemento canvas onde a animação do Rive será renderizada. */
   @ViewChild('riveCanvas', { static: true }) riveCanvas!: ElementRef<HTMLCanvasElement>;
 
-  constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private router: Router
-  ) { }
+  // ===================================================================
+  // MÉTODOS DO CICLO DE VIDA
+  // ===================================================================
 
- ngAfterViewInit(): void {
+  /** Inicializa a animação do Rive no canvas após a view ser renderizada. */
+  ngAfterViewInit(): void {
+    // Garante que a animação Rive, que manipula o DOM, só seja executada no navegador.
     if (isPlatformBrowser(this.platformId)) {
       new Rive({
         src: '/assets/rive/cat-playing.riv',
@@ -25,13 +37,15 @@ export class ErrorPageComponent implements AfterViewInit {
         artboard: 'Cat playing animation',
         animations: 'Cat playing animation',
         autoplay: true,
-        // A propriedade layout não é mais necessária,
-        // pois o CSS/HTML está controlando o posicionamento.
       });
     }
   }
 
+  // ===================================================================
+  // MÉTODOS DE NAVEGAÇÃO
+  // ===================================================================
 
+  /** Navega o usuário de volta para a página de login. */
   goHome(): void {
     this.router.navigate(['/login']);
   }

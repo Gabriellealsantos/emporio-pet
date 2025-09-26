@@ -3,13 +3,18 @@ import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } fr
 import { AuthService } from '../services/auth.service';
 import { map, switchMap, take, of, catchError } from 'rxjs';
 
+/**
+ * Guarda de rota que verifica se o usuário é ADMIN ou se é um CAIXA acessando rotas permitidas.
+ */
 export const adminGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
   return authService.getCurrentUser().pipe(
     take(1),
+    // Passo 1: Garante que temos os dados do usuário, buscando na API se não estiverem em cache.
     switchMap(user => (user ? of(user) : authService.getMe())),
+    // Passo 2: Aplica as regras de permissão baseadas nos papéis e cargo do usuário.
     map(user => {
       if (!user) {
         router.navigate(['/login']);
@@ -17,29 +22,24 @@ export const adminGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: 
       }
 
       const isAdmin = user.roles?.some(r => r.authority === 'ROLE_ADMIN');
-
-      // 1. Se for ADMIN, tem acesso a TUDO.
       if (isAdmin) {
         return true;
       }
 
-      // 2. Se não for ADMIN, verificamos se é um Caixa.
       const isCashier = user.jobTitle?.toLowerCase() === 'caixa';
-
       if (isCashier) {
-        // 3. Se for Caixa, verificamos se a rota que ele quer acessar é permitida.
         const allowedCashierRoutes = ['/admin/caixa', '/admin/faturas', '/admin/clientes'];
+        const isNavigatingToAllowedRoute = allowedCashierRoutes.some(allowedRoute => state.url.startsWith(allowedRoute));
 
-        // Usamos state.url para pegar a URL que o usuário está tentando acessar.
-        if (allowedCashierRoutes.some(allowedRoute => state.url.startsWith(allowedRoute))) {
-          return true; // Rota permitida para o Caixa.
+        if (isNavigatingToAllowedRoute) {
+          return true;
         }
       }
 
-      // 4. Se não for Admin e não for um Caixa tentando acessar uma rota permitida, o acesso é negado.
-      router.navigate(['/home']); // Redireciona para um local seguro.
+      router.navigate(['/home']);
       return false;
     }),
+    // Tratamento de erro: Em caso de falha na obtenção do usuário, desloga e nega o acesso.
     catchError(() => {
       authService.logout();
       return of(false);
