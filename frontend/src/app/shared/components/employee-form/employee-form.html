@@ -68,10 +68,10 @@
             type="password"
             formControlName="password"
             class="form-input"
-            placeholder="Senha (mín. 6 caracteres)"
+            placeholder="Senha (mín. 8 caracteres)"
           />
           @if (employeeForm.get('password')?.invalid && employeeForm.get('password')?.touched) {
-          <p class="error-message">Senha é obrigatória (mín. 6 caracteres).</p>
+          <p class="error-message">Senha é obrigatória (mín. 8 caracteres).</p>
           }
         </div>
 
