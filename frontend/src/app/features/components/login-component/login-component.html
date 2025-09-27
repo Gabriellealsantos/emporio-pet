@@ -1,7 +1,13 @@
 <div class="login-container">
   <div class="login-card">
     <div class="title">
-      <img routerLink="/home" class="nav-link-action" src="assets/icons/dog.svg" class="title-icon" alt="Ícone de cachorro" />
+      <img
+        routerLink="/home"
+        class="nav-link-action"
+        src="assets/icons/dog.svg"
+        class="title-icon"
+        alt="Ícone de cachorro"
+      />
       <h2 routerLink="/home" class="title-text nav-link-action">Entrar</h2>
     </div>
 
@@ -27,9 +33,9 @@
           formControlName="password"
         />
       </div>
-      @if (hasLoginError) {
+      @if (loginErrorMessage) {
       <div class="error-container" style="min-height: 40px; text-align: center">
-        <small class="error-message">Email ou senha inválidos.</small>
+        <small class="error-message">{{ loginErrorMessage }}</small>
       </div>
       }
       <div class="extra-links">

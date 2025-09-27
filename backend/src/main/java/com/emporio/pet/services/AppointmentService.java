@@ -39,7 +39,7 @@ public class AppointmentService {
     private final CustomerRepository customerRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository, ServiceRepository serviceRepository,
-                              EmployeeRepository employeeRepository, AuthService authService, PetRepository petRepository ,
+                              EmployeeRepository employeeRepository, AuthService authService, PetRepository petRepository,
                               CustomerRepository customerRepository) {
         this.appointmentRepository = appointmentRepository;
         this.serviceRepository = serviceRepository;
@@ -114,10 +114,15 @@ public class AppointmentService {
         if (employeeId != null) {
             Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new ResourceNotFoundException("Funcionário não encontrado"));
+            if (!employee.isAccountNonLocked()) {
+                return new ArrayList<>();
+            }
             if (!employee.getSkilledServices().contains(service)) return new ArrayList<>();
             qualifiedEmployees = List.of(employee);
         } else {
-            qualifiedEmployees = new ArrayList<>(service.getQualifiedEmployees());
+            qualifiedEmployees = service.getQualifiedEmployees().stream()
+                    .filter(User::isAccountNonLocked)
+                    .collect(Collectors.toList());
         }
         if (qualifiedEmployees.isEmpty()) return new ArrayList<>();
 
@@ -234,6 +239,9 @@ public class AppointmentService {
             // CENÁRIO 2: O cliente NÃO escolheu. O sistema encontra um.
             // (Esta é a lógica que já tínhamos implementado)
             designatedEmployee = findAvailableEmployeeForSlot(service, startTime);
+        }
+        if (!designatedEmployee.isAccountNonLocked()) {
+            throw new ConflictException("O profissional selecionado não está mais disponível.");
         }
 
         // 3. Criar e Salvar o Agendamento

@@ -110,10 +110,12 @@
 
             @if (isDropdownOpen()) {
             <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+              @if (isAdmin()) {
               <a routerLink="perfil" (click)="toggleDropdown()" class="dropdown-item">
                 <fa-icon [icon]="faUserCircle" class="mr-2"></fa-icon>
                 Meu Perfil
               </a>
+              }
               <button (click)="logout()" class="dropdown-item w-full text-left">
                 <fa-icon [icon]="faSignOutAlt" class="mr-2"></fa-icon>
                 Sair

@@ -33,7 +33,7 @@ export class LoginComponent {
   // ESTADO DO COMPONENTE E FORMULÁRIO
   // ===================================================================
   /** Controla a exibição da mensagem de erro de login. */
-  protected hasLoginError = false;
+  protected loginErrorMessage: string | null = null;
   /** Formulário reativo para a inserção de credenciais (e-mail e senha). */
   protected form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -46,7 +46,7 @@ export class LoginComponent {
 
   /** Lida com a submissão do formulário de login e o redirecionamento pós-sucesso. */
   onSubmit(): void {
-    this.hasLoginError = false;
+    this.loginErrorMessage = null;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -82,9 +82,13 @@ export class LoginComponent {
         // 4. Redireciona clientes existentes para seu dashboard.
         this.router.navigate(['/customer/dashboard']);
       },
-      error: (err) => {
+       error: (err) => {
         console.error('Erro no login:', err);
-        this.hasLoginError = true;
+        if (err.error && err.error.message) {
+          this.loginErrorMessage = err.error.message;
+        } else {
+          this.loginErrorMessage = 'Email ou senha inválidos.';
+        }
         this.cdr.detectChanges();
       }
     });

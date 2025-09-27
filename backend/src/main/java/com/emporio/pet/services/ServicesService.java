@@ -5,6 +5,7 @@ import com.emporio.pet.dto.ServicesDTO;
 import com.emporio.pet.dto.ServicesInsertDTO;
 import com.emporio.pet.dto.ServicesUpdateDTO;
 import com.emporio.pet.entities.Services;
+import com.emporio.pet.entities.User;
 import com.emporio.pet.repositories.ServiceRepository;
 import com.emporio.pet.services.exceptions.ConflictException;
 import com.emporio.pet.services.exceptions.ForbiddenException;
@@ -66,6 +67,7 @@ public class ServicesService {
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com o ID: " + serviceId));
 
         return service.getQualifiedEmployees().stream()
+                .filter(User::isAccountNonLocked)
                 .map(EmployeeDTO::new)
                 .collect(Collectors.toList());
     }

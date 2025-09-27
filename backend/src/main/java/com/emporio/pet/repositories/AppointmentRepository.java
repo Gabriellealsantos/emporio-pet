@@ -74,6 +74,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query(value = "SELECT a FROM Appointment a " +
             "JOIN FETCH a.pet p " +
             "JOIN FETCH a.service " +
+            "LEFT JOIN FETCH a.invoice " +
             "WHERE a.pet IN :pets " +
             "AND (:minDate IS NULL OR a.startDateTime >= :minDate) " +
             "AND (:maxDate IS NULL OR a.startDateTime <= :maxDate) " +

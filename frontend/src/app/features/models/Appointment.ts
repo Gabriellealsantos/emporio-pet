@@ -1,4 +1,5 @@
 import { AppointmentStatus } from "./AppointmentStatus";
+import { InvoiceStatus } from "./InvoiceStatus";
 import { Pet } from "./Pet";
 import { Review } from "./Review";
 import { Service } from "./Service";
@@ -14,4 +15,5 @@ export interface Appointment {
   employee: User;
   review?: Review;
   invoiceId?: number;
+  invoiceStatus?: InvoiceStatus;
 }

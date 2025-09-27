@@ -2,6 +2,7 @@ package com.emporio.pet.dto;
 
 import com.emporio.pet.entities.Appointment;
 import com.emporio.pet.entities.enums.AppointmentStatus;
+import com.emporio.pet.entities.enums.InvoiceStatus;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ public class AppointmentDTO {
     private EmployeeDTO employee;
     private ReviewDTO review;
     private Long invoiceId;
+    private InvoiceStatus invoiceStatus;
 
     public AppointmentDTO(Appointment entity) {
         this.id = entity.getId();
@@ -32,6 +34,13 @@ public class AppointmentDTO {
 
         if (entity.getInvoice() != null) {
             this.invoiceId = entity.getInvoice().getId();
+        }
+
+        if (entity.getInvoice() != null) {
+            this.invoiceId = entity.getInvoice().getId();
+            this.invoiceStatus = entity.getInvoice().getStatus();
+        } else {
+            this.invoiceStatus = null;
         }
     }
     public Long getId() {
@@ -68,5 +77,9 @@ public class AppointmentDTO {
 
     public Long getInvoiceId() {
         return invoiceId;
+    }
+
+    public InvoiceStatus getInvoiceStatus() {
+        return invoiceStatus;
     }
 }

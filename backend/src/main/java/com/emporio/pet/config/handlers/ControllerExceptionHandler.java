@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -175,15 +176,25 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
-
     private ResponseEntity<StandardError> buildErrorResponse(
             Exception e, String error, HttpStatus status, HttpServletRequest request) {
-
         StandardError err = new StandardError();
         err.setTimestamp(Instant.now());
         err.setStatus(status.value());
         err.setError(error);
         err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<StandardError> locked(LockedException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.LOCKED;
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("Account locked");
+        err.setMessage("Esta conta está bloqueada. Entre em contato com o suporte.");
         err.setPath(request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
