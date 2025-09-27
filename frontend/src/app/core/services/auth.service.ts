@@ -26,7 +26,6 @@ export class AuthService {
   private user$ = new BehaviorSubject<User | null>(null);
 
   constructor() {
-    this.loadUserOnStart();
   }
 
   /** Tenta carregar os dados do usuário no início da aplicação se um token existir. */

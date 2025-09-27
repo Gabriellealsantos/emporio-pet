@@ -12,7 +12,7 @@ INSERT INTO tb_service (name, description, price, estimated_duration_in_minutes,
 
 -- USUÁRIOS (Admin, Clientes, Funcionários)
 -- Senha para todos: '12345678'
-INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Gabriel Leal (Admin)', 'admin@pet.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '11911111111', '1990-01-01');
+INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Gabriel Leal (Admin)', 'gabrielleal.santos16@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '11911111111', '1990-01-01');
 INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Maria Silva (Cliente)', 'maria@gmail.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '11922222222', '1992-06-15');
 INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('João Santos (Banhista)', 'joao@pet.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '11933333333', '1995-12-01');
 INSERT INTO tb_user (name, email, password, user_status, phone, birth_date) VALUES ('Ana Costa (Veterinária)', 'ana@pet.com', '$2a$10$mIHRZwT3w/U7jsffXI2vcuTN0QTwbqzhZ4mdcPOd7vXuFxLaewI0u', 'NON_BLOCKED', '11944444444', '1993-10-20');
