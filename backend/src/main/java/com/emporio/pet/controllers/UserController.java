@@ -30,7 +30,7 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<Page<UserDTO>> findAll(
             Pageable pageable,
             @RequestParam(value = "searchTerm", required = false) String searchTerm,
