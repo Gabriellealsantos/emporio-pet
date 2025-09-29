@@ -10,12 +10,9 @@ export function noFutureDateValidator(): ValidatorFn {
     if (!control.value) {
       return null;
     }
-
     const selectedDate = new Date(control.value);
     const today = new Date();
-
     today.setHours(0, 0, 0, 0);
-
     if (selectedDate > today) {
       return { futureDate: true };
     }
@@ -23,8 +20,6 @@ export function noFutureDateValidator(): ValidatorFn {
   };
 }
 
-
-// Validador customizado para checar se as senhas são iguais
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');
@@ -52,7 +47,9 @@ export class EmployeeFormComponent {
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
-      birthDate: ['', Validators.required, noFutureDateValidator()],
+      // --- CORREÇÃO AQUI ---
+      // Os validadores devem estar dentro de um único array
+      birthDate: ['', [Validators.required, noFutureDateValidator()]],
       jobTitle: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required]
@@ -61,9 +58,12 @@ export class EmployeeFormComponent {
 
   onSave(): void {
     if (this.employeeForm.valid) {
-
       const { confirmPassword, ...formData } = this.employeeForm.value;
       this.save.emit(formData);
+    } else {
+      // Bónus: Isto garante que, se o formulário for submetido inválido,
+      // todas as mensagens de erro aparecem.
+      this.employeeForm.markAllAsTouched();
     }
   }
 
