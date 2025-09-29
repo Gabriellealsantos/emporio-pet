@@ -25,6 +25,7 @@
           @if (f['priceDisplay'].invalid && f['priceDisplay'].touched) {
             <div class="error-message">
               @if (f['priceDisplay'].errors?.['required']) { O texto de preço é obrigatório. }
+              @if (f['priceDisplay'].errors?.['noNumber']) { O texto deve conter um valor numérico. }
             </div>
           }
         </div>
@@ -33,6 +34,7 @@
           @if (f['durationDisplay'].invalid && f['durationDisplay'].touched) {
             <div class="error-message">
               @if (f['durationDisplay'].errors?.['required']) { O texto de duração é obrigatório. }
+              @if (f['durationDisplay'].errors?.['noNumber']) { O texto deve conter um valor numérico de tempo. }
             </div>
           }
         </div>
@@ -42,6 +44,12 @@
           <input id="imageUpload" type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/webp" class="form-input-file">
           @if (fileName) {
             <span class="file-name">{{ fileName }}</span>
+          }
+          @if (f['imageFile'].invalid && f['imageFile'].touched) {
+            <div class="error-message">
+              @if (f['imageFile'].errors?.['required']) { Uma imagem é obrigatória. }
+              @if (f['imageFile'].errors?.['fileSize']) { A imagem não pode ser maior que 2MB. }
+            </div>
           }
         </div>
 

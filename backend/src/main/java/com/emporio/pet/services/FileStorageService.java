@@ -1,5 +1,6 @@
 package com.emporio.pet.services;
 
+import org.springframework.beans.factory.annotation.Value; // IMPORTAR
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
@@ -14,11 +15,17 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private final Path rootLocation = Paths.get("uploaded-images");
+    // 1. Injeta o valor do application.properties
+    @Value("${storage.location}")
+    private String storageLocation;
+
+    private Path rootLocation;
 
     @PostConstruct
     public void init() {
         try {
+            // 2. Usa a variável para criar o caminho
+            this.rootLocation = Paths.get(storageLocation);
             Files.createDirectories(rootLocation);
         } catch (IOException e) {
             throw new RuntimeException("Não foi possível criar o diretório de upload!", e);

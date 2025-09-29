@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterOutlet, RouterLink, RouterModule } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faUserCircle, faSignOutAlt, faPaw } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faSignOutAlt, faPaw, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../models/User';
 
@@ -28,6 +28,8 @@ export class CustomerLayoutComponent implements OnInit {
   currentUser = signal<User | null>(null);
   /** Controla a visibilidade do menu suspenso (dropdown) do usuário. */
   isDropdownOpen = signal(false);
+  /** **NOVO:** Controla a visibilidade do menu mobile. */
+  isMobileMenuOpen = signal(false);
 
   // ===================================================================
   // ÍCONES
@@ -35,6 +37,9 @@ export class CustomerLayoutComponent implements OnInit {
   faUserCircle = faUserCircle;
   faSignOutAlt = faSignOutAlt;
   faPaw = faPaw;
+  /** **NOVOS:** Ícones para o botão do menu hambúrguer. */
+  faBars = faBars;
+  faTimes = faTimes;
 
   // ===================================================================
   // MÉTODOS DO CICLO DE VIDA
@@ -54,6 +59,11 @@ export class CustomerLayoutComponent implements OnInit {
   /** Alterna o estado de visibilidade do menu do usuário. */
   toggleDropdown(): void {
     this.isDropdownOpen.set(!this.isDropdownOpen());
+  }
+
+  /** **NOVO:** Alterna o estado de visibilidade do menu mobile. */
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.set(!this.isMobileMenuOpen());
   }
 
   /** Executa o processo de logout do usuário. */
