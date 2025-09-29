@@ -17,6 +17,7 @@ import { Page } from '../../models/PageModel';
 import { ReviewModalComponent } from "../../../shared/components/review-modal/review-modal";
 import { InvoiceDetailModalComponent } from "../../../shared/components/invoice-detail-modal/invoice-detail-modal";
 import { AppointmentStatus } from '../../models/AppointmentStatus';
+import { InvoiceStatus } from '../../models/InvoiceStatus';
 
 /** Validador customizado para garantir que a data final não seja anterior à data inicial. */
 export const dateRangeValidator: ValidatorFn = (
@@ -182,6 +183,19 @@ export class CustomerAppointmentHistoryComponent implements OnInit {
       'COMPLETED': 'Concluído',
       'CANCELED': 'Cancelado',
       'NO_SHOW': 'Não Compareceu'
+    };
+    return map[status] || status;
+  }
+
+   /** Traduz uma chave de status da FATURA para um texto legível em português. */
+  translateInvoiceStatus(status: InvoiceStatus | undefined | null): string {
+    if (!status) return ''; // Se não houver status, não retorna nada.
+
+    const map: { [key in InvoiceStatus]: string } = {
+      'PENDING': 'Pendente',
+      'AWAITING_PAYMENT': 'Pendente', // Trata AWAITING_PAYMENT como Pendente
+      'PAID': 'Pago',
+      'CANCELED': 'Cancelado'
     };
     return map[status] || status;
   }

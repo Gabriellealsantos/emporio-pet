@@ -60,18 +60,13 @@
           <span
             class="px-2 py-1 text-xs font-medium rounded-full"
             [ngClass]="{
-              'bg-yellow-100 text-yellow-800': app.invoiceStatus === 'PENDING',
+              'bg-yellow-100 text-yellow-800':
+                app.invoiceStatus === 'PENDING' || app.invoiceStatus === 'AWAITING_PAYMENT',
               'bg-green-100 text-green-800': app.invoiceStatus === 'PAID',
               'bg-red-100 text-red-800': app.invoiceStatus === 'CANCELED'
             }"
           >
-            {{
-              app.invoiceStatus === 'PENDING'
-                ? 'Pendente'
-                : app.invoiceStatus === 'PAID'
-                ? 'Pago'
-                : 'Cancelado'
-            }}
+            {{ translateInvoiceStatus(app.invoiceStatus) }}
           </span>
           }
         </div>
