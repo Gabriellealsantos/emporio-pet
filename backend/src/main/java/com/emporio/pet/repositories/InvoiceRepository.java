@@ -84,4 +84,30 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
      * Retorna as últimas 5 faturas de um determinado status.
      */
     List<Invoice> findTop5ByStatusOrderByTimestampDesc(InvoiceStatus status);
+
+    /**
+     * Busca faturas filtrando por nome OU CPF do cliente, intervalo de datas e status.
+     * Esta é uma consulta mista que lida com ambos os cenários.
+     */
+    @Query(value = "SELECT i FROM Invoice i JOIN i.customer c WHERE " +
+            "(:customerName IS NULL OR UPPER(c.name) LIKE UPPER(CONCAT('%', :customerName, '%'))) AND " +
+            "(:customerCpf IS NULL OR c.cpf LIKE CONCAT('%', :customerCpf, '%')) AND " +
+            "(:minDate IS NULL OR i.timestamp >= :minDate) AND " +
+            "(:maxDate IS NULL OR i.timestamp <= :maxDate) AND " +
+            "(:status IS NULL OR i.status = :status)",
+
+            countQuery = "SELECT COUNT(i) FROM Invoice i JOIN i.customer c WHERE " +
+                    "(:customerName IS NULL OR UPPER(c.name) LIKE UPPER(CONCAT('%', :customerName, '%'))) AND " +
+                    "(:customerCpf IS NULL OR c.cpf LIKE CONCAT('%', :customerCpf, '%')) AND " +
+                    "(:minDate IS NULL OR i.timestamp >= :minDate) AND " +
+                    "(:maxDate IS NULL OR i.timestamp <= :maxDate) AND " +
+                    "(:status IS NULL OR i.status = :status)")
+    Page<Invoice> findFiltered(
+            Pageable pageable,
+            @Param("customerName") String customerName,
+            @Param("customerCpf") String customerCpf,
+            @Param("minDate") Instant minDate,
+            @Param("maxDate") Instant maxDate,
+            @Param("status") InvoiceStatus status
+    );
 }

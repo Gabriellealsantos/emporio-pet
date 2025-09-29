@@ -73,17 +73,6 @@ public class InvoiceService {
     }
 
     /**
-     * Lista faturas filtrando por nome do cliente e demais filtros.
-     */
-    @Transactional(readOnly = true)
-    public Page<InvoiceDTO> find(Pageable pageable, String customerName, Instant minDate, Instant maxDate, InvoiceStatus status) {
-
-        Page<Invoice> page = invoiceRepository.findFiltered(pageable, customerName, minDate, maxDate, status);
-
-        return page.map(InvoiceDTO::new);
-    }
-
-    /**
      * Cria uma nova fatura a partir de agendamentos: valida permissões, consistência e persiste a fatura.
      */
     @Transactional
@@ -158,6 +147,32 @@ public class InvoiceService {
         invoice = invoiceRepository.save(invoice);
 
         return new InvoiceDTO(invoice);
+    }
+
+    /**
+     * Lista faturas com filtros, incluindo uma busca "inteligente" por nome ou CPF do cliente.
+     */
+    @Transactional(readOnly = true)
+    public Page<InvoiceDTO> find(Pageable pageable, String searchTerm, Instant minDate, Instant maxDate, InvoiceStatus status) {
+
+        String customerName = null;
+        String customerCpf = null;
+
+        // Lógica para determinar se o termo de busca é um nome ou um CPF
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            // Remove todos os caracteres não numéricos. Se o resultado for um CPF válido, usamos a busca por CPF.
+            String numericTerm = searchTerm.replaceAll("[^0-9]", "");
+            if (numericTerm.length() > 0) { // Pode ajustar para .length() == 11 se quiser ser mais estrito
+                customerCpf = numericTerm;
+            } else {
+                customerName = searchTerm;
+            }
+        }
+
+        // Chama o nosso novo e único método do repositório
+        Page<Invoice> page = invoiceRepository.findFiltered(pageable, customerName, customerCpf, minDate, maxDate, status);
+
+        return page.map(InvoiceDTO::new);
     }
 
 }

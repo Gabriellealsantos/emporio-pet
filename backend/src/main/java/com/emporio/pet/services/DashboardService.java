@@ -5,10 +5,7 @@ import com.emporio.pet.dto.RecentActivityDTO;
 import com.emporio.pet.entities.Appointment;
 import com.emporio.pet.entities.Customer;
 import com.emporio.pet.entities.enums.InvoiceStatus;
-import com.emporio.pet.repositories.AppointmentRepository;
-import com.emporio.pet.repositories.CustomerRepository;
-import com.emporio.pet.repositories.InvoiceRepository;
-import com.emporio.pet.repositories.PetRepository;
+import com.emporio.pet.repositories.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,17 +28,19 @@ public class DashboardService {
     private final CustomerRepository customerRepository;
     private final InvoiceRepository invoiceRepository;
     private final PetRepository petRepository;
+    private final EmployeeRepository employeeRepository;
 
     public DashboardService(AppointmentRepository appointmentRepository,
                             CustomerRepository customerRepository,
                             InvoiceRepository invoiceRepository,
-                            PetRepository petRepository) {
+                            PetRepository petRepository,
+                            EmployeeRepository employeeRepository) {
         this.appointmentRepository = appointmentRepository;
         this.customerRepository = customerRepository;
         this.invoiceRepository = invoiceRepository;
         this.petRepository = petRepository;
+        this.employeeRepository = employeeRepository;
     }
-
     @Transactional(readOnly = true)
     public DashboardDTO getDashboardData() {
         DashboardDTO dto = new DashboardDTO();
@@ -117,6 +116,17 @@ public class DashboardService {
             activity.setTitle("Novo pet cadastrado");
             activity.setDescription(pet.getName() + " (Dono(a): " + pet.getOwner().getName() + ")");
             activity.setTimestamp(pet.getOwner().getCreationTimestamp());
+            recentActivities.add(activity);
+        });
+
+
+        // --- ATIVIDADE 6: NOVOS FUNCIONÁRIOS (NOVO BLOCO) ---
+        employeeRepository.findTop5ByOrderByCreationTimestampDesc().forEach(employee -> {
+            RecentActivityDTO activity = new RecentActivityDTO();
+            activity.setType("NEW_EMPLOYEE");
+            activity.setTitle("Novo funcionário admitido");
+            activity.setDescription(employee.getName() + " (" + employee.getJobTitle() + ")");
+            activity.setTimestamp(employee.getCreationTimestamp());
             recentActivities.add(activity);
         });
 

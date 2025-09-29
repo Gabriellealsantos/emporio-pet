@@ -77,11 +77,11 @@ export class EmployeeDetailComponent implements OnInit {
   // ===================================================================
   constructor() {
     this.employeeForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(3)]], // <-- ALTERAÇÃO
       email: [{ value: '', disabled: true }],
       phone: ['', Validators.required],
-      birthDate: [''],
-      jobTitle: [''],
+      birthDate: ['', Validators.required], // <-- ALTERAÇÃO
+      jobTitle: ['', Validators.required], // <-- ALTERAÇÃO
       status: ['']
     });
   }
@@ -136,8 +136,11 @@ export class EmployeeDetailComponent implements OnInit {
 
   /** Lida com a submissão do formulário para atualizar os dados do funcionário. */
   onSubmit(): void {
+    // <-- ALTERAÇÃO: Marca todos os campos como "tocados" para exibir os erros.
+    this.employeeForm.markAllAsTouched();
+
     if (this.employeeForm.invalid) {
-      this.notificationService.showError('Por favor, verifique os campos do formulário.');
+      this.notificationService.showError('Por favor, corrija os erros no formulário.');
       return;
     }
     const employeeId = this.employee()?.id;

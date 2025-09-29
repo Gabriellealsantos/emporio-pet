@@ -1,13 +1,20 @@
 <div class="container mx-auto px-4 py-8">
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-   <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Gerenciamento de Funcionários</h1>
-    <button (click)="openCreateEmployeeModal()" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Gerenciamento de Funcionários</h1>
+    <button
+      (click)="openCreateEmployeeModal()"
+      class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+    >
       <fa-icon [icon]="faUserPlus" class="mr-2"></fa-icon>
       Adicionar Novo Funcionário
     </button>
     @if (isEmployeeModalOpen()) {
-    <app-employee-form (save)="onSaveEmployee($event)" (close)="closeEmployeeModal()">
-    </app-employee-form>
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+        <app-employee-form (save)="onSaveEmployee($event)" (close)="closeEmployeeModal()">
+        </app-employee-form>
+      </div>
+    </div>
     }
   </div>
 

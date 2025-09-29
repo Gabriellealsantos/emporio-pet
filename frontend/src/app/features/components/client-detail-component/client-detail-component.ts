@@ -69,11 +69,11 @@ export class ClientDetailComponent implements OnInit {
   // ===================================================================
   constructor() {
     this.clientForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(3)]], // <-- ALTERAÇÃO
       email: [{ value: '', disabled: true }],
       cpf: ['', Validators.required],
       phone: ['', Validators.required],
-      birthDate: [''],
+      birthDate: ['', Validators.required], // <-- ALTERAÇÃO
       status: ['']
     });
   }
@@ -119,8 +119,11 @@ export class ClientDetailComponent implements OnInit {
 
   /** Lida com a submissão do formulário para atualizar os dados do cliente. */
   onSubmit(): void {
+    // Marca todos os campos como "tocados" para exibir as mensagens de erro
+    this.clientForm.markAllAsTouched();
+
     if (this.clientForm.invalid) {
-      this.notificationService.showError('Por favor, preencha todos os campos obrigatórios.');
+      this.notificationService.showError('Por favor, corrija os erros no formulário.');
       return;
     }
     const clientId = this.client()?.id;
@@ -128,6 +131,8 @@ export class ClientDetailComponent implements OnInit {
       this.customerService.update(clientId, this.clientForm.value).subscribe({
         next: (updatedClient) => {
           this.client.set(updatedClient);
+          // Marca o formulário como "pristine" após salvar para desabilitar o botão novamente
+          this.clientForm.markAsPristine();
           this.notificationService.showSuccess('Cliente atualizado com sucesso!');
         },
         error: (err) => this.notificationService.showError(err.error?.message || 'Erro ao atualizar cliente.')

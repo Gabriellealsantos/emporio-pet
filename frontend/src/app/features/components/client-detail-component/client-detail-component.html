@@ -31,22 +31,47 @@
               <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
               <input type="text" formControlName="name" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg">
             </div>
+            @if(clientForm.controls['name'].invalid && (clientForm.controls['name'].dirty || clientForm.controls['name'].touched)) {
+              <div class="text-red-500 text-xs -mt-3 ml-2">
+                @if(clientForm.controls['name'].errors?.['required']) { <small>O nome é obrigatório.</small> }
+                @if(clientForm.controls['name'].errors?.['minlength']) { <small>O nome deve ter no mínimo 3 caracteres.</small> }
+              </div>
+            }
+
             <div class="relative">
               <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
               <input type="email" formControlName="email" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
             </div>
+
             <div class="relative">
               <fa-icon [icon]="faIdCard" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
               <input type="text" formControlName="cpf" mask="000.000.000-00" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg">
             </div>
+            @if(clientForm.controls['cpf'].invalid && (clientForm.controls['cpf'].dirty || clientForm.controls['cpf'].touched)) {
+              <div class="text-red-500 text-xs -mt-3 ml-2">
+                @if(clientForm.controls['cpf'].errors?.['required']) { <small>O CPF é obrigatório.</small> }
+              </div>
+            }
+
             <div class="relative">
               <fa-icon [icon]="faPhone" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
               <input type="tel" formControlName="phone" mask="(00) 00000-0000" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg">
             </div>
+             @if(clientForm.controls['phone'].invalid && (clientForm.controls['phone'].dirty || clientForm.controls['phone'].touched)) {
+              <div class="text-red-500 text-xs -mt-3 ml-2">
+                @if(clientForm.controls['phone'].errors?.['required']) { <small>O telefone é obrigatório.</small> }
+              </div>
+            }
+
             <div class="relative">
               <fa-icon [icon]="faCalendar" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></fa-icon>
               <input type="date" formControlName="birthDate" class="w-full pl-10 py-2 px-4 border border-gray-300 rounded-lg">
             </div>
+            @if(clientForm.controls['birthDate'].invalid && (clientForm.controls['birthDate'].dirty || clientForm.controls['birthDate'].touched)) {
+              <div class="text-red-500 text-xs -mt-3 ml-2">
+                @if(clientForm.controls['birthDate'].errors?.['required']) { <small>A data de nascimento é obrigatória.</small> }
+              </div>
+            }
           </div>
           <button type="submit" [disabled]="clientForm.pristine || clientForm.invalid" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition disabled:bg-blue-300 disabled:cursor-not-allowed">
             Salvar Alterações
@@ -95,7 +120,8 @@
         </div>
       </div>
     </div>
-  </form> </div>
+  </form>
+</div>
 
 @if (isPetModalOpen()) {
   <app-pet-form

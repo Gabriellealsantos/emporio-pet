@@ -4,6 +4,7 @@
     <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Gerenciamento de Agendamentos</h1>
   </div>
 
+  <!-- Filtros -->
   <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div>
@@ -57,41 +58,61 @@
     </div>
   </div>
 
+  <!-- Tabela -->
   <div class="bg-white rounded-lg shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th class="table-header">Data/Hora</th>
-            <th class="table-header">Cliente</th>
-            <th class="table-header">Pet</th>
-            <th class="table-header">Serviço</th>
-            <th class="table-header">Funcionário</th>
-            <th class="table-header">Status</th>
-            <th class="table-header">Avaliação</th>
-            <th class="table-header text-right">Ações</th>
+            <th class="table-header whitespace-nowrap">Data/Hora</th>
+            <th class="table-header whitespace-nowrap">Cliente</th>
+            <th class="table-header whitespace-nowrap">Pet</th>
+            <th class="table-header whitespace-nowrap">Serviço</th>
+            <th class="table-header whitespace-nowrap">Funcionário</th>
+            <th class="table-header whitespace-nowrap">Status</th>
+            <th class="table-header whitespace-nowrap">Avaliação</th>
+            <th class="table-header text-right whitespace-nowrap">Ações</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          @if (!isLoading()) { @for (appointment of appointments(); track appointment.id) {
+          @if (!isLoading()) {
+          @for (appointment of appointments(); track appointment.id) {
           <tr class="hover:bg-gray-50">
-            <td class="table-cell font-medium">
+            <td data-label="Data/Hora" class="table-cell font-medium">
               {{ appointment.startDateTime | date : 'dd/MM/yyyy HH:mm' }}
             </td>
-            <td class="table-cell text-gray-500">{{ appointment.pet.owner.name }}</td>
-            <td class="table-cell text-gray-500">{{ appointment.pet.name }}</td>
-            <td class="table-cell text-gray-500">{{ appointment.service.name }}</td>
-            <td class="table-cell text-gray-500">{{ appointment.employee.name }}</td>
-            <td class="table-cell">
-              @switch (appointment.status) { @case ('SCHEDULED') {
-              <span class="badge-info">Agendado</span> } @case ('IN_PROGRESS') {
-              <span class="badge-warning">Em Andamento</span> } @case ('COMPLETED') {
-              <span class="badge-success">Concluído</span> } @case ('CANCELED') {
-              <span class="badge-danger">Cancelado</span> } @case ('NO_SHOW') {
-              <span class="badge-neutral">Não Compareceu</span> } }
+            <td data-label="Cliente" class="table-cell text-gray-500">
+              {{ appointment.pet.owner.name }}
+            </td>
+            <td data-label="Pet" class="table-cell text-gray-500">
+              {{ appointment.pet.name }}
+            </td>
+            <td data-label="Serviço" class="table-cell text-gray-500">
+              {{ appointment.service.name }}
+            </td>
+            <td data-label="Funcionário" class="table-cell text-gray-500">
+              {{ appointment.employee.name }}
+            </td>
+            <td data-label="Status" class="table-cell">
+              @switch (appointment.status) {
+              @case ('SCHEDULED') {
+              <span class="badge-info">Agendado</span>
+              }
+              @case ('IN_PROGRESS') {
+              <span class="badge-warning">Em Andamento</span>
+              }
+              @case ('COMPLETED') {
+              <span class="badge-success">Concluído</span>
+              }
+              @case ('CANCELED') {
+              <span class="badge-danger">Cancelado</span>
+              }
+              @case ('NO_SHOW') {
+              <span class="badge-neutral">Não Compareceu</span>
+              } }
             </td>
 
-            <td class="table-cell text-xs text-gray-600 max-w-xs">
+            <td data-label="Avaliação" class="table-cell text-xs text-gray-600 max-w-xs">
               @if (appointment.review; as review) {
               <div class="flex items-start gap-2">
                 <div class="flex-grow">
@@ -117,17 +138,19 @@
               }
             </td>
 
-            <td class="table-cell text-right">
+            <!-- Ações ajustado para responsividade -->
+            <td data-label="Ações" class="table-cell text-right whitespace-nowrap">
               <select
                 [ngModel]="appointment.status"
                 (ngModelChange)="requestStatusChange(appointment, $event)"
-                class="form-input py-1 text-xs"
+                class="form-input py-1 text-xs min-w-[120px] w-full sm:w-auto"
                 [disabled]="appointment.status === 'COMPLETED' || appointment.status === 'CANCELED'"
               >
                 <option [value]="appointment.status" disabled>
                   {{ translateStatus(appointment.status) }}
                 </option>
-                @for (status of statusList; track status) { @if (status !== appointment.status) {
+                @for (status of statusList; track status) {
+                @if (status !== appointment.status) {
                 <option [value]="status">{{ translateStatus(status) }}</option>
                 } }
               </select>
@@ -141,13 +164,16 @@
           </tr>
           } } @else {
           <tr>
-            <td colspan="8" class="text-center text-gray-500 py-6">Carregando agendamentos...</td>
+            <td colspan="8" class="text-center text-gray-500 py-6">
+              Carregando agendamentos...
+            </td>
           </tr>
           }
         </tbody>
       </table>
     </div>
 
+    <!-- Paginação -->
     @if (totalPages() > 1) {
     <div class="px-6 py-3 bg-gray-50 flex items-center justify-between border-t">
       <div class="text-sm text-gray-700">

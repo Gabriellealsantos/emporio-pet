@@ -31,7 +31,13 @@
         </div>
 
         <div>
-          <input type="text" formControlName="phone" class="form-input" placeholder="Telefone" />
+          <input
+            type="text"
+            formControlName="phone"
+            class="form-input"
+            placeholder="Telefone"
+            mask="(00) 00000-0000"
+          />
           @if (employeeForm.get('phone')?.invalid && employeeForm.get('phone')?.touched) {
           <p class="error-message">Telefone é obrigatório.</p>
           }
@@ -47,7 +53,13 @@
             onblur="(this.type='text')"
           />
           @if (employeeForm.get('birthDate')?.invalid && employeeForm.get('birthDate')?.touched) {
-          <p class="error-message">Data de Nascimento é obrigatória.</p>
+          <div class="error-message">
+            @if (employeeForm.get('birthDate')?.hasError('required')) {
+            <p>Data de Nascimento é obrigatória.</p>
+            } @if (employeeForm.get('birthDate')?.hasError('futureDate')) {
+            <p>A data não pode ser no futuro.</p>
+            }
+          </div>
           }
         </div>
 

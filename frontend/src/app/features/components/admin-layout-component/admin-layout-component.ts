@@ -10,7 +10,6 @@ import {
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import {
   faBars,
-  faBell,
   faCalendarAlt,
   faCashRegister,
   faChartPie,
@@ -49,7 +48,6 @@ export class AdminLayoutComponent implements OnInit {
   faBars = faBars;
   faPaw = faPaw;
   faChartPie = faChartPie;
-  faBell = faBell;
   faUser = faUser;
   faCalendarAlt = faCalendarAlt;
   faCut = faCut;

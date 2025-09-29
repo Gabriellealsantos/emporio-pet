@@ -1,11 +1,11 @@
 import { Appointment } from "./Appointment";
-import { User } from "./User";
+import { Customer } from "./Customer";
 
 export interface Invoice {
   id: number;
   timestamp: string;
   totalAmount: number;
   status: 'AWAITING_PAYMENT' | 'PAID' | 'CANCELED';
-  customer: User;
+  customer: Customer;
   appointments: Appointment[];
 }

@@ -162,7 +162,11 @@ export class AppointmentsPageComponent implements OnInit {
 
   /** Carrega a lista de funcionários para popular o dropdown de filtro. */
   loadEmployeesForFilter(): void {
-    this.employeeService.findAll({ size: 1000 }).subscribe({
+    const filters = {
+      size: 1000,
+      status: 'NON_BLOCKED'
+    };
+    this.employeeService.findAll(filters).subscribe({
       next: (pageResponse) => this.employeesForFilter.set(pageResponse.content)
     });
   }

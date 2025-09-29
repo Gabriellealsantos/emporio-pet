@@ -37,12 +37,12 @@ public class InvoiceController {
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN', 'CLIENT')")
     public ResponseEntity<Page<InvoiceDTO>> find(
             Pageable pageable,
-            @RequestParam(value = "customerName", required = false) String customerName,
+            @RequestParam(value = "searchTerm", required = false) String searchTerm,
             @RequestParam(value = "minDate", required = false) Instant minDate,
             @RequestParam(value = "maxDate", required = false) Instant maxDate,
             @RequestParam(value = "status", required = false) InvoiceStatus status) {
 
-        Page<InvoiceDTO> page = invoiceService.find(pageable, customerName, minDate, maxDate, status);
+        Page<InvoiceDTO> page = invoiceService.find(pageable, searchTerm, minDate, maxDate, status);
         return ResponseEntity.ok(page);
     }
 

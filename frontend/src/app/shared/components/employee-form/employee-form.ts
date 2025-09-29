@@ -3,6 +3,26 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validatio
 import { CommonModule } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { NgxMaskDirective } from 'ngx-mask';
+
+export function noFutureDateValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null;
+    }
+
+    const selectedDate = new Date(control.value);
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate > today) {
+      return { futureDate: true };
+    }
+    return null;
+  };
+}
+
 
 // Validador customizado para checar se as senhas são iguais
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -14,7 +34,7 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
 @Component({
   selector: 'app-employee-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FaIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, FaIconComponent, NgxMaskDirective],
   templateUrl: './employee-form.html',
   styleUrls: ['../pet-form/pet-form.css']
 })
@@ -32,9 +52,9 @@ export class EmployeeFormComponent {
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
-      birthDate: ['', Validators.required],
+      birthDate: ['', Validators.required, noFutureDateValidator()],
       jobTitle: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required]
     }, { validators: passwordMatchValidator });
   }

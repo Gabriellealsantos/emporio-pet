@@ -17,3 +17,60 @@
 .table-cell {
   @apply px-6 py-4 whitespace-nowrap text-sm;
 }
+
+/* Media query para aplicar os estilos apenas em telas pequenas (ex: até 768px) */
+@media (max-width: 768px) {
+
+  /* 1. Esconde o cabeçalho da tabela, pois os rótulos estarão nos cards. */
+  .min-w-full thead {
+    display: none;
+  }
+
+  /* 2. Remove o comportamento de tabela e faz tudo ser exibido em blocos. */
+  .min-w-full,
+  .min-w-full tbody,
+  .min-w-full tr,
+  .min-w-full td {
+    display: block;
+    width: 100%;
+  }
+
+  /* 3. Transforma cada linha (tr) num card com espaçamento e sombra. */
+  .min-w-full tr {
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  /* 4. Estiliza cada célula (td) e usa o "data-label" para criar o rótulo. */
+  .min-w-full td {
+    padding: 0.75rem 0.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: right;
+  }
+
+  .min-w-full tr td:last-child {
+    border-bottom: none; /* Remove a borda da última célula de cada card */
+  }
+
+  /* 5. A mágica acontece aqui: O pseudo-elemento "::before" insere o conteúdo
+     do atributo "data-label" antes do conteúdo da célula. */
+  .min-w-full td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+    margin-right: 1rem;
+    color: #4b5563;
+  }
+
+  /* Ajuste específico para o dropdown de ações no modo card */
+  .min-w-full td[data-label="Ações"] select {
+    width: auto;
+    max-width: 150px;
+  }
+}

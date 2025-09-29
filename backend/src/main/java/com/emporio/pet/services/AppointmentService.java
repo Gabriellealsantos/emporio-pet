@@ -188,9 +188,18 @@ public class AppointmentService {
         if (customerWithPets.getPets().isEmpty()) {
             return Collections.emptyList();
         }
+        
+        List<AppointmentStatus> validStatuses = List.of(
+                AppointmentStatus.SCHEDULED,
+                AppointmentStatus.IN_PROGRESS
+        );
 
         List<Appointment> appointments = appointmentRepository
-                .findByPetInAndStartDateTimeAfterOrderByStartDateTimeAsc(customerWithPets.getPets(), LocalDateTime.now());
+                .findByPetInAndStartDateTimeAfterAndStatusInOrderByStartDateTimeAsc(
+                        customerWithPets.getPets(),
+                        LocalDateTime.now(),
+                        validStatuses
+                );
 
         return appointments.stream().map(AppointmentDTO::new).collect(Collectors.toList());
     }

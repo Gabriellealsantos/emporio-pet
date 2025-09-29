@@ -109,10 +109,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findTop5ByOrderByStartDateTimeDesc();
 
     /**
-     * Retorna próximos agendamentos de uma lista de pets, ordenados pela data mais próxima.
+     * Retorna próximos agendamentos de uma lista de pets, com status específicos,
+     * ordenados pela data mais próxima.
      */
-    List<Appointment> findByPetInAndStartDateTimeAfterOrderByStartDateTimeAsc(
+    List<Appointment> findByPetInAndStartDateTimeAfterAndStatusInOrderByStartDateTimeAsc(
             List<Pet> pets,
-            LocalDateTime now
+            LocalDateTime now,
+            List<AppointmentStatus> statuses
     );
 }

@@ -73,7 +73,7 @@ export class ProfileComponent implements OnInit {
       name: [user.name, Validators.required],
       phone: [user.phone, Validators.required],
       birthDate: [user.birthDate, Validators.required],
-      cpf: [user.cpf ?? null],
+      cpf: [user.cpf, Validators.required],
     });
 
     this.passwordForm = this.fb.group({
