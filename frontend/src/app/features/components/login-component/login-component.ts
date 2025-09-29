@@ -9,16 +9,9 @@ import { User } from '../../models/User';
 @Component({
   selector: 'app-login-component',
   standalone: true,
-  imports: [
-    ButtonComponent,
-    ReactiveFormsModule,
-    RouterLink
-  ],
+  imports: [ButtonComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './login-component.html',
-  styleUrls: [
-    './login-component.css',
-    '../../../shared/styles/form-card.css'
-  ],
+  styleUrls: ['./login-component.css', '../../../shared/styles/form-card.css'],
 })
 export class LoginComponent {
   // ===================================================================
@@ -54,8 +47,8 @@ export class LoginComponent {
 
     this.authService.login(this.form.value).subscribe({
       next: (user: User) => {
-        const isAdmin = user.roles?.some(r => r.authority === 'ROLE_ADMIN');
-        const isEmployee = user.roles?.some(r => r.authority === 'ROLE_EMPLOYEE');
+        const isAdmin = user.roles?.some((r) => r.authority === 'ROLE_ADMIN');
+        const isEmployee = user.roles?.some((r) => r.authority === 'ROLE_EMPLOYEE');
 
         // 1. Redireciona administradores para o dashboard principal.
         if (isAdmin) {
@@ -75,14 +68,14 @@ export class LoginComponent {
 
         // 3. Redireciona novos clientes para o onboarding para cadastrar um pet.
         if (!user.pets || user.pets.length === 0) {
-          this.router.navigate(['/onboarding']);
+          this.router.navigate(['/customer/onboarding']);
           return;
         }
 
         // 4. Redireciona clientes existentes para seu dashboard.
         this.router.navigate(['/customer/dashboard']);
       },
-       error: (err) => {
+      error: (err) => {
         console.error('Erro no login:', err);
         if (err.error && err.error.message) {
           this.loginErrorMessage = err.error.message;
@@ -90,7 +83,7 @@ export class LoginComponent {
           this.loginErrorMessage = 'Email ou senha inválidos.';
         }
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 }

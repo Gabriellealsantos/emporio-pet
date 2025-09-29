@@ -53,6 +53,14 @@ export const routes: Routes = [
   },
 
   {
+    path: 'customer/onboarding', // Mantemos o path para consistência
+    loadComponent: () => import('./features/components/onboarding-component/onboarding-component').then(m => m.OnboardingComponent),
+    canActivate: [authGuard, customerGuard], // Adicionamos as guardas aqui
+    data: { title: 'Primeiros Passos' }
+  },
+
+
+  {
     path: 'customer', // Caminho base para o cliente
     component: CustomerLayoutComponent,
     canActivate: [authGuard, customerGuard],
@@ -61,7 +69,6 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: CustomerDashboardComponent, data: { title: 'Minha Área' } },
       { path: 'agendar', loadComponent: () => import('./features/components/schedule-appointment-page-component/schedule-appointment-page-component').then(m => m.ScheduleAppointmentPageComponent), data: { title: 'Agendar Serviço' } },
-      { path: 'onboarding', loadComponent: () => import('./features/components/onboarding-component/onboarding-component').then(m => m.OnboardingComponent), data: { title: 'Primeiros Passos' } },
       { path: 'perfil', loadComponent: () => import('./features/components/profile-page-component/profile-page-component').then(m => m.ProfileComponent), data: { title: 'Meu Perfil' } },
       { path: 'meus-pets', component: CustomerPetListComponent, data: { title: 'Meus Pets' } },
       { path: 'historico', component: CustomerAppointmentHistoryComponent, data: { title: 'Histórico de Agendamentos' } },

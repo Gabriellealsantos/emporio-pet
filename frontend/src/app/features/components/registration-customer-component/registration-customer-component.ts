@@ -103,7 +103,7 @@ export class RegistrationCustomerComponent {
     ).subscribe({
       next: () => {
         this.notificationService.showSuccess('Cadastro realizado com sucesso! Bem-vindo(a)!');
-        this.router.navigate(['/onboarding']); // Redireciona para o onboarding para cadastrar o pet.
+        this.router.navigate(['/customer/onboarding']); // Redireciona para o onboarding para cadastrar o pet.
       },
       error: (err: HttpErrorResponse) => {
         // Trata erros de validação (422) retornados pelo backend.

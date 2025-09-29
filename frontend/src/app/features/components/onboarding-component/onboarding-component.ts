@@ -49,6 +49,6 @@ export class OnboardingComponent implements OnInit {
 
   /** Navega o usuário para a página de cadastro de pets. */
   goToPetRegistration(): void {
-    this.router.navigate(['/pets/cadastrar']);
+    this.router.navigate(['/customer/pets/cadastrar']);
   }
 }
